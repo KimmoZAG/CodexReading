@@ -7,7 +7,7 @@
 `cli/src/main.rs` 顶部一大片 import 都来自 config：
 
 ```rust
-// cli/src/main.rs:74
+// cli/src/main.rs:76
 use codex_core::config::Config;
 use codex_core::config::ConfigBuilder;
 use codex_core::config::ConfigLoadOptions;

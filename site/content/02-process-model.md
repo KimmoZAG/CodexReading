@@ -16,7 +16,7 @@ struct MultitoolCli {
     #[clap(subcommand)] subcommand: Option<Subcommand>,
 }
 
-// cli/src/main.rs:132
+// cli/src/main.rs:133
 enum Subcommand {
     Agents(AgentsCommand),     // 浏览共享 app-server 上的所有会话
     Exec(ExecCli),             // 非交互式跑一次任务

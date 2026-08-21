@@ -9,16 +9,16 @@
 你在工具代码里能直接看到这种分层。比如 `apply_patch` handler 落盘前，会去算"有效的文件系统策略"：
 
 ```rust
-// 来自 core/src/tools/handlers/apply_patch.rs 的 import
-use codex_sandboxing::policy_transforms::effective_file_system_sandbox_policy;
-use codex_sandboxing::policy_transforms::merge_permission_profiles;
-use codex_sandboxing::policy_transforms::normalize_additional_permissions;
+// core/src/tools/handlers/apply_patch.rs:50 引入沙箱策略变换（调用点在同文件 :306）
+use codex_sandboxing::policy_transforms::effective_file_system_sandbox_policy; // 定义于 sandboxing/src/policy_transforms.rs:477
+use codex_sandboxing::policy_transforms::merge_permission_profiles;            // 定义于 sandboxing/src/policy_transforms.rs:90
+use codex_sandboxing::policy_transforms::normalize_additional_permissions;     // 定义于 sandboxing/src/policy_transforms.rs:19
 ```
 
 - `effective_file_system_sandbox_policy`：把"用户配置 + 本次会话临时授予的权限 + 工具自身需要的权限"合并成一份最终策略。
 - `merge_permission_profiles` / `normalize_additional_permissions`：处理"用户 @ 授权了某目录""插件声明了自己要碰的路径"这类叠加情况。
 
-策略对象（在 `codex-protocol` 里）长这样：`FileSystemPermissions`、`AdditionalPermissionProfile`——都是"描述性"的，不关心 Linux 还是 macOS。
+策略对象（在 `codex-protocol` 里）长这样：`FileSystemPermissions`（`protocol/src/models.rs:82`）、`AdditionalPermissionProfile`（`protocol/src/models.rs:250`）——都是"描述性"的，不关心 Linux 还是 macOS。
 
 ## 6.2 平台后端：各 OS 各显神通
 

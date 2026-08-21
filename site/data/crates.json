@@ -128,6 +128,7 @@
   {
     "name": "codex-app-server",
     "path": "app-server",
+    "core": true,
     "desc": "",
     "src_top": [
       "analytics_utils.rs",
@@ -276,6 +277,7 @@
   {
     "name": "codex-cli",
     "path": "cli",
+    "core": true,
     "desc": "",
     "src_top": [
       "app_cmd.rs",
@@ -451,6 +453,7 @@
   {
     "name": "codex-client",
     "path": "codex-client",
+    "core": true,
     "desc": "",
     "src_top": [
       "lib.rs",
@@ -525,6 +528,7 @@
   {
     "name": "codex-config",
     "path": "config",
+    "core": true,
     "desc": "",
     "src_top": [
       "auth_policy.rs",
@@ -692,6 +696,7 @@
   {
     "name": "codex-core",
     "path": "core",
+    "core": true,
     "desc": "Root of the `codex-core` library.",
     "src_top": [
       "agent",
@@ -860,6 +865,7 @@
   {
     "name": "codex-exec-server",
     "path": "exec-server",
+    "core": true,
     "desc": "",
     "src_top": [
       "arg0_exec_helper.rs",
@@ -960,6 +966,7 @@
   {
     "name": "codex-execpolicy",
     "path": "execpolicy",
+    "core": true,
     "desc": "",
     "src_top": [
       "amend.rs",
@@ -1651,6 +1658,7 @@
   {
     "name": "codex-protocol",
     "path": "protocol",
+    "core": true,
     "desc": "",
     "src_top": [
       "account.rs",
@@ -1824,6 +1832,7 @@
   {
     "name": "codex-sandboxing",
     "path": "sandboxing",
+    "core": true,
     "desc": "",
     "src_top": [
       "bwrap.rs",
@@ -2018,6 +2027,7 @@
   {
     "name": "codex-tui",
     "path": "tui",
+    "core": true,
     "desc": "",
     "src_top": [
       "additional_dirs.rs",

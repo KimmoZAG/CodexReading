@@ -13,7 +13,7 @@
 事件循环本体是 `App::run`（`tui/src/app/startup.rs:59`）末尾的 `loop`（`tui/src/app/startup.rs:653`）。它用 tokio 的 `select!`（`tui/src/app/startup.rs:662`）把四个来源并发收口，哪个先到就处理哪个：
 
 1. `app_event_rx.recv()`（`tui/src/app/startup.rs:663`）——app 内部事件，如 `InsertHistoryCell`、`StartupThreadStarted`。
-2. `active_thread_rx.recv()`（`tui/src/app/startup.rs:687`）——当前线程缓冲好的 `ThreadBufferedEvent`，交给 `handle_active_thread_event`（`tui/src/app/thread_routing.rs:1729`）。
+2. `active_thread_rx.recv()`（`tui/src/app/startup.rs:689`）——当前线程缓冲好的 `ThreadBufferedEvent`，交给 `handle_active_thread_event`（`tui/src/app/thread_routing.rs:1729`）。
 3. `tui_events.next()`（`tui/src/app/startup.rs:706`）——crossterm 的终端事件（按键、粘贴、resize），交给 `handle_tui_event`（`tui/src/app.rs:737`）。
 4. `app_server.next_event()`（`tui/src/app/startup.rs:736`）——来自 app-server 的 `ServerNotification`。
 

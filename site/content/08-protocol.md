@@ -26,7 +26,7 @@ codex-app-server-transport/
     outgoing_message.rs
 ```
 
-`cli/src/main.rs` 里 import 的 `codex_app_server_daemon` 那几个类型（`BootstrapOptions`、`LifecycleCommand`、`RemoteControlMode`）说明：app-server 既可以随 CLI 临时起来，也能作为一个**独立 daemon** 常驻，供 `codex agents`（浏览所有会话）、`codex remote-control`（远程控制）这类子命令接入。
+`cli/src/main.rs` 里 import 的 `codex_app_server_daemon` 那几个类型——`BootstrapOptions`（`cli/src/main.rs:6`）、`LifecycleCommand`（`cli/src/main.rs:7`）、`RemoteControlMode`（`cli/src/main.rs:8`）——说明：app-server 既可以随 CLI 临时起来，也能作为一个**独立 daemon** 常驻，供 `codex agents`（浏览所有会话）、`codex remote-control`（远程控制）这类子命令接入。
 
 ## 8.3 IDE 集成就走这条线
 

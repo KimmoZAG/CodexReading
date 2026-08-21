@@ -601,7 +601,7 @@ async function showRepo() {
       .map(
         (c) => `
       <div class="crate-card">
-        <a href="${GH_BASE}${c.path}" target="_blank" rel="noopener">${c.name} ↗</a>
+        <a href="${GH_BASE}${c.path}" target="_blank" rel="noopener">${c.name} ↗</a>${c.core ? ' <span class="core-badge">核心</span>' : ""}
         <div class="path">${c.path}</div>
         <div class="desc">${c.desc || "<em>无描述</em>"}</div>
       </div>`

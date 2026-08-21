@@ -14,7 +14,7 @@
 `cli/src/main.rs` 里直接 import 了它的几个对外类型，能看出它的对外形状：
 
 ```rust
-// cli/src/main.rs:31
+// cli/src/main.rs:31-34
 use codex_tui::AppExitInfo;
 use codex_tui::Cli as TuiCli;
 use codex_tui::ExitReason;
@@ -30,6 +30,7 @@ use codex_tui::UpdateAction;
 回头看第 3 章那个 `EventMsg` 枚举：
 
 ```rust
+// EventMsg 定义于 protocol/src/protocol.rs:1288（对端的 Op 在 protocol/src/protocol.rs:543）
 pub enum EventMsg {
     TurnStarted,
     AgentMessage(AgentMessage),

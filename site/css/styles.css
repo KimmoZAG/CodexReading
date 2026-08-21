@@ -646,6 +646,26 @@ html[data-theme="dark"] .level-badge.intermediate { color: #a9adf7; background: 
 html[data-theme="dark"] .level-badge.advanced     { color: #f3b673; background: #33240f; border-color: #4d3717; }
 html[data-theme="dark"] .level-badge.reference    { color: #aab2c0; background: #1c2029; border-color: #2c323c; }
 
+/* ---------- 仓库地图「核心」徽标 ----------
+   紧跟在 crate 名称链接之后，accent 色小圆角徽标，与难度徽标风格协调；深浅色都可读。 */
+.core-badge {
+  display: inline-flex; align-items: center; justify-content: center;
+  flex: none;
+  font-family: var(--sans);
+  font-size: 11px; line-height: 1; font-weight: 600;
+  padding: 3px 7px; border-radius: 999px;
+  white-space: nowrap;
+  vertical-align: middle;
+  color: var(--accent);
+  background: var(--accent-soft);
+  border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent);
+}
+html[data-theme="dark"] .core-badge {
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 22%, transparent);
+  border-color: color-mix(in srgb, var(--accent) 45%, transparent);
+}
+
 /* 章节标题下方的难度徽标（showChapter 时插入）；同时承载「复制链接」按钮，同行为一行 */
 .chapter-level {
   display: flex;
