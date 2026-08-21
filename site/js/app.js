@@ -622,6 +622,20 @@ const sidebarEl = document.getElementById("sidebar");
 const sidebarOverlay = document.getElementById("sidebar-overlay");
 const menuToggle = document.getElementById("menu-toggle");
 
+// 窄屏抽屉收起时，侧边栏虽被 translateX 移出视口，但链接仍在 Tab 序里，
+// 键盘用户会「Tab 进看不见的菜单」。用 inert 把收起态抽屉整体移出焦点序与无障碍树；
+// 若焦点此刻正在抽屉内（例如点了章节链接导致收起），先把焦点还给汉堡按钮，避免焦点丢失。
+function syncSidebarInert(open) {
+  if (!sidebarEl) return;
+  const narrow = window.matchMedia("(max-width: 860px)").matches;
+  if (narrow && !open) {
+    if (sidebarEl.contains(document.activeElement) && menuToggle) menuToggle.focus();
+    sidebarEl.setAttribute("inert", "");
+  } else {
+    sidebarEl.removeAttribute("inert");
+  }
+}
+
 function setSidebarOpen(open) {
   if (!sidebarEl) return;
   sidebarEl.classList.toggle("open", open);
@@ -633,6 +647,7 @@ function setSidebarOpen(open) {
     menuToggle.setAttribute("aria-expanded", open ? "true" : "false");
     menuToggle.setAttribute("aria-label", open ? "关闭章节菜单" : "打开章节菜单");
   }
+  syncSidebarInert(open);
 }
 
 function closeSidebar() { setSidebarOpen(false); }
@@ -645,16 +660,23 @@ function closeSidebar() { setSidebarOpen(false); }
   const toc = document.getElementById("toc");
   if (toc) toc.addEventListener("click", (e) => { if (e.target.closest("a")) closeSidebar(); });
   window.addEventListener("keydown", (e) => { if (e.key === "Escape") closeSidebar(); });
-  // 窄屏拉宽回桌面时清掉抽屉状态，避免遮罩残留
+  // 窄屏拉宽回桌面时清掉抽屉状态，避免遮罩残留；窄屏内则同步 inert
   window.addEventListener("resize", () => {
     if (!window.matchMedia("(max-width: 860px)").matches) closeSidebar();
+    else syncSidebarInert(sidebarEl.classList.contains("open"));
   });
+  syncSidebarInert(false);              // 初始为收起态
 })();
 
 // ---------- 路由 ----------
+// aria-current="page" 让屏幕阅读器在当前章节链接上播报「当前页」，
+// 而不只依赖 .active 的视觉高亮。
 function setActive(id) {
   document.querySelectorAll("#toc a").forEach((a) => {
-    a.classList.toggle("active", a.dataset.id === id);
+    const on = a.dataset.id === id;
+    a.classList.toggle("active", on);
+    if (on) a.setAttribute("aria-current", "page");
+    else a.removeAttribute("aria-current");
   });
 }
 
