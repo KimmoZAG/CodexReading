@@ -1,0 +1,2501 @@
+[
+  {
+    "name": "codex-rs",
+    "path": ".",
+    "desc": "",
+    "src_top": []
+  },
+  {
+    "name": "codex-agent-graph-store",
+    "path": "agent-graph-store",
+    "desc": "Storage-neutral parent/child topology for thread-spawned agents.",
+    "src_top": [
+      "error.rs",
+      "lib.rs",
+      "local.rs",
+      "store.rs",
+      "types.rs"
+    ]
+  },
+  {
+    "name": "codex-agent-identity",
+    "path": "agent-identity",
+    "desc": "",
+    "src_top": [
+      "lib.rs"
+    ]
+  },
+  {
+    "name": "codex-analytics",
+    "path": "analytics",
+    "desc": "",
+    "src_top": [
+      "accepted_lines.rs",
+      "analytics_capture.rs",
+      "analytics_client_tests.rs",
+      "client.rs",
+      "client_tests.rs",
+      "events.rs",
+      "facts.rs",
+      "lib.rs",
+      "reducer.rs"
+    ]
+  },
+  {
+    "name": "codex-ansi-escape",
+    "path": "ansi-escape",
+    "desc": "",
+    "src_top": [
+      "lib.rs"
+    ]
+  },
+  {
+    "name": "codex-app-server-client",
+    "path": "app-server-client",
+    "desc": "Shared in-process app-server client facade for CLI surfaces. This crate wraps [`codex_app_server::in_process`] behind...",
+    "src_top": [
+      "lib.rs",
+      "path.rs",
+      "remote.rs"
+    ]
+  },
+  {
+    "name": "codex-app-server-daemon",
+    "path": "app-server-daemon",
+    "desc": "",
+    "src_top": [
+      "backend",
+      "client.rs",
+      "lib.rs",
+      "managed_install.rs",
+      "managed_install_tests.rs",
+      "remote_control_client.rs",
+      "settings.rs",
+      "update_loop.rs",
+      "update_loop_tests.rs"
+    ]
+  },
+  {
+    "name": "codex-app-server-protocol-noop-macros",
+    "path": "app-server-protocol-noop-macros",
+    "desc": "No-op schema derives for production app-server protocol builds. The real `ts-rs` and `schemars` derives are only need...",
+    "src_top": [
+      "lib.rs"
+    ]
+  },
+  {
+    "name": "codex-app-server-protocol",
+    "path": "app-server-protocol",
+    "desc": "",
+    "src_top": [
+      "experimental_api.rs",
+      "export.rs",
+      "lib.rs",
+      "precomputed_exports.rs",
+      "precomputed_exports_tests.rs",
+      "protocol",
+      "rpc.rs",
+      "schema_fixtures.rs",
+      "schema_fixtures_tests.rs"
+    ]
+  },
+  {
+    "name": "codex-app-server-test-client",
+    "path": "app-server-test-client",
+    "desc": "",
+    "src_top": [
+      "lib.rs",
+      "loopback_responses_server.rs",
+      "main.rs",
+      "plugin_analytics_capture.rs",
+      "plugin_analytics_capture_tests.rs",
+      "plugin_analytics_mutation_smoke.rs",
+      "plugin_analytics_smoke.rs",
+      "request_user_input.rs",
+      "request_user_input_tests.rs"
+    ]
+  },
+  {
+    "name": "codex-app-server-transport",
+    "path": "app-server-transport",
+    "desc": "",
+    "src_top": [
+      "lib.rs",
+      "outgoing_message.rs",
+      "transport"
+    ]
+  },
+  {
+    "name": "codex-app-server",
+    "path": "app-server",
+    "desc": "",
+    "src_top": [
+      "analytics_utils.rs",
+      "app_info.rs",
+      "app_server_tracing.rs",
+      "attestation.rs",
+      "auth_mode.rs",
+      "bespoke_event_handling.rs",
+      "bin",
+      "code_mode_host.rs",
+      "code_mode_host_tests.rs",
+      "command_exec.rs",
+      "config_layer.rs",
+      "config_manager.rs",
+      "config_manager_service.rs",
+      "config_manager_service_tests.rs",
+      "connection_cleanup.rs",
+      "connection_rpc_gate.rs",
+      "current_time.rs",
+      "dynamic_tools.rs",
+      "effective_plugin_change.rs",
+      "effective_plugin_change_tests.rs",
+      "error_code.rs",
+      "extensions.rs",
+      "external_agent_migration",
+      "external_auth.rs",
+      "filters.rs",
+      "fs_watch.rs",
+      "fuzzy_file_search.rs",
+      "image_url.rs",
+      "in_process.rs",
+      "lib.rs",
+      "main.rs",
+      "main_tests.rs",
+      "mcp_refresh.rs",
+      "message_processor.rs",
+      "message_processor_tracing_tests.rs",
+      "models.rs",
+      "models_refresh_worker.rs",
+      "models_refresh_worker_tests.rs",
+      "otel_reloader.rs",
+      "outgoing_message.rs",
+      "request_processors",
+      "request_processors.rs",
+      "request_serialization.rs",
+      "server_request_error.rs",
+      "skills_watcher.rs",
+      "thread_state.rs",
+      "thread_status.rs",
+      "transport.rs",
+      "transport_tests.rs",
+      "turn_cost_worker.rs",
+      "turn_cost_worker_tests.rs"
+    ]
+  },
+  {
+    "name": "app_test_support",
+    "path": "app-server/tests/common",
+    "desc": "",
+    "src_top": []
+  },
+  {
+    "name": "codex-apply-patch",
+    "path": "apply-patch",
+    "desc": "",
+    "src_top": [
+      "file_update.rs",
+      "file_update_tests.rs",
+      "invocation.rs",
+      "lib.rs",
+      "main.rs",
+      "parser.rs",
+      "seek_sequence.rs",
+      "standalone_executable.rs",
+      "streaming_parser.rs",
+      "text_file.rs"
+    ]
+  },
+  {
+    "name": "codex-arg0",
+    "path": "arg0",
+    "desc": "",
+    "src_top": [
+      "lib.rs"
+    ]
+  },
+  {
+    "name": "codex-async-utils",
+    "path": "async-utils",
+    "desc": "",
+    "src_top": [
+      "lib.rs"
+    ]
+  },
+  {
+    "name": "codex-aws-auth",
+    "path": "aws-auth",
+    "desc": "",
+    "src_top": [
+      "config.rs",
+      "lib.rs",
+      "signing.rs"
+    ]
+  },
+  {
+    "name": "codex-backend-client",
+    "path": "backend-client",
+    "desc": "",
+    "src_top": [
+      "client",
+      "client.rs",
+      "client_request_tests.rs",
+      "lib.rs",
+      "types.rs"
+    ]
+  },
+  {
+    "name": "codex-build-info",
+    "path": "build-info",
+    "desc": "Resolve the release identity of the current Codex runtime.",
+    "src_top": [
+      "build_info_tests.rs",
+      "lib.rs"
+    ]
+  },
+  {
+    "name": "codex-bwrap",
+    "path": "bwrap",
+    "desc": "",
+    "src_top": [
+      "main.rs"
+    ]
+  },
+  {
+    "name": "codex-chatgpt",
+    "path": "chatgpt",
+    "desc": "",
+    "src_top": [
+      "apply_command.rs",
+      "chatgpt_client.rs",
+      "connectors.rs",
+      "get_task.rs",
+      "lib.rs"
+    ]
+  },
+  {
+    "name": "codex-cli",
+    "path": "cli",
+    "desc": "",
+    "src_top": [
+      "app_cmd.rs",
+      "bin",
+      "cloud_config.rs",
+      "debug_sandbox",
+      "debug_sandbox.rs",
+      "desktop_app",
+      "doctor",
+      "doctor.rs",
+      "exec_server_telemetry.rs",
+      "exec_server_telemetry_tests.rs",
+      "exit_status.rs",
+      "lib.rs",
+      "login.rs",
+      "main.rs",
+      "marketplace_cmd.rs",
+      "mcp_cmd.rs",
+      "migrate_rollouts.rs",
+      "plugin_cmd.rs",
+      "queue_cmd.rs",
+      "remote_control_cmd.rs",
+      "sandbox_setup.rs",
+      "state_db_recovery.rs",
+      "wsl_paths.rs"
+    ]
+  },
+  {
+    "name": "codex-cloud-config",
+    "path": "cloud-config",
+    "desc": "Cloud-hosted configuration data for Codex. This crate owns transport, caching, and refresh behavior for cloud-deliver...",
+    "src_top": [
+      "backend.rs",
+      "bundle_loader.rs",
+      "cache.rs",
+      "cache_tests.rs",
+      "lib.rs",
+      "metrics.rs",
+      "service.rs",
+      "service_tests.rs",
+      "validation.rs"
+    ]
+  },
+  {
+    "name": "codex-cloud-tasks-client",
+    "path": "cloud-tasks-client",
+    "desc": "",
+    "src_top": [
+      "api.rs",
+      "http.rs",
+      "lib.rs"
+    ]
+  },
+  {
+    "name": "codex-cloud-tasks-mock-client",
+    "path": "cloud-tasks-mock-client",
+    "desc": "",
+    "src_top": [
+      "lib.rs",
+      "mock.rs"
+    ]
+  },
+  {
+    "name": "codex-cloud-tasks",
+    "path": "cloud-tasks",
+    "desc": "",
+    "src_top": [
+      "app.rs",
+      "cli.rs",
+      "env_detect.rs",
+      "env_detect_tests.rs",
+      "lib.rs",
+      "new_task.rs",
+      "scrollable_diff.rs",
+      "scrollable_diff_tests.rs",
+      "ui.rs",
+      "util.rs"
+    ]
+  },
+  {
+    "name": "codex-code-mode-host",
+    "path": "code-mode-host",
+    "desc": "",
+    "src_top": [
+      "delegate.rs",
+      "grpc",
+      "grpc_transport.rs",
+      "host_tests.rs",
+      "lib.rs",
+      "main.rs",
+      "peer.rs",
+      "peer_tests.rs",
+      "transport.rs",
+      "transport_tests.rs"
+    ]
+  },
+  {
+    "name": "codex-code-mode-protocol",
+    "path": "code-mode-protocol",
+    "desc": "",
+    "src_top": [
+      "description.rs",
+      "grpc",
+      "host",
+      "json_schema_types.rs",
+      "json_schema_types_tests.rs",
+      "lib.rs",
+      "response.rs",
+      "runtime.rs",
+      "session.rs",
+      "session_tests.rs"
+    ]
+  },
+  {
+    "name": "codex-code-mode-runtime",
+    "path": "code-mode-runtime",
+    "desc": "",
+    "src_top": [
+      "cell_actor",
+      "lib.rs",
+      "runtime",
+      "service.rs",
+      "service_contract_tests.rs",
+      "service_tests.rs",
+      "session_runtime",
+      "v8_init.rs"
+    ]
+  },
+  {
+    "name": "codex-code-mode",
+    "path": "code-mode",
+    "desc": "",
+    "src_top": [
+      "grpc_session",
+      "lib.rs",
+      "remote_session",
+      "remote_session.rs",
+      "remote_session_tests.rs"
+    ]
+  },
+  {
+    "name": "codex-api",
+    "path": "codex-api",
+    "desc": "",
+    "src_top": [
+      "api_bridge.rs",
+      "api_bridge_tests.rs",
+      "auth.rs",
+      "common.rs",
+      "endpoint",
+      "error.rs",
+      "files.rs",
+      "images.rs",
+      "lib.rs",
+      "provider.rs",
+      "rate_limits.rs",
+      "requests",
+      "safety_buffering.rs",
+      "search.rs",
+      "sse",
+      "telemetry.rs"
+    ]
+  },
+  {
+    "name": "codex-backend-openapi-models",
+    "path": "codex-backend-openapi-models",
+    "desc": "",
+    "src_top": [
+      "lib.rs",
+      "models"
+    ]
+  },
+  {
+    "name": "codex-client",
+    "path": "codex-client",
+    "desc": "",
+    "src_top": [
+      "lib.rs",
+      "retry.rs",
+      "sse.rs",
+      "telemetry.rs"
+    ]
+  },
+  {
+    "name": "codex-experimental-api-macros",
+    "path": "codex-experimental-api-macros",
+    "desc": "",
+    "src_top": [
+      "lib.rs"
+    ]
+  },
+  {
+    "name": "codex-home",
+    "path": "codex-home",
+    "desc": "",
+    "src_top": [
+      "instructions",
+      "lib.rs"
+    ]
+  },
+  {
+    "name": "codex-mcp",
+    "path": "codex-mcp",
+    "desc": "",
+    "src_top": [
+      "agent_plugin_config.rs",
+      "auth_elicitation.rs",
+      "binding.rs",
+      "binding_clients.rs",
+      "binding_tests.rs",
+      "catalog.rs",
+      "catalog_tests.rs",
+      "client_capabilities.rs",
+      "client_capabilities_tests.rs",
+      "codex_apps",
+      "codex_apps.rs",
+      "connection_manager",
+      "connection_manager.rs",
+      "connection_manager_tests.rs",
+      "elicitation.rs",
+      "elicitation_tests.rs",
+      "lib.rs",
+      "mcp",
+      "openai_docs_source_attribution.rs",
+      "openai_docs_source_attribution_tests.rs",
+      "pagination.rs",
+      "pagination_tests.rs",
+      "plugin_config.rs",
+      "plugin_config_tests.rs",
+      "resource_client.rs",
+      "resource_origin.rs",
+      "rmcp_client.rs",
+      "runtime.rs",
+      "server.rs",
+      "tool_catalog_cache.rs",
+      "tools.rs"
+    ]
+  },
+  {
+    "name": "codex-collaboration-mode-templates",
+    "path": "collaboration-mode-templates",
+    "desc": "",
+    "src_top": [
+      "lib.rs"
+    ]
+  },
+  {
+    "name": "codex-config",
+    "path": "config",
+    "desc": "",
+    "src_top": [
+      "auth_policy.rs",
+      "bedrock_runtime_tests.rs",
+      "cloud_config_bundle.rs",
+      "cloud_config_bundle_tests.rs",
+      "cloud_config_layers.rs",
+      "cloud_config_layers_tests.rs",
+      "config_layer_source.rs",
+      "config_requirements.rs",
+      "config_toml.rs",
+      "constraint.rs",
+      "diagnostics.rs",
+      "fingerprint.rs",
+      "hook_config.rs",
+      "hooks_tests.rs",
+      "host_name.rs",
+      "in_app_browser_requirements.rs",
+      "in_app_browser_requirements_tests.rs",
+      "key_aliases.rs",
+      "lib.rs",
+      "loader",
+      "marketplace_edit.rs",
+      "mcp_edit.rs",
+      "mcp_requirements.rs",
+      "mcp_requirements_tests.rs",
+      "mcp_types.rs",
+      "mcp_types_tests.rs",
+      "merge.rs",
+      "merge_tests.rs",
+      "overrides.rs",
+      "permissions_toml.rs",
+      "plugin_edit.rs",
+      "profile_toml.rs",
+      "project_root_markers.rs",
+      "requirements_exec_policy.rs",
+      "requirements_layers",
+      "schema.rs",
+      "shell_environment_policy.rs",
+      "shell_environment_policy_tests.rs",
+      "skills_config.rs",
+      "skills_config_tests.rs",
+      "state.rs",
+      "state_tests.rs",
+      "strict_config.rs",
+      "strict_config_tests.rs",
+      "test_support.rs",
+      "test_support_tests.rs",
+      "thread_config",
+      "thread_config.rs",
+      "tui_keymap.rs",
+      "tui_keymap_chord_tests.rs",
+      "types.rs",
+      "types_tests.rs"
+    ]
+  },
+  {
+    "name": "codex-connectors",
+    "path": "connectors",
+    "desc": "",
+    "src_top": [
+      "accessible.rs",
+      "app_info.rs",
+      "app_tool_policy.rs",
+      "app_tool_policy_tests.rs",
+      "connector_runtime",
+      "directory_cache.rs",
+      "filter.rs",
+      "lib.rs",
+      "merge.rs",
+      "metadata.rs",
+      "metadata_store.rs",
+      "metadata_store_tests.rs",
+      "plugin_config.rs",
+      "plugin_config_tests.rs",
+      "runtime_projection.rs",
+      "runtime_projection_tests.rs",
+      "snapshot.rs",
+      "snapshot_tests.rs"
+    ]
+  },
+  {
+    "name": "codex-context-fragments",
+    "path": "context-fragments",
+    "desc": "",
+    "src_top": [
+      "additional_context.rs",
+      "fragment.rs",
+      "lib.rs"
+    ]
+  },
+  {
+    "name": "codex-core-api",
+    "path": "core-api",
+    "desc": "Public facade for thread management APIs built on `codex-core`.",
+    "src_top": [
+      "lib.rs"
+    ]
+  },
+  {
+    "name": "codex-core-plugins",
+    "path": "core-plugins",
+    "desc": "",
+    "src_top": [
+      "agent_plugin_manifest.rs",
+      "agent_plugin_manifest_tests.rs",
+      "app_mcp_routing.rs",
+      "app_mcp_routing_tests.rs",
+      "artifact_operation.rs",
+      "artifact_operation_tests.rs",
+      "command_migration",
+      "command_migration.rs",
+      "command_migration_tests.rs",
+      "discoverable.rs",
+      "discoverable_tests.rs",
+      "error_subtype.rs",
+      "git_policy.rs",
+      "http_client_selector.rs",
+      "installed_marketplaces.rs",
+      "lib.rs",
+      "loader.rs",
+      "loader_tests.rs",
+      "manager.rs",
+      "manager_tests.rs",
+      "manifest.rs",
+      "marketplace.rs",
+      "marketplace_add",
+      "marketplace_add.rs",
+      "marketplace_policy.rs",
+      "marketplace_policy_tests.rs",
+      "marketplace_remove.rs",
+      "marketplace_tests.rs",
+      "marketplace_upgrade",
+      "marketplace_upgrade.rs",
+      "marketplace_upgrade_tests.rs",
+      "npm_source.rs",
+      "npm_source_tests.rs",
+      "plugin_bundle_archive.rs",
+      "plugin_bundle_archive_tests.rs",
+      "plugin_metrics.rs",
+      "plugin_metrics_sidecar.rs",
+      "plugin_metrics_sidecar_tests.rs",
+      "provider.rs",
+      "provider_tests.rs",
+      "recommended_plugin_install.rs",
+      "remote",
+      "remote.rs",
+      "remote_bundle.rs",
+      "remote_legacy.rs",
+      "remote_plugin_id_resolver.rs",
+      "remote_tests.rs",
+      "script_attribution.rs",
+      "script_attribution_tests.rs",
+      "skill_snapshots.rs",
+      "startup_sync",
+      "startup_sync.rs",
+      "startup_sync_tests.rs",
+      "store.rs",
+      "store_tests.rs",
+      "test_support.rs",
+      "toggles.rs",
+      "tool_suggest_metadata.rs"
+    ]
+  },
+  {
+    "name": "codex-core",
+    "path": "core",
+    "desc": "Root of the `codex-core` library.",
+    "src_top": [
+      "agent",
+      "agent_communication.rs",
+      "agents_md.rs",
+      "agents_md_manager.rs",
+      "agents_md_tests.rs",
+      "apply_patch.rs",
+      "apply_patch_tests.rs",
+      "apps",
+      "attestation.rs",
+      "bin",
+      "client.rs",
+      "client_common.rs",
+      "client_common_tests.rs",
+      "client_tests.rs",
+      "codex_delegate.rs",
+      "codex_delegate_tests.rs",
+      "codex_thread.rs",
+      "command_canonicalization.rs",
+      "command_canonicalization_tests.rs",
+      "compact.rs",
+      "compact_model_fallback.rs",
+      "compact_remote.rs",
+      "compact_remote_history.rs",
+      "compact_remote_metadata_tests.rs",
+      "compact_remote_request.rs",
+      "compact_remote_v2.rs",
+      "compact_remote_v2_attempt.rs",
+      "compact_tests.rs",
+      "compact_token_budget.rs",
+      "config",
+      "connectors.rs",
+      "connectors_tests.rs",
+      "consequential_tool_message_templates.json",
+      "context",
+      "context_manager",
+      "current_time.rs",
+      "elicitation.rs",
+      "elicitation_tests.rs",
+      "environment_selection.rs",
+      "event_mapping.rs",
+      "event_mapping_tests.rs",
+      "exec.rs",
+      "exec_env.rs",
+      "exec_env_tests.rs",
+      "exec_policy",
+      "exec_policy.rs",
+      "exec_policy_tests.rs",
+      "exec_policy_windows_tests.rs",
+      "exec_tests.rs",
+      "function_tool.rs",
+      "git_info_tests.rs",
+      "guardian",
+      "hook_mcp_executor.rs",
+      "hook_runtime.rs",
+      "image_preparation.rs",
+      "image_preparation_tests.rs",
+      "installation_id.rs",
+      "lib.rs",
+      "mcp.rs",
+      "mcp_openai_file.rs",
+      "mcp_skill_dependencies.rs",
+      "mcp_tool_approval_templates.rs",
+      "mcp_tool_call",
+      "mcp_tool_call.rs",
+      "mcp_tool_call_tests.rs",
+      "mcp_tool_exposure.rs",
+      "mcp_tool_exposure_test.rs",
+      "memory_usage.rs",
+      "mention_syntax.rs",
+      "network_policy_decision.rs",
+      "network_policy_decision_tests.rs",
+      "original_image_detail.rs",
+      "otel_init.rs",
+      "plugins",
+      "prompt_debug.rs",
+      "realtime_context.rs",
+      "realtime_context_tests.rs",
+      "realtime_conversation",
+      "realtime_conversation.rs",
+      "realtime_conversation_tests.rs",
+      "realtime_prompt.rs",
+      "responses_metadata.rs",
+      "responses_retry.rs",
+      "responses_retry_tests.rs",
+      "rollout.rs",
+      "rollout_budget.rs",
+      "safety.rs",
+      "safety_tests.rs",
+      "sandbox_tags.rs",
+      "sandbox_tags_tests.rs",
+      "sandboxing",
+      "session",
+      "session_prefix.rs",
+      "session_prefix_tests.rs",
+      "session_rollout_init_error.rs",
+      "session_startup_prewarm.rs",
+      "shell.rs",
+      "shell_snapshot.rs",
+      "shell_snapshot_tests.rs",
+      "shell_tests.rs",
+      "skills.rs",
+      "spawn.rs",
+      "state",
+      "state_db_bridge.rs",
+      "stream_events_utils.rs",
+      "stream_events_utils_tests.rs",
+      "tasks",
+      "test_support.rs",
+      "thread_manager.rs",
+      "thread_manager_tests.rs",
+      "thread_rollout_truncation.rs",
+      "thread_rollout_truncation_tests.rs",
+      "tools",
+      "turn_diff_tracker.rs",
+      "turn_diff_tracker_tests.rs",
+      "turn_metadata.rs",
+      "turn_metadata_tests.rs",
+      "turn_timing.rs",
+      "turn_timing_tests.rs",
+      "unified_exec",
+      "user_shell_command.rs",
+      "user_shell_command_tests.rs",
+      "util.rs",
+      "util_tests.rs",
+      "utils",
+      "web_search.rs",
+      "windows_sandbox.rs",
+      "windows_sandbox_read_grants.rs",
+      "windows_sandbox_read_grants_tests.rs",
+      "windows_sandbox_tests.rs",
+      "worktree_trust_tests.rs"
+    ]
+  },
+  {
+    "name": "core_test_support",
+    "path": "core/tests/common",
+    "desc": "",
+    "src_top": []
+  },
+  {
+    "name": "codex-diagnostics",
+    "path": "diagnostics",
+    "desc": "",
+    "src_top": [
+      "lib.rs",
+      "tests.rs"
+    ]
+  },
+  {
+    "name": "codex-exec-server-protocol",
+    "path": "exec-server-protocol",
+    "desc": "",
+    "src_top": [
+      "environment_config.rs",
+      "lib.rs",
+      "network_policy.rs",
+      "network_policy_tests.rs",
+      "process_id.rs",
+      "protocol.rs",
+      "rpc.rs",
+      "rpc_tests.rs"
+    ]
+  },
+  {
+    "name": "codex-exec-server",
+    "path": "exec-server",
+    "desc": "",
+    "src_top": [
+      "arg0_exec_helper.rs",
+      "capability_discovery.rs",
+      "capability_discovery_cache.rs",
+      "client",
+      "client.rs",
+      "client_api.rs",
+      "client_recovery.rs",
+      "client_recovery_tests.rs",
+      "client_transport.rs",
+      "client_transport_tests.rs",
+      "connection.rs",
+      "environment",
+      "environment.rs",
+      "environment_bootstrap.rs",
+      "environment_bootstrap_tests.rs",
+      "environment_config.rs",
+      "environment_provider.rs",
+      "environment_registry.rs",
+      "environment_registry_tests.rs",
+      "environment_toml.rs",
+      "file_read.rs",
+      "forward.rs",
+      "forward_tests.rs",
+      "fs_helper.rs",
+      "fs_helper_main.rs",
+      "fs_sandbox.rs",
+      "lib.rs",
+      "local_file_system.rs",
+      "local_file_system_path_uri_tests.rs",
+      "local_process.rs",
+      "network_policy_decisions.rs",
+      "network_policy_decisions_tests.rs",
+      "no_follow",
+      "noise_channel.rs",
+      "noise_channel_tests.rs",
+      "noise_relay",
+      "process.rs",
+      "process_sandbox.rs",
+      "process_sandbox_tests.rs",
+      "proto",
+      "regular_file.rs",
+      "regular_file_tests.rs",
+      "relay.rs",
+      "relay_noise_tests.rs",
+      "relay_proto.rs",
+      "remote",
+      "remote.rs",
+      "remote_file_stream.rs",
+      "remote_file_system.rs",
+      "remote_file_system_path_uri_tests.rs",
+      "remote_process.rs",
+      "resolved_capability.rs",
+      "rpc.rs",
+      "rpc_server_requests.rs",
+      "rpc_server_requests_tests.rs",
+      "runtime_paths.rs",
+      "sandboxed_file_open.rs",
+      "sandboxed_file_system.rs",
+      "sandboxed_file_system_path_uri_tests.rs",
+      "server",
+      "server.rs",
+      "shell_snapshot.rs",
+      "shell_snapshot_tests.rs",
+      "telemetry.rs",
+      "trace_context.rs",
+      "trace_context_tests.rs",
+      "websocket_pong_watchdog.rs",
+      "websocket_pong_watchdog_tests.rs"
+    ]
+  },
+  {
+    "name": "codex-exec-server-test-support",
+    "path": "exec-server/tests/support",
+    "desc": "",
+    "src_top": []
+  },
+  {
+    "name": "codex-exec",
+    "path": "exec",
+    "desc": "Entry-point for the `codex-exec` binary. When this CLI is invoked normally, it parses the standard `codex-exec` CLI o...",
+    "src_top": [
+      "cli.rs",
+      "cli_tests.rs",
+      "event_processor.rs",
+      "event_processor_with_human_output.rs",
+      "event_processor_with_human_output_tests.rs",
+      "event_processor_with_jsonl_output.rs",
+      "event_processor_with_jsonl_output_tests.rs",
+      "exec_events.rs",
+      "lib.rs",
+      "lib_tests.rs",
+      "main.rs",
+      "main_tests.rs"
+    ]
+  },
+  {
+    "name": "codex-execpolicy",
+    "path": "execpolicy",
+    "desc": "",
+    "src_top": [
+      "amend.rs",
+      "decision.rs",
+      "error.rs",
+      "execpolicycheck.rs",
+      "executable_name.rs",
+      "lib.rs",
+      "main.rs",
+      "parser.rs",
+      "policy.rs",
+      "rule.rs",
+      "sandbox_migration.rs",
+      "sandbox_migration_tests.rs"
+    ]
+  },
+  {
+    "name": "codex-agent-extension",
+    "path": "ext/agent",
+    "desc": "",
+    "src_top": [
+      "lib.rs"
+    ]
+  },
+  {
+    "name": "codex-connectors-extension",
+    "path": "ext/connectors",
+    "desc": "Executor-backed connector declaration loading.",
+    "src_top": [
+      "executor_plugin.rs",
+      "lib.rs"
+    ]
+  },
+  {
+    "name": "codex-extension-api",
+    "path": "ext/extension-api",
+    "desc": "",
+    "src_top": [
+      "capabilities",
+      "contributors",
+      "contributors.rs",
+      "lib.rs",
+      "registry.rs",
+      "state.rs",
+      "user_instructions.rs"
+    ]
+  },
+  {
+    "name": "codex-git-attribution",
+    "path": "ext/git-attribution",
+    "desc": "",
+    "src_top": [
+      "git_attribution_tests.rs",
+      "lib.rs",
+      "policy.rs",
+      "world_state.rs"
+    ]
+  },
+  {
+    "name": "codex-goal-extension",
+    "path": "ext/goal",
+    "desc": "Extension crate for the `/goal` feature.",
+    "src_top": [
+      "accounting.rs",
+      "analytics.rs",
+      "api.rs",
+      "events.rs",
+      "extension.rs",
+      "lib.rs",
+      "metrics.rs",
+      "runtime.rs",
+      "spec.rs",
+      "steering.rs",
+      "tool.rs"
+    ]
+  },
+  {
+    "name": "codex-guardian-v2",
+    "path": "ext/guardian-v2",
+    "desc": "",
+    "src_top": [
+      "async_scorer",
+      "lib.rs"
+    ]
+  },
+  {
+    "name": "codex-history-notes-extension",
+    "path": "ext/history-notes",
+    "desc": "",
+    "src_top": [
+      "backend.rs",
+      "backend_tests.rs",
+      "extension.rs",
+      "lib.rs",
+      "tools.rs",
+      "tools_tests.rs"
+    ]
+  },
+  {
+    "name": "codex-image-generation-extension",
+    "path": "ext/image-generation",
+    "desc": "",
+    "src_top": [
+      "artifact.rs",
+      "backend.rs",
+      "extension.rs",
+      "lib.rs",
+      "tests.rs",
+      "tool.rs"
+    ]
+  },
+  {
+    "name": "codex-extension-items",
+    "path": "ext/items",
+    "desc": "Typed display items owned by Codex extensions. This crate intentionally sits below `codex-protocol` so core can carry...",
+    "src_top": [
+      "image_generation.rs",
+      "lib.rs",
+      "sleep.rs",
+      "tests.rs",
+      "web_search.rs"
+    ]
+  },
+  {
+    "name": "codex-mcp-extension",
+    "path": "ext/mcp",
+    "desc": "",
+    "src_top": [
+      "executor_plugin",
+      "executor_plugin.rs",
+      "lib.rs",
+      "lib_tests.rs"
+    ]
+  },
+  {
+    "name": "codex-memories-extension",
+    "path": "ext/memories",
+    "desc": "",
+    "src_top": [
+      "backend.rs",
+      "extension.rs",
+      "lib.rs",
+      "local",
+      "local.rs",
+      "metrics.rs",
+      "prompts.rs",
+      "prompts_tests.rs",
+      "schema.rs",
+      "tests.rs",
+      "tools"
+    ]
+  },
+  {
+    "name": "codex-queue-extension",
+    "path": "ext/queue",
+    "desc": "Durable, storage-neutral user-message queue and idle dispatch.",
+    "src_top": [
+      "lib.rs",
+      "service.rs"
+    ]
+  },
+  {
+    "name": "codex-skills-extension",
+    "path": "ext/skills",
+    "desc": "",
+    "src_top": [
+      "aliases.rs",
+      "aliases_tests.rs",
+      "catalog.rs",
+      "catalog_prompt.rs",
+      "config.rs",
+      "dynamic_skill_selector",
+      "dynamic_skill_selector.rs",
+      "extension.rs",
+      "extension_tests.rs",
+      "fragments.rs",
+      "host_aliases.rs",
+      "host_outcome.rs",
+      "host_prompt.rs",
+      "host_roots.rs",
+      "host_roots_tests.rs",
+      "host_service.rs",
+      "host_service_tests.rs",
+      "host_snapshot.rs",
+      "invocation.rs",
+      "invocation_tests.rs",
+      "lib.rs",
+      "loader",
+      "provider",
+      "provider.rs",
+      "render.rs",
+      "render_observability.rs",
+      "render_observability_tests.rs",
+      "render_tests.rs",
+      "selection.rs",
+      "shadow_selection_experiment",
+      "sources.rs",
+      "state.rs",
+      "tools",
+      "warnings.rs",
+      "world_state.rs",
+      "world_state_catalogs.rs"
+    ]
+  },
+  {
+    "name": "codex-web-search-extension",
+    "path": "ext/web-search",
+    "desc": "",
+    "src_top": [
+      "extension.rs",
+      "history.rs",
+      "lib.rs",
+      "output.rs",
+      "schema.rs",
+      "tool.rs"
+    ]
+  },
+  {
+    "name": "codex-external-agent-migration",
+    "path": "external-agent-migration",
+    "desc": "Migration helpers for importing external-agent configuration into Codex.",
+    "src_top": [
+      "config_values.rs",
+      "detect",
+      "hooks_cla.rs",
+      "hooks_common.rs",
+      "hooks_cur.rs",
+      "hooks_cur_tests.rs",
+      "lib.rs",
+      "lib_tests.rs",
+      "mcp.rs",
+      "memory.rs",
+      "memory_import.rs",
+      "memory_import_tests.rs",
+      "memory_tests.rs",
+      "migration_source.rs",
+      "model.rs",
+      "plugins.rs",
+      "reporting.rs",
+      "rewrite.rs",
+      "rewrite_tests.rs",
+      "scope.rs",
+      "scope_tests.rs",
+      "service.rs",
+      "service_tests",
+      "service_tests.rs",
+      "sessions",
+      "source",
+      "source_cla.rs",
+      "source_cur.rs",
+      "source_cur_tests.rs",
+      "subagents.rs",
+      "utils.rs"
+    ]
+  },
+  {
+    "name": "codex-features",
+    "path": "features",
+    "desc": "Centralized feature flags and metadata. This crate defines the feature registry plus the logic used to resolve an eff...",
+    "src_top": [
+      "feature_configs.rs",
+      "legacy.rs",
+      "lib.rs",
+      "tests.rs"
+    ]
+  },
+  {
+    "name": "codex-feedback",
+    "path": "feedback",
+    "desc": "",
+    "src_top": [
+      "feedback_diagnostics.rs",
+      "lib.rs"
+    ]
+  },
+  {
+    "name": "codex-file-search",
+    "path": "file-search",
+    "desc": "",
+    "src_top": [
+      "cli.rs",
+      "lib.rs",
+      "main.rs"
+    ]
+  },
+  {
+    "name": "codex-file-system",
+    "path": "file-system",
+    "desc": "",
+    "src_top": [
+      "find_up.rs",
+      "lib.rs"
+    ]
+  },
+  {
+    "name": "codex-file-watcher",
+    "path": "file-watcher",
+    "desc": "Watches subscribed files or directories and routes coarse-grained change notifications to the subscribers that own ma...",
+    "src_top": [
+      "file_watcher_tests.rs",
+      "lib.rs"
+    ]
+  },
+  {
+    "name": "codex-git-utils",
+    "path": "git-utils",
+    "desc": "",
+    "src_top": [
+      "apply.rs",
+      "baseline.rs",
+      "branch.rs",
+      "errors.rs",
+      "fsmonitor.rs",
+      "fsmonitor_tests.rs",
+      "git_process.rs",
+      "git_process_tests.rs",
+      "info.rs",
+      "lib.rs",
+      "operations.rs",
+      "platform.rs",
+      "status.rs",
+      "status_tests.rs",
+      "trust.rs"
+    ]
+  },
+  {
+    "name": "codex-history",
+    "path": "history",
+    "desc": "Model-history and persisted-rollout domain types.",
+    "src_top": [
+      "lib.rs",
+      "rollout_payload.rs",
+      "tests.rs"
+    ]
+  },
+  {
+    "name": "codex-hooks",
+    "path": "hooks",
+    "desc": "",
+    "src_top": [
+      "bin",
+      "config_rules.rs",
+      "declarations.rs",
+      "engine",
+      "events",
+      "legacy_notify.rs",
+      "lib.rs",
+      "mcp.rs",
+      "output_spill.rs",
+      "output_spill_tests.rs",
+      "registry.rs",
+      "schema.rs",
+      "types.rs"
+    ]
+  },
+  {
+    "name": "codex-http-client",
+    "path": "http-client",
+    "desc": "",
+    "src_top": [
+      "bin",
+      "chatgpt_cloudflare_cookies.rs",
+      "chatgpt_hosts.rs",
+      "client.rs",
+      "client_builder.rs",
+      "client_builder_tests.rs",
+      "custom_ca.rs",
+      "error.rs",
+      "lib.rs",
+      "outbound_proxy",
+      "outbound_proxy.rs",
+      "outbound_proxy_redirect_coverage_tests.rs",
+      "outbound_proxy_tests.rs",
+      "request.rs",
+      "route_aware_client_pool.rs",
+      "route_aware_client_pool_tests.rs",
+      "route_aware_redirect.rs",
+      "route_aware_redirect_integration_tests.rs",
+      "route_aware_redirect_tests.rs",
+      "route_aware_tls_fallback_tests.rs",
+      "tls_backend_fallback.rs",
+      "tls_backend_fallback_tests.rs",
+      "transport.rs",
+      "transport_tests.rs"
+    ]
+  },
+  {
+    "name": "codex-install-context",
+    "path": "install-context",
+    "desc": "",
+    "src_top": [
+      "lib.rs"
+    ]
+  },
+  {
+    "name": "codex-keyring-store",
+    "path": "keyring-store",
+    "desc": "",
+    "src_top": [
+      "lib.rs"
+    ]
+  },
+  {
+    "name": "codex-linux-sandbox",
+    "path": "linux-sandbox",
+    "desc": "Linux sandbox helper entry point. On Linux, `codex-linux-sandbox` applies: - in-process restrictions (`no_new_privs`...",
+    "src_top": [
+      "bazel_bwrap.rs",
+      "bundled_bwrap.rs",
+      "bwrap.rs",
+      "exec_util.rs",
+      "fd_mount.rs",
+      "fd_mount_tests.rs",
+      "landlock.rs",
+      "launcher.rs",
+      "lib.rs",
+      "linux_run_main.rs",
+      "linux_run_main_tests.rs",
+      "main.rs",
+      "proxy_lifecycle.rs",
+      "proxy_lifecycle_tests.rs",
+      "proxy_routing.rs"
+    ]
+  },
+  {
+    "name": "codex-lmstudio",
+    "path": "lmstudio",
+    "desc": "",
+    "src_top": [
+      "client.rs",
+      "lib.rs"
+    ]
+  },
+  {
+    "name": "codex-login",
+    "path": "login",
+    "desc": "",
+    "src_top": [
+      "assets",
+      "auth",
+      "auth_env_telemetry.rs",
+      "callback_params.rs",
+      "callback_params_tests.rs",
+      "device_code_auth.rs",
+      "device_code_auth_tests.rs",
+      "lib.rs",
+      "outbound_proxy.rs",
+      "pkce.rs",
+      "server.rs",
+      "success_page.rs",
+      "success_page_tests.rs",
+      "test_support.rs",
+      "token_data.rs",
+      "token_data_tests.rs"
+    ]
+  },
+  {
+    "name": "codex-mcp-server",
+    "path": "mcp-server",
+    "desc": "Prototype MCP server.",
+    "src_top": [
+      "active_turn_registry.rs",
+      "active_turn_registry_tests.rs",
+      "codex_tool_config.rs",
+      "codex_tool_runner.rs",
+      "exec_approval.rs",
+      "extension_event_sink.rs",
+      "extension_event_sink_tests.rs",
+      "lib.rs",
+      "main.rs",
+      "message_processor.rs",
+      "outgoing_message.rs",
+      "patch_approval.rs",
+      "workload_identity_tests.rs"
+    ]
+  },
+  {
+    "name": "mcp_test_support",
+    "path": "mcp-server/tests/common",
+    "desc": "",
+    "src_top": []
+  },
+  {
+    "name": "codex-memories-read",
+    "path": "memories/read",
+    "desc": "Read-path helpers for Codex memories. This crate owns memory injection, memory citation parsing, and telemetry classi...",
+    "src_top": [
+      "citations.rs",
+      "citations_tests.rs",
+      "lib.rs",
+      "metrics.rs",
+      "usage.rs"
+    ]
+  },
+  {
+    "name": "codex-memories-write",
+    "path": "memories/write",
+    "desc": "Write-path implementation for Codex memories. This crate owns the startup memory pipeline, file-backed memory artifac...",
+    "src_top": [
+      "control.rs",
+      "extensions",
+      "guard.rs",
+      "guard_tests.rs",
+      "lib.rs",
+      "metrics.rs",
+      "phase1.rs",
+      "phase2.rs",
+      "phase2_sandbox_tests.rs",
+      "phase2_workspace_roots_tests.rs",
+      "prompts.rs",
+      "prompts_tests.rs",
+      "runtime.rs",
+      "start.rs",
+      "startup_tests.rs",
+      "storage.rs",
+      "storage_tests.rs",
+      "workspace.rs",
+      "workspace_tests.rs"
+    ]
+  },
+  {
+    "name": "codex-message-history",
+    "path": "message-history",
+    "desc": "Persistence layer for the global, append-only *message history* file. The history is stored at `~/.codex/history.json...",
+    "src_top": [
+      "batch.rs",
+      "batch_tests.rs",
+      "lib.rs",
+      "tests.rs"
+    ]
+  },
+  {
+    "name": "codex-model-provider-info",
+    "path": "model-provider-info",
+    "desc": "Registry of model providers supported by Codex. Providers can be defined in two places: 1. Built-in defaults compiled...",
+    "src_top": [
+      "lib.rs",
+      "model_provider_info_tests.rs"
+    ]
+  },
+  {
+    "name": "codex-model-provider",
+    "path": "model-provider",
+    "desc": "",
+    "src_top": [
+      "amazon_bedrock",
+      "auth.rs",
+      "bearer_auth_provider.rs",
+      "lib.rs",
+      "models_endpoint.rs",
+      "provider.rs",
+      "shared_state.rs"
+    ]
+  },
+  {
+    "name": "codex-models-manager",
+    "path": "models-manager",
+    "desc": "",
+    "src_top": [
+      "cache.rs",
+      "collaboration_mode_presets.rs",
+      "collaboration_mode_presets_tests.rs",
+      "config.rs",
+      "lib.rs",
+      "manager.rs",
+      "manager_tests.rs",
+      "model_info.rs",
+      "model_info_overrides_tests.rs",
+      "model_info_tests.rs",
+      "model_presets.rs",
+      "test_support.rs"
+    ]
+  },
+  {
+    "name": "codex-network-proxy",
+    "path": "network-proxy",
+    "desc": "",
+    "src_top": [
+      "attribution.rs",
+      "attribution_tests.rs",
+      "authorization_path.rs",
+      "authorization_path_tests.rs",
+      "certs.rs",
+      "config.rs",
+      "connect_policy.rs",
+      "credential_broker",
+      "credential_broker.rs",
+      "credential_broker_tests.rs",
+      "environment_policy.rs",
+      "http_proxy.rs",
+      "lib.rs",
+      "mitm.rs",
+      "mitm_hook.rs",
+      "mitm_tests.rs",
+      "native_certs.rs",
+      "network_policy.rs",
+      "policy.rs",
+      "proxy",
+      "proxy.rs",
+      "reasons.rs",
+      "remote_config.rs",
+      "remote_config_tests.rs",
+      "request_disconnect.rs",
+      "request_disconnect_tests.rs",
+      "responses.rs",
+      "runtime.rs",
+      "socks5.rs",
+      "state.rs",
+      "upstream.rs",
+      "upstream_tests.rs",
+      "windows_proxy_ingress.rs",
+      "windows_proxy_ingress_tests.rs",
+      "windows_tcp_attribution.rs",
+      "windows_tcp_attribution_tests.rs"
+    ]
+  },
+  {
+    "name": "codex-ollama",
+    "path": "ollama",
+    "desc": "",
+    "src_top": [
+      "client.rs",
+      "lib.rs",
+      "line_buffer.rs",
+      "line_buffer_tests.rs",
+      "parser.rs",
+      "pull.rs",
+      "url.rs"
+    ]
+  },
+  {
+    "name": "codex-otel",
+    "path": "otel",
+    "desc": "",
+    "src_top": [
+      "config.rs",
+      "events",
+      "lib.rs",
+      "metrics",
+      "otlp.rs",
+      "provider.rs",
+      "provider_shutdown_tests.rs",
+      "targets.rs",
+      "tool_result.rs",
+      "tool_result_tests.rs",
+      "trace_context.rs"
+    ]
+  },
+  {
+    "name": "codex-plugin",
+    "path": "plugin",
+    "desc": "Shared plugin package models, source providers, identifiers, and telemetry summaries.",
+    "src_top": [
+      "lib.rs",
+      "load_outcome.rs",
+      "manifest.rs",
+      "plugin_id.rs",
+      "plugin_id_tests.rs",
+      "provider.rs",
+      "provider_tests.rs"
+    ]
+  },
+  {
+    "name": "codex-process-hardening",
+    "path": "process-hardening",
+    "desc": "",
+    "src_top": [
+      "lib.rs"
+    ]
+  },
+  {
+    "name": "codex-prompts",
+    "path": "prompts",
+    "desc": "",
+    "src_top": [
+      "compact.rs",
+      "goals.rs",
+      "goals_tests.rs",
+      "lib.rs",
+      "permissions_instructions.rs",
+      "permissions_instructions_tests.rs",
+      "realtime.rs",
+      "review_exit.rs",
+      "review_exit_tests.rs",
+      "review_request.rs",
+      "review_request_tests.rs"
+    ]
+  },
+  {
+    "name": "codex-protocol",
+    "path": "protocol",
+    "desc": "",
+    "src_top": [
+      "account.rs",
+      "agent_path.rs",
+      "approvals.rs",
+      "auth.rs",
+      "capabilities.rs",
+      "capabilities_tests.rs",
+      "config_types.rs",
+      "dynamic_tools.rs",
+      "environment.rs",
+      "error.rs",
+      "error_tests.rs",
+      "exec_output.rs",
+      "exec_output_tests.rs",
+      "items.rs",
+      "legacy_events.rs",
+      "lib.rs",
+      "local_media.rs",
+      "local_media_tests.rs",
+      "mcp.rs",
+      "mcp_approval_meta.rs",
+      "mcp_policy.rs",
+      "memory_citation.rs",
+      "models",
+      "models.rs",
+      "network_policy.rs",
+      "num_format.rs",
+      "openai_models",
+      "openai_models.rs",
+      "parse_command.rs",
+      "permission_profile_intersection.rs",
+      "permission_profile_intersection_tests.rs",
+      "permission_profile_snapshot.rs",
+      "permissions.rs",
+      "plan_tool.rs",
+      "prompts",
+      "protocol.rs",
+      "request_permissions.rs",
+      "request_user_input.rs",
+      "request_user_input_tests.rs",
+      "response_item_id.rs",
+      "response_item_id_tests.rs",
+      "review_format.rs",
+      "security_risk.rs",
+      "session_id.rs",
+      "shell_environment.rs",
+      "shell_environment_tests.rs",
+      "thread_id.rs",
+      "tool_name.rs",
+      "turn_input.rs",
+      "user_input.rs"
+    ]
+  },
+  {
+    "name": "codex-response-debug-context",
+    "path": "response-debug-context",
+    "desc": "",
+    "src_top": [
+      "lib.rs"
+    ]
+  },
+  {
+    "name": "codex-responses-api-proxy",
+    "path": "responses-api-proxy",
+    "desc": "",
+    "src_top": [
+      "dump.rs",
+      "lib.rs",
+      "main.rs",
+      "read_api_key.rs"
+    ]
+  },
+  {
+    "name": "codex-rmcp-client",
+    "path": "rmcp-client",
+    "desc": "",
+    "src_top": [
+      "auth_status.rs",
+      "bin",
+      "elicitation_client_service.rs",
+      "event_notification_transport.rs",
+      "executor_process_transport.rs",
+      "executor_process_transport_tests.rs",
+      "http_client_adapter",
+      "http_client_adapter.rs",
+      "http_client_adapter_tests.rs",
+      "http_client_redirect.rs",
+      "http_client_redirect_tests.rs",
+      "http_headers.rs",
+      "http_headers_tests.rs",
+      "in_process_transport.rs",
+      "lib.rs",
+      "local_stdio_transport.rs",
+      "logging_client_handler.rs",
+      "oauth",
+      "oauth.rs",
+      "oauth_client_registration.rs",
+      "oauth_client_registration_tests.rs",
+      "oauth_http_client.rs",
+      "oauth_http_client_security_tests.rs",
+      "perform_oauth_login.rs",
+      "program_resolver.rs",
+      "protocol_mode.rs",
+      "rmcp_client.rs",
+      "startup_error.rs",
+      "stdio_server_launcher.rs",
+      "streamable_http_retry.rs",
+      "streamable_http_retry_tests.rs",
+      "utils.rs"
+    ]
+  },
+  {
+    "name": "codex-rollout-trace",
+    "path": "rollout-trace",
+    "desc": "Trace bundle format, writer, and reducer for Codex rollouts. This crate owns the trace schema. Hot-path Codex code sh...",
+    "src_top": [
+      "bundle.rs",
+      "code_cell.rs",
+      "compaction.rs",
+      "inference.rs",
+      "lib.rs",
+      "mcp.rs",
+      "model",
+      "payload.rs",
+      "protocol_event.rs",
+      "protocol_event_tests.rs",
+      "raw_event.rs",
+      "reducer",
+      "thread.rs",
+      "thread_tests.rs",
+      "tool_dispatch.rs",
+      "writer.rs"
+    ]
+  },
+  {
+    "name": "codex-rollout",
+    "path": "rollout",
+    "desc": "Rollout persistence and discovery for Codex session files.",
+    "src_top": [
+      "compression.rs",
+      "compression_tests.rs",
+      "config.rs",
+      "lib.rs",
+      "list.rs",
+      "maintenance.rs",
+      "metadata.rs",
+      "metadata_tests.rs",
+      "model_context.rs",
+      "ordinal.rs",
+      "persistence_metrics.rs",
+      "persistence_metrics_tests.rs",
+      "policy.rs",
+      "recorder.rs",
+      "recorder_tests.rs",
+      "reverse_jsonl_scanner.rs",
+      "reverse_jsonl_scanner_tests.rs",
+      "rollout_file_name.rs",
+      "rollout_file_name_tests.rs",
+      "rollout_reference_index.rs",
+      "rollout_reference_index_tests.rs",
+      "search.rs",
+      "session_index.rs",
+      "session_index_tests.rs",
+      "sqlite_metrics.rs",
+      "state_db.rs",
+      "state_db_tests.rs",
+      "tests.rs"
+    ]
+  },
+  {
+    "name": "codex-sandboxing",
+    "path": "sandboxing",
+    "desc": "",
+    "src_top": [
+      "bwrap.rs",
+      "bwrap_tests.rs",
+      "denial.rs",
+      "landlock.rs",
+      "landlock_tests.rs",
+      "lib.rs",
+      "manager.rs",
+      "manager_tests.rs",
+      "policy_transforms.rs",
+      "policy_transforms_tests.rs",
+      "restricted_read_only_platform_defaults.sbpl",
+      "seatbelt.rs",
+      "seatbelt_base_policy.sbpl",
+      "seatbelt_network_policy.sbpl",
+      "seatbelt_preferences_policy.sbpl",
+      "seatbelt_tests.rs",
+      "spawn.rs",
+      "violation.rs",
+      "violation_tests.rs",
+      "windows.rs"
+    ]
+  },
+  {
+    "name": "codex-secrets",
+    "path": "secrets",
+    "desc": "",
+    "src_top": [
+      "lib.rs",
+      "local.rs",
+      "sanitizer.rs"
+    ]
+  },
+  {
+    "name": "codex-shell-command",
+    "path": "shell-command",
+    "desc": "Command parsing and safety utilities shared across Codex crates.",
+    "src_top": [
+      "bash.rs",
+      "command_safety",
+      "lib.rs",
+      "parse_command.rs",
+      "powershell.rs",
+      "shell_detect.rs",
+      "shell_snapshot.rs",
+      "shell_snapshot_tests.rs"
+    ]
+  },
+  {
+    "name": "codex-shell-escalation",
+    "path": "shell-escalation",
+    "desc": "",
+    "src_top": [
+      "bin",
+      "lib.rs",
+      "unix"
+    ]
+  },
+  {
+    "name": "codex-skills",
+    "path": "skills",
+    "desc": "",
+    "src_top": [
+      "assets",
+      "interface.rs",
+      "interface_tests.rs",
+      "invocation.rs",
+      "invocation_tests.rs",
+      "lib.rs",
+      "loading.rs",
+      "loading_tests.rs",
+      "mentions.rs",
+      "mentions_tests.rs",
+      "model.rs",
+      "model_tests.rs",
+      "name_counts.rs",
+      "parser.rs",
+      "parser_tests.rs",
+      "selection.rs",
+      "selection_tests.rs"
+    ]
+  },
+  {
+    "name": "codex-state",
+    "path": "state",
+    "desc": "SQLite-backed state for rollout metadata. This crate is intentionally small and focused: it extracts rollout metadata...",
+    "src_top": [
+      "audit.rs",
+      "extract.rs",
+      "lib.rs",
+      "log_db.rs",
+      "log_db_filter_tests.rs",
+      "migrations.rs",
+      "migrations_tests.rs",
+      "model",
+      "paths.rs",
+      "runtime",
+      "runtime.rs",
+      "sqlite.rs",
+      "telemetry.rs"
+    ]
+  },
+  {
+    "name": "codex-stdio-to-uds",
+    "path": "stdio-to-uds",
+    "desc": "",
+    "src_top": [
+      "lib.rs",
+      "main.rs"
+    ]
+  },
+  {
+    "name": "codex-terminal-detection",
+    "path": "terminal-detection",
+    "desc": "Terminal detection utilities. This module feeds terminal metadata into OpenTelemetry user-agent logging and into term...",
+    "src_top": [
+      "lib.rs",
+      "terminal_tests.rs"
+    ]
+  },
+  {
+    "name": "codex-test-binary-support",
+    "path": "test-binary-support",
+    "desc": "",
+    "src_top": []
+  },
+  {
+    "name": "codex-thread-manager-sample",
+    "path": "thread-manager-sample",
+    "desc": "",
+    "src_top": [
+      "main.rs"
+    ]
+  },
+  {
+    "name": "codex-thread-store",
+    "path": "thread-store",
+    "desc": "Storage-neutral thread persistence interfaces. Application code should treat [`codex_protocol::ThreadId`] as the only...",
+    "src_top": [
+      "error.rs",
+      "in_memory.rs",
+      "lib.rs",
+      "live_thread.rs",
+      "local",
+      "projects.rs",
+      "queue_store.rs",
+      "store.rs",
+      "thread_metadata_sync.rs",
+      "thread_sections.rs",
+      "types.rs"
+    ]
+  },
+  {
+    "name": "codex-tools",
+    "path": "tools",
+    "desc": "Shared tool definitions and Responses API tool primitives that can live outside `codex-core`.",
+    "src_top": [
+      "code_mode.rs",
+      "code_mode_tests.rs",
+      "dynamic_tool.rs",
+      "dynamic_tool_tests.rs",
+      "function_call_error.rs",
+      "image_detail.rs",
+      "image_detail_tests.rs",
+      "json_schema.rs",
+      "json_schema_tests.rs",
+      "lib.rs",
+      "mcp_tool.rs",
+      "mcp_tool_tests.rs",
+      "request_plugin_install.rs",
+      "request_plugin_install_tests.rs",
+      "response_history.rs",
+      "responses_api.rs",
+      "responses_api_tests.rs",
+      "tool_call.rs",
+      "tool_config.rs",
+      "tool_config_tests.rs",
+      "tool_definition.rs",
+      "tool_definition_tests.rs",
+      "tool_discovery.rs",
+      "tool_discovery_tests.rs",
+      "tool_executor.rs",
+      "tool_output.rs",
+      "tool_payload.rs",
+      "tool_search.rs",
+      "tool_search_tests.rs",
+      "tool_spec.rs",
+      "tool_spec_tests.rs"
+    ]
+  },
+  {
+    "name": "codex-tui",
+    "path": "tui",
+    "desc": "",
+    "src_top": [
+      "additional_dirs.rs",
+      "app",
+      "app.rs",
+      "app_backtrack.rs",
+      "app_command.rs",
+      "app_event.rs",
+      "app_event_sender.rs",
+      "app_info.rs",
+      "app_server_approval_conversions.rs",
+      "app_server_session",
+      "app_server_session.rs",
+      "approval_events.rs",
+      "ascii_animation.rs",
+      "auto_review_denials.rs",
+      "bin",
+      "bottom_pane",
+      "branch_summary.rs",
+      "chatwidget",
+      "chatwidget.rs",
+      "cli.rs",
+      "clipboard_copy.rs",
+      "clipboard_paste.rs",
+      "collaboration_modes.rs",
+      "color.rs",
+      "config_update.rs",
+      "config_update_tests.rs",
+      "custom_terminal.rs",
+      "cwd_prompt.rs",
+      "debug_config.rs",
+      "diff_model.rs",
+      "diff_render.rs",
+      "exec_cell",
+      "exec_command.rs",
+      "external_agent_config_migration",
+      "external_editor.rs",
+      "external_editor_tests.rs",
+      "file_search.rs",
+      "frames.rs",
+      "get_git_diff.rs",
+      "git_action_directives.rs",
+      "goal_display.rs",
+      "goal_files.rs",
+      "history_cell",
+      "hooks_rpc.rs",
+      "ide_context",
+      "ide_context.rs",
+      "inline_visualization",
+      "inline_visualization.rs",
+      "inline_visualization_tests.rs",
+      "insert_history.rs",
+      "key_hint.rs",
+      "keymap",
+      "keymap.rs",
+      "keymap_setup",
+      "keymap_setup.rs",
+      "lib.rs",
+      "line_truncation.rs",
+      "line_truncation_tests.rs",
+      "live_wrap.rs",
+      "local_chatgpt_auth.rs",
+      "main.rs",
+      "managed_new_thread_defaults.rs",
+      "managed_new_thread_defaults_tests.rs",
+      "markdown.rs",
+      "markdown_render",
+      "markdown_render.rs",
+      "markdown_render_tests.rs",
+      "markdown_stream.rs",
+      "markdown_text_merge.rs",
+      "mention_codec.rs",
+      "model_catalog.rs",
+      "model_migration.rs",
+      "motion.rs",
+      "multi_agents.rs",
+      "named_session_lookup.rs",
+      "named_session_lookup_tests.rs",
+      "notifications",
+      "npm_registry.rs",
+      "onboarding",
+      "oss_selection.rs",
+      "pager_overlay",
+      "pager_overlay.rs",
+      "pets",
+      "public_widgets",
+      "render",
+      "resize_reflow_cap.rs",
+      "resume_picker",
+      "resume_picker.rs",
+      "resume_picker_transcript_preview.rs",
+      "resume_picker_transcript_preview_tests.rs",
+      "selection_list.rs",
+      "service_tier_resolution.rs",
+      "session_archive_commands.rs",
+      "session_archive_commands_tests.rs",
+      "session_log.rs",
+      "session_queue_commands.rs",
+      "session_queue_commands_tests.rs",
+      "session_resume.rs",
+      "session_start.rs",
+      "session_start_tests.rs",
+      "session_state.rs",
+      "shimmer.rs",
+      "skills_helpers.rs",
+      "slash_command.rs",
+      "snapshots",
+      "startup_draft.rs",
+      "startup_draft_tests.rs",
+      "startup_error.rs",
+      "startup_hooks_review.rs",
+      "startup_orchestration.rs",
+      "startup_preflight.rs",
+      "startup_preflight_tests.rs",
+      "status",
+      "status_indicator_widget.rs",
+      "streaming",
+      "style.rs",
+      "table_detect.rs",
+      "terminal_hyperlinks.rs",
+      "terminal_palette.rs",
+      "terminal_probe",
+      "terminal_probe.rs",
+      "terminal_title.rs",
+      "terminal_visualization_instructions.rs",
+      "test_backend.rs",
+      "test_support.rs",
+      "text_formatting.rs",
+      "theme_picker.rs",
+      "thread_transcript.rs",
+      "token_usage.rs",
+      "tooltips.rs",
+      "transcript_reflow.rs",
+      "tui",
+      "tui.rs",
+      "tui_startup_tests.rs",
+      "ui_consts.rs",
+      "unarchive_prompt.rs",
+      "unarchive_prompt_tests.rs",
+      "update_action.rs",
+      "update_prompt.rs",
+      "update_versions.rs",
+      "updates.rs",
+      "updates_cache.rs",
+      "updates_cache_tests.rs",
+      "version.rs",
+      "width.rs",
+      "windows_sandbox.rs",
+      "workspace_command.rs",
+      "workspace_messages.rs",
+      "workspace_messages_tests.rs",
+      "wrapping.rs"
+    ]
+  },
+  {
+    "name": "codex-uds",
+    "path": "uds",
+    "desc": "Cross-platform async Unix domain socket helpers.",
+    "src_top": [
+      "lib.rs",
+      "lib_tests.rs"
+    ]
+  },
+  {
+    "name": "codex-utils-absolute-path",
+    "path": "utils/absolute-path",
+    "desc": "",
+    "src_top": [
+      "absolutize.rs",
+      "lib.rs"
+    ]
+  },
+  {
+    "name": "codex-utils-approval-presets",
+    "path": "utils/approval-presets",
+    "desc": "",
+    "src_top": [
+      "lib.rs"
+    ]
+  },
+  {
+    "name": "codex-utils-audio",
+    "path": "utils/audio",
+    "desc": "Audio preparation and duration-based token estimates for model inputs.",
+    "src_top": [
+      "audio_preparation_tests.rs",
+      "lib.rs"
+    ]
+  },
+  {
+    "name": "codex-utils-cache",
+    "path": "utils/cache",
+    "desc": "",
+    "src_top": [
+      "lib.rs"
+    ]
+  },
+  {
+    "name": "codex-utils-cargo-bin",
+    "path": "utils/cargo-bin",
+    "desc": "",
+    "src_top": [
+      "lib.rs"
+    ]
+  },
+  {
+    "name": "codex-utils-cli",
+    "path": "utils/cli",
+    "desc": "",
+    "src_top": [
+      "approval_mode_cli_arg.rs",
+      "config_override.rs",
+      "format_env_display.rs",
+      "lib.rs",
+      "resume_command.rs",
+      "sandbox_mode_cli_arg.rs",
+      "shared_options.rs"
+    ]
+  },
+  {
+    "name": "codex-utils-elapsed",
+    "path": "utils/elapsed",
+    "desc": "",
+    "src_top": [
+      "lib.rs"
+    ]
+  },
+  {
+    "name": "codex-utils-fuzzy-match",
+    "path": "utils/fuzzy-match",
+    "desc": "",
+    "src_top": [
+      "lib.rs"
+    ]
+  },
+  {
+    "name": "codex-utils-home-dir",
+    "path": "utils/home-dir",
+    "desc": "",
+    "src_top": [
+      "lib.rs"
+    ]
+  },
+  {
+    "name": "codex-utils-image",
+    "path": "utils/image",
+    "desc": "",
+    "src_top": [
+      "error.rs",
+      "image_tests.rs",
+      "lib.rs"
+    ]
+  },
+  {
+    "name": "codex-utils-json-to-toml",
+    "path": "utils/json-to-toml",
+    "desc": "",
+    "src_top": [
+      "lib.rs"
+    ]
+  },
+  {
+    "name": "codex-utils-oss",
+    "path": "utils/oss",
+    "desc": "OSS provider utilities shared between TUI and exec.",
+    "src_top": [
+      "lib.rs"
+    ]
+  },
+  {
+    "name": "codex-utils-output-truncation",
+    "path": "utils/output-truncation",
+    "desc": "Helpers for truncating tool and exec output using [`TruncationPolicy`](codex_protocol::protocol::TruncationPolicy).",
+    "src_top": [
+      "lib.rs",
+      "truncate_tests.rs"
+    ]
+  },
+  {
+    "name": "codex-utils-path-uri",
+    "path": "utils/path-uri",
+    "desc": "Typed, immutable `file:` URIs with cross-platform path inspection. See [`PathUri`] for scheme, normalization, and ser...",
+    "src_top": [
+      "absolute_path_normalization.rs",
+      "api_path_string.rs",
+      "api_path_string_tests.rs",
+      "lib.rs",
+      "native_path_bytes.rs",
+      "tests.rs"
+    ]
+  },
+  {
+    "name": "codex-utils-path",
+    "path": "utils/path-utils",
+    "desc": "Path normalization, symlink resolution, and atomic writes shared across Codex crates.",
+    "src_top": [
+      "env.rs",
+      "lib.rs",
+      "path_utils_tests.rs"
+    ]
+  },
+  {
+    "name": "codex-utils-plugins",
+    "path": "utils/plugins",
+    "desc": "Plugin path resolution, plaintext mention sigils, and MCP connector helpers shared across Codex crates.",
+    "src_top": [
+      "lib.rs",
+      "mcp_connector.rs",
+      "mention_syntax.rs",
+      "plugin_namespace.rs"
+    ]
+  },
+  {
+    "name": "codex-utils-pty",
+    "path": "utils/pty",
+    "desc": "",
+    "src_top": [
+      "lib.rs",
+      "pipe.rs",
+      "pipe_tests.rs",
+      "process.rs",
+      "process_group.rs",
+      "process_group_tests.rs",
+      "pty.rs",
+      "tests.rs",
+      "win",
+      "windows_input.rs",
+      "windows_input_tests.rs",
+      "windows_tests.rs"
+    ]
+  },
+  {
+    "name": "codex-utils-readiness",
+    "path": "utils/readiness",
+    "desc": "Readiness flag with token-based authorization and async waiting (Tokio).",
+    "src_top": [
+      "lib.rs"
+    ]
+  },
+  {
+    "name": "codex-utils-rustls-provider",
+    "path": "utils/rustls-provider",
+    "desc": "",
+    "src_top": [
+      "lib.rs"
+    ]
+  },
+  {
+    "name": "codex-utils-sandbox-summary",
+    "path": "utils/sandbox-summary",
+    "desc": "",
+    "src_top": [
+      "lib.rs",
+      "sandbox_summary.rs"
+    ]
+  },
+  {
+    "name": "codex-utils-sleep-inhibitor",
+    "path": "utils/sleep-inhibitor",
+    "desc": "Cross-platform helper for preventing idle sleep while a turn is running. Platform-specific behavior: - macOS: Uses na...",
+    "src_top": [
+      "dummy.rs",
+      "iokit_bindings.rs",
+      "lib.rs",
+      "linux_inhibitor.rs",
+      "macos.rs",
+      "windows_inhibitor.rs"
+    ]
+  },
+  {
+    "name": "codex-utils-stream-parser",
+    "path": "utils/stream-parser",
+    "desc": "",
+    "src_top": [
+      "assistant_text.rs",
+      "citation.rs",
+      "inline_hidden_tag.rs",
+      "lib.rs",
+      "proposed_plan.rs",
+      "stream_text.rs",
+      "tagged_line_parser.rs",
+      "utf8_stream.rs"
+    ]
+  },
+  {
+    "name": "codex-utils-string",
+    "path": "utils/string",
+    "desc": "",
+    "src_top": [
+      "json.rs",
+      "lib.rs",
+      "truncate",
+      "truncate.rs"
+    ]
+  },
+  {
+    "name": "codex-utils-template",
+    "path": "utils/template",
+    "desc": "Minimal strict templating for prompt and text assets. Supported syntax: - `{{ name }}` placeholder interpolation - `{...",
+    "src_top": [
+      "lib.rs"
+    ]
+  },
+  {
+    "name": "codex-v8-poc",
+    "path": "v8-poc",
+    "desc": "Bazel-wired proof-of-concept crate reserved for future V8 experiments.",
+    "src_top": [
+      "lib.rs"
+    ]
+  },
+  {
+    "name": "codex-websocket-client",
+    "path": "websocket-client",
+    "desc": "Proxy-aware WebSocket connection setup shared by Codex API clients.",
+    "src_top": [
+      "dialer.rs",
+      "dialer_tests.rs",
+      "lib.rs"
+    ]
+  },
+  {
+    "name": "codex-windows-sandbox",
+    "path": "windows-sandbox-rs",
+    "desc": "",
+    "src_top": [
+      "acl.rs",
+      "acl_tests.rs",
+      "allow.rs",
+      "audit.rs",
+      "bin",
+      "cap.rs",
+      "conpty",
+      "deny_read_acl.rs",
+      "deny_read_resolver.rs",
+      "deny_read_state.rs",
+      "desktop.rs",
+      "dpapi.rs",
+      "elevated",
+      "elevated_impl.rs",
+      "env.rs",
+      "helper_materialization.rs",
+      "hide_users.rs",
+      "identity.rs",
+      "lib.rs",
+      "logging.rs",
+      "path_normalization.rs",
+      "proc_thread_attr.rs",
+      "process.rs",
+      "resolved_permissions.rs",
+      "sandbox_utils.rs",
+      "setup.rs",
+      "setup_error.rs",
+      "spawn_prep.rs",
+      "ssh_config_dependencies.rs",
+      "stdio_bridge.rs",
+      "stdio_bridge_tests.rs",
+      "token.rs",
+      "token_tests.rs",
+      "unified_exec",
+      "wfp",
+      "wfp.rs",
+      "wfp_setup.rs",
+      "winutil.rs",
+      "workspace_acl.rs",
+      "wrapper.rs",
+      "wrapper_tests.rs"
+    ]
+  },
+  {
+    "name": "codex-workload-identity",
+    "path": "workload-identity",
+    "desc": "",
+    "src_top": [
+      "assertion.rs",
+      "exchange.rs",
+      "lib.rs",
+      "workload_identity_tests.rs"
+    ]
+  }
+]

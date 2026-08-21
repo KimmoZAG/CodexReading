@@ -1,0 +1,13 @@
+[
+  { "id": "00-overview", "title": "引子：Codex 到底是什么", "file": "content/00-overview.md" },
+  { "id": "01-repo-map", "title": "第 1 章：仓库地形图", "file": "content/01-repo-map.md" },
+  { "id": "02-process-model", "title": "第 2 章：进程模型", "file": "content/02-process-model.md" },
+  { "id": "03-core-api", "title": "第 3 章：codex-core 公共 API", "file": "content/03-core-api.md" },
+  { "id": "04-turn-loop", "title": "第 4 章：主循环 run_turn", "file": "content/04-turn-loop.md" },
+  { "id": "05-tools", "title": "第 5 章：工具系统", "file": "content/05-tools.md" },
+  { "id": "06-sandbox", "title": "第 6 章：沙箱", "file": "content/06-sandbox.md" },
+  { "id": "07-tui", "title": "第 7 章：TUI", "file": "content/07-tui.md" },
+  { "id": "08-protocol", "title": "第 8 章：协议与 app-server", "file": "content/08-protocol.md" },
+  { "id": "09-config", "title": "第 9 章：配置系统", "file": "content/09-config.md" },
+  { "id": "10-roadmap", "title": "收尾：阅读路线", "file": "content/10-roadmap.md" }
+]
