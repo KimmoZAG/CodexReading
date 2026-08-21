@@ -9,6 +9,11 @@ permissions:
   pages: write
   id-token: write
 
+# 同一时间只允许一个部署运行，避免互相冲突
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
