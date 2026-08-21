@@ -1,10 +1,10 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 820 520" font-family="system-ui, sans-serif">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 820 560" font-family="system-ui, -apple-system, 'Segoe UI', 'Noto Sans SC', 'Noto Sans CJK SC', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'WenQuanYi Micro Hei', sans-serif">
   <defs>
     <marker id="a" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
       <path d="M0,0 L9,3 L0,6 Z" fill="#4F46E5"/>
     </marker>
   </defs>
-  <rect width="820" height="520" fill="#FFFFFF"/>
+  <rect width="820" height="560" fill="#FFFFFF"/>
   <text x="40" y="40" font-size="22" font-weight="700" fill="#111827">Core 公共 API 面</text>
   <text x="40" y="64" font-size="13" fill="#6B7280">CodexThread 只暴露 submit / next_event 两个核心方法：调用方投 Op、收 Event</text>
 
@@ -40,13 +40,13 @@
   <text x="278" y="290" font-size="12" fill="#6B7280">next_event(Event)</text>
 
   <!-- type boxes -->
-  <rect x="70" y="360" width="330" height="110" rx="12" fill="#F9FAFB" stroke="#9CA3AF" stroke-width="2"/>
-  <text x="90" y="392" font-size="16" font-weight="600" fill="#374151">Op 枚举（输入）</text>
-  <text x="90" y="416" font-size="12" fill="#4F46E5">TurnInput · Interrupt · ExecApproval</text>
-  <text x="90" y="438" font-size="12" fill="#4F46E5">RecoverTurn · ThreadSettings</text>
+  <rect x="70" y="415" width="330" height="110" rx="12" fill="#F9FAFB" stroke="#9CA3AF" stroke-width="2"/>
+  <text x="90" y="447" font-size="16" font-weight="600" fill="#374151">Op 枚举（输入）</text>
+  <text x="90" y="471" font-size="12" fill="#4F46E5">TurnInput · Interrupt · ExecApproval</text>
+  <text x="90" y="493" font-size="12" fill="#4F46E5">RecoverTurn · ThreadSettings</text>
 
-  <rect x="430" y="360" width="330" height="110" rx="12" fill="#F9FAFB" stroke="#9CA3AF" stroke-width="2"/>
-  <text x="450" y="392" font-size="16" font-weight="600" fill="#374151">Event / EventMsg（输出）</text>
-  <text x="450" y="416" font-size="12" fill="#4F46E5">TurnStarted · AgentMessage</text>
-  <text x="450" y="438" font-size="12" fill="#4F46E5">ExecCommandEnd · Error · …</text>
+  <rect x="430" y="415" width="330" height="110" rx="12" fill="#F9FAFB" stroke="#9CA3AF" stroke-width="2"/>
+  <text x="450" y="447" font-size="16" font-weight="600" fill="#374151">Event / EventMsg（输出）</text>
+  <text x="450" y="471" font-size="12" fill="#4F46E5">TurnStarted · AgentMessage</text>
+  <text x="450" y="493" font-size="12" fill="#4F46E5">ExecCommandEnd · Error · …</text>
 </svg>
