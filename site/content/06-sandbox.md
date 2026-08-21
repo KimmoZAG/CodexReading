@@ -52,7 +52,7 @@ use codex_sandboxing::policy_transforms::normalize_additional_permissions;     /
 
 ## 6.5 批准记录会被记住
 
-会话内，Codex 用 `with_cached_approval`（`core/src/tools/sandboxing.rs:70`）维护一张 `tool_approvals` 缓存：若某 key 已是 `ReviewDecision::ApprovedForSession`，直接跳过提问。跨会话的"永久记忆"则写在 `codex-execpolicy`：你选"记住这条命令"时，`execpolicy/src/amend.rs:65` 的 `blocking_append_allow_prefix_rule` 把一条 `prefix_rule(pattern=..., decision="allow")` 追加进策略文件（`amend.rs:174` 用咨询锁去重），下次加载策略直接命中，不再打扰你。
+会话内，Codex 用 `with_cached_approval`（`core/src/tools/sandboxing.rs:70`）维护一张 `tool_approvals` 缓存：若某 key 已是 `ReviewDecision::ApprovedForSession`，直接跳过提问。跨会话的"永久记忆"则写在 `codex-execpolicy`：你选"记住这条命令"时，`execpolicy/src/amend.rs:65` 的 `blocking_append_allow_prefix_rule` 把一条 `prefix_rule(pattern=..., decision="allow")` 追加进策略文件（`execpolicy/src/amend.rs:174` 用咨询锁去重），下次加载策略直接命中，不再打扰你。
 
 再往上一层是**语义化审批**：模型可以提议一条 `ExecPolicyAmendment`，把"以 `cargo test` 开头的命令都允许"这样的规则写进白名单，而不是记住某个具体命令行；配合 `ReviewDecision::ApprovedExecpolicyAmendment`，你批准的是一类行为。三种机制的差别就是信任粒度：`ApprovedForSession` 只管这次会话，追加的 `allow` 前缀规则记住这条命令，`ExecPolicyAmendment` 放行的是一类命令。
 

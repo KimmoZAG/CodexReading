@@ -46,6 +46,20 @@ function applyTheme(theme) {
     applyTheme(cur === "dark" ? "light" : "dark");
     // 用户手动切换，标记后不再自动跟随系统主题。
     try { localStorage.setItem(THEME_MANUAL_KEY, "1"); } catch (e) {}
+
+    // 按新主题重渲当前文章里的 mermaid 图（失败不影响主题切换）。
+    try {
+      document.querySelectorAll("#article .mermaid").forEach((div) => {
+        if (div.querySelector("svg")) {
+          div.textContent = div.dataset.src;
+        }
+      });
+      const t = document.documentElement.getAttribute("data-theme") === "dark" ? "dark" : "default";
+      mermaid.initialize({ startOnLoad: false, securityLevel: "loose", theme: t });
+      mermaid.run({ querySelector: "#article .mermaid" });
+    } catch (e) {
+      console.warn("主题切换时 mermaid 重渲失败，已跳过：", e);
+    }
   });
 
   // 监听系统主题变化，仅在用户未手动选过时自动跟随。
@@ -76,25 +90,29 @@ window.addEventListener("scroll", updateProgress, { passive: true });
 window.addEventListener("resize", updateProgress);
 
 // ---------- 回到顶部浮动按钮 ----------
-// 监听 window 滚动（内容区即整窗滚动），向下滚动超过一屏高度时显示按钮；
-// 点击平滑滚回顶部；章节切换时由 showChapter / showRepo 显式隐藏。
-const backToTopBtn = document.getElementById("back-to-top");
+// 监听 window 滚动（内容区即整窗滚动），向下滚动超过 600px 时显示按钮；
+// 点击滚回顶部（尊重 prefers-reduced-motion）；章节切换时由 showChapter / showRepo 显式隐藏。
+const toTop = document.getElementById("back-to-top");
 function updateBackToTop() {
-  if (!backToTopBtn) return;
-  const scrollTop = window.scrollY || document.documentElement.scrollTop || 0;
-  const show = scrollTop > window.innerHeight;          // 超过一屏高度才显示
-  backToTopBtn.classList.toggle("visible", show);
+  if (!toTop) return;
+  const show = window.scrollY > 600;          // 超过 600px 才显示
+  toTop.classList.toggle("hidden", !show);
+  toTop.classList.toggle("visible", show);
 }
 function hideBackToTop() {
-  if (backToTopBtn) backToTopBtn.classList.remove("visible");
+  if (toTop) {
+    toTop.classList.add("hidden");
+    toTop.classList.remove("visible");
+  }
 }
 window.addEventListener("scroll", updateBackToTop, { passive: true });
 window.addEventListener("resize", updateBackToTop);
-if (backToTopBtn) {
-  backToTopBtn.addEventListener("click", () => {
-    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    window.scrollTo({ top: 0, left: 0, behavior: reduced ? "auto" : "smooth" });
+if (toTop) {
+  toTop.addEventListener("click", () => {
+    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    window.scrollTo({ top: 0, behavior: prefersReducedMotion ? "auto" : "smooth" });
   });
+  toTop.classList.add("hidden");              // 初始隐藏
 }
 
 // ---------- 记住每章滚动位置 ----------
@@ -165,9 +183,11 @@ function renderMermaid(root) {
       const div = document.createElement("div");
       div.className = "mermaid";
       div.textContent = code.textContent;
+      div.dataset.src = code.textContent;
       pre.replaceWith(div);
     });
-    mermaid.initialize({ startOnLoad: false, securityLevel: "loose", theme: "default" });
+    const t = document.documentElement.getAttribute("data-theme") === "dark" ? "dark" : "default";
+    mermaid.initialize({ startOnLoad: false, securityLevel: "loose", theme: t });
     mermaid.run({ querySelector: ".mermaid" });
   } catch (e) {
     console.warn("mermaid 渲染失败，已跳过：", e);

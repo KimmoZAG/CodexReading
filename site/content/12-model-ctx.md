@@ -4,25 +4,25 @@
 
 ## 12.1 模型客户端：流式响应怎么变成内部 item
 
-Codex 走的是 OpenAI 的 **Responses API**，并且默认开启 **SSE 流式**（`stream: true`，见 `core/src/client.rs:933`）。一次"turn"不是等模型整段生成完再返回，而是服务端通过 HTTP 长连接按事件一块块地把 `ResponseEvent` 推过来。更底层 `codex-client` 把字节流转成 UTF-8 的 SSE `data:` 帧：`codex-client/src/sse.rs:12` 的 `sse_stream` 用 `eventsource()` 把 `ByteStream` 逐帧解析，并通过 `mpsc` 把每帧文本或 `StreamError` 发出来（`sse.rs:23` 的 `timeout(idle_timeout, …)` 还顺带做了空闲超时）。`codex-client/src/lib.rs:12` 则把 `CodexHttpClient` 重新导出，作为统一的底层 HTTP 封装。
+Codex 走的是 OpenAI 的 **Responses API**，并且默认开启 **SSE 流式**（`stream: true`，见 `core/src/client.rs:933`）。一次"turn"不是等模型整段生成完再返回，而是服务端通过 HTTP 长连接按事件一块块地把 `ResponseEvent` 推过来。更底层 `codex-client` 把字节流转成 UTF-8 的 SSE `data:` 帧：`codex-client/src/sse.rs:12` 的 `sse_stream` 用 `eventsource()` 把 `ByteStream` 逐帧解析，并通过 `mpsc` 把每帧文本或 `StreamError` 发出来（`codex-client/src/sse.rs:23` 的 `timeout(idle_timeout, …)` 还顺带做了空闲超时）。`codex-client/src/lib.rs:12` 则把 `CodexHttpClient` 重新导出，作为统一的底层 HTTP 封装。
 
-客户端入口在 `core/src/client.rs`。`ModelClientSession::stream`（`client.rs:1861`）是"turn 作用域"的流式入口：它先看 wire_api，若 provider 支持且 WebSocket 健康就走 `stream_responses_websocket`，否则回退到 `stream_responses_api`（`client.rs:1899`）。它有明确的降级路径——WS 失败会 `try_switch_fallback_transport` 强制切到 HTTP（`client.rs:1894`）。
+客户端入口在 `core/src/client.rs`。`ModelClientSession::stream`（`core/src/client.rs:1861`）是"turn 作用域"的流式入口：它先看 wire_api，若 provider 支持且 WebSocket 健康就走 `stream_responses_websocket`，否则回退到 `stream_responses_api`（`core/src/client.rs:1899`）。它有明确的降级路径——WS 失败会 `try_switch_fallback_transport` 强制切到 HTTP（`core/src/client.rs:1894`）。
 
-真正的 HTTP 流式请求在 `stream_responses_api`（`client.rs:1440`）：它构造 transport、组装 request，再调用 `ApiResponsesClient::stream_request`（`client.rs:1513`），拿到 `codex_api::ResponseStream` 后包一层 `map_response_stream` 返回。
+真正的 HTTP 流式请求在 `stream_responses_api`（`core/src/client.rs:1440`）：它构造 transport、组装 request，再调用 `ApiResponsesClient::stream_request`（`core/src/client.rs:1513`），拿到 `codex_api::ResponseStream` 后包一层 `map_response_stream` 返回。
 
 关键点：`client` 这一层**不直接生成** `AssistantMessage` / `Reasoning` / `FunctionCall` 这些 world_state 里的 item。它先把原始流的 `ResponseEvent` 原样搬运、重发，由上层 `run_turn` 去消费并落进 world_state。
 
-`map_response_stream`（`client.rs:1986`）只是个转发壳，真正干活的是 `map_response_events`（`client.rs:2009`）。它 `tokio::spawn` 一个任务，在 `loop` 里 `api_stream.next()` 逐条取事件（`client.rs:2048`），然后分三类转发给 `mpsc` 通道：
+`map_response_stream`（`core/src/client.rs:1986`）只是个转发壳，真正干活的是 `map_response_events`（`core/src/client.rs:2009`）。它 `tokio::spawn` 一个任务，在 `loop` 里 `api_stream.next()` 逐条取事件（`core/src/client.rs:2048`），然后分三类转发给 `mpsc` 通道：
 
-- `ResponseEvent::OutputItemDone(item)`：一个完整 item 落地，压入 `items_added` 并转发（`client.rs:2054`）；
-- `ResponseEvent::Completed { token_usage, end_turn }`：整轮结束，顺手把汇总的 `LastResponse` 经 `oneshot` 回传（`client.rs:2069`、`client.rs:2084`）；
-- 其余事件（如各类 `*Delta`）原样转发（`client.rs:2102`）。
+- `ResponseEvent::OutputItemDone(item)`：一个完整 item 落地，压入 `items_added` 并转发（`core/src/client.rs:2054`）；
+- `ResponseEvent::Completed { token_usage, end_turn }`：整轮结束，顺手把汇总的 `LastResponse` 经 `oneshot` 回传（`core/src/client.rs:2069`、`core/src/client.rs:2084`）；
+- 其余事件（如各类 `*Delta`）原样转发（`core/src/client.rs:2102`）。
 
-出错时则调用 `provider.map_api_error` 把底层错误归一化后再发（`client.rs:2117`、`client.rs:2125`）。这样上层拿到的永远是统一的 `ResponseEvent` 流，不关心底层是 HTTP 还是 WS。
+出错时则调用 `provider.map_api_error` 把底层错误归一化后再发（`core/src/client.rs:2117`、`core/src/client.rs:2125`）。这样上层拿到的永远是统一的 `ResponseEvent` 流，不关心底层是 HTTP 还是 WS。
 
-到 `run_turn`（`core/src/session/turn.rs:153`）这一层，才把事件翻译成 world_state 内容：`ResponseEvent::OutputItemDone(mut item)` 在 `turn.rs:2295` 被消费，配合 `AssistantMessageStreamParsers`（`turn.rs:1615`）把 Reasoning/文本增量逐块拼装，最终经 `event_mapping.rs` 映射成 `TurnItem::Reasoning` 等内部 item。这就是第 4 章说的"主循环消费这些 item"。
+到 `run_turn`（`core/src/session/turn.rs:153`）这一层，才把事件翻译成 world_state 内容：`ResponseEvent::OutputItemDone(mut item)` 在 `core/src/session/turn.rs:2295` 被消费，配合 `AssistantMessageStreamParsers`（`core/src/session/turn.rs:1615`）把 Reasoning/文本增量逐块拼装，最终经 `event_mapping.rs` 映射成 `TurnItem::Reasoning` 等内部 item。这就是第 4 章说的"主循环消费这些 item"。
 
-整条链路是 **channel + spawn** 的异步流水线：底层 `sse_stream` 把字节帧塞进 channel → `ApiResponsesClient` 把 SSE 文本反序列化成 `ResponseEvent` → `map_response_events` 再转发到自己的 `tx_event`（`client.rs:2056`）→ `run_turn` 在 `while let Some(event) = stream.next()` 里逐个 `emit` 成 UI / 协议事件（如 `turn.rs:2653` 的 `ReasoningContentDeltaEvent`）。每一块 delta 都是"收到即 emit"，所以界面上文字是边生成边刷新的。
+整条链路是 **channel + spawn** 的异步流水线：底层 `sse_stream` 把字节帧塞进 channel → `ApiResponsesClient` 把 SSE 文本反序列化成 `ResponseEvent` → `map_response_events` 再转发到自己的 `tx_event`（`core/src/client.rs:2056`）→ `run_turn` 在 `while let Some(event) = stream.next()` 里逐个 `emit` 成 UI / 协议事件（如 `core/src/session/turn.rs:2653` 的 `ReasoningContentDeltaEvent`）。每一块 delta 都是"收到即 emit"，所以界面上文字是边生成边刷新的。
 
 ![](assets/diagrams/dataflow.svg)
 
@@ -30,8 +30,8 @@ Codex 走的是 OpenAI 的 **Responses API**，并且默认开启 **SSE 流式**
 
 失败重试与限流分两层各自负责：
 
-- **客户端层**：`stream_responses_api` 里对 `ApiError::Transport` 的可恢复鉴权错误会触发 `auth_recovery` 重试（`client.rs:1525`），WS→HTTP 的 fallback 也在这里兜底。
-- **底层 HTTP 层**：`codex-client/src/retry.rs` 提供了通用重试。`RetryOn::should_retry`（`retry.rs:22`）明确对 **429 限流**、**5xx**、以及传输错误（`Timeout`/`Connection`/`Network`）决定是否重试；`run_with_retry`（`retry.rs:80`）按 `max_attempts` 循环，配合 `backoff`（`retry.rs:39`）做指数退避 + 抖动。
+- **客户端层**：`stream_responses_api` 里对 `ApiError::Transport` 的可恢复鉴权错误会触发 `auth_recovery` 重试（`core/src/client.rs:1525`），WS→HTTP 的 fallback 也在这里兜底。
+- **底层 HTTP 层**：`codex-client/src/retry.rs` 提供了通用重试。`RetryOn::should_retry`（`codex-client/src/retry.rs:22`）明确对 **429 限流**、**5xx**、以及传输错误（`Timeout`/`Connection`/`Network`）决定是否重试；`run_with_retry`（`codex-client/src/retry.rs:80`）按 `max_attempts` 循环，配合 `backoff`（`codex-client/src/retry.rs:39`）做指数退避 + 抖动。
 
 ## 12.2 上下文压缩：长会话怎么不爆 token
 
@@ -48,15 +48,15 @@ if let Err(err) = run_pre_sampling_compact(
 
 它的定义在 `core/src/session/turn.rs:1012`。它先检查 `context_window_token_status`，只有 `token_limit_reached` 为真才真正触发——压缩因此是"按需"的，短会话不会被无谓打扰。
 
-`run_pre_sampling_compact` 最终落到 `run_inline_auto_compact_task`（`compact.rs:111`），再进入核心实现 `run_compact_task_inner_impl`（`compact.rs:240`）。本质策略是**摘要旧消息 + 丢弃过期内容**：
+`run_pre_sampling_compact` 最终落到 `run_inline_auto_compact_task`（`core/src/compact.rs:111`），再进入核心实现 `run_compact_task_inner_impl`（`core/src/compact.rs:240`）。本质策略是**摘要旧消息 + 丢弃过期内容**：
 
 1. 把整段 history 作为"待总结材料"喂给模型，让它生成一段摘要（`SUMMARIZATION_PROMPT`）；
-2. 摘要与挑选出的用户消息一起，经 `build_compacted_history`（`compact.rs:639`）重建出一段更短的历史，"摘要 item" 作为最后一项追加；
+2. 摘要与挑选出的用户消息一起，经 `build_compacted_history`（`core/src/compact.rs:639`）重建出一段更短的历史，"摘要 item" 作为最后一项追加；
 3. 旧 history 被 `replace_compacted_history` 整体替换，并推进一个 `auto_compact_window` 计数。
 
-策略不是简单"全删"：用户消息按 token 预算从新到旧挑选（`build_compacted_history_with_limit`，`compact.rs:652`，上限 `COMPACT_USER_MESSAGE_MAX_TOKENS = 20_000`），预算装不下的再截断。若压缩过程中又 `ContextWindowExceeded`，会从头部继续 `remove_first_item` 重试（`compact.rs:315`），优先保住近期消息。
+策略不是简单"全删"：用户消息按 token 预算从新到旧挑选（`build_compacted_history_with_limit`，`core/src/compact.rs:652`，上限 `COMPACT_USER_MESSAGE_MAX_TOKENS = 20_000`），预算装不下的再截断。若压缩过程中又 `ContextWindowExceeded`，会从头部继续 `remove_first_item` 重试（`core/src/compact.rs:315`），优先保住近期消息。
 
-压缩本身也是一个会失败的异步任务。`run_compact_task_inner`（`compact.rs:169`）里：若 pre-compact hook 返回 `Stopped`，或 post-compact hook 中止，都直接 `return Err(CodexErr::TurnAborted)`（`compact.rs:193`、`:226`）。这个 `TurnAborted` 正是第 4 章讲过的终态之一——它会一路冒泡回 `run_turn:177`，让整个 turn 以 `TurnAborted` 收尾，而不是带着损坏的历史继续采样。
+压缩本身也是一个会失败的异步任务。`run_compact_task_inner`（`core/src/compact.rs:169`）里：若 pre-compact hook 返回 `Stopped`，或 post-compact hook 中止，都直接 `return Err(CodexErr::TurnAborted)`（`core/src/compact.rs:193`、`:226`）。这个 `TurnAborted` 正是第 4 章讲过的终态之一——它会一路冒泡回 `run_turn:177`，让整个 turn 以 `TurnAborted` 收尾，而不是带着损坏的历史继续采样。
 
 压缩是 `run_turn` 进循环前的"瘦身"步骤，保证后续循环始终跑在预算之内。
 

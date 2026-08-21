@@ -44,6 +44,10 @@ html[data-theme="dark"] {
 
 * { box-sizing: border-box; }
 
+/* hidden 属性即隐藏：全局兜底，确保带 hidden 的元素（含高优先级 ID 选择器）
+   一定被收起；显示态由各元素自身的 .visible / 基础样式接管。 */
+[hidden] { display: none !important; }
+
 /* ---------- 可访问性：键盘焦点可见 ----------
    仅 :focus-visible（键盘 Tab 导航 / 程序聚焦）时显示轮廓，鼠标点击不出现刺眼光圈；
    accent 色 + 2px 描边 + 2px 偏移，清晰但不刺眼。 */
@@ -497,12 +501,13 @@ html[data-theme="dark"] .markdown img {
 
 /* ---------- 回到顶部浮动按钮 ----------
    固定右下角（移动端改到左下，避免与本页目录浮层右下角重叠）；
-   圆形、半透明、hover 明显；默认隐藏，滚动超过一屏高度后显示。 */
+   圆形、站点主色背景 + 白色箭头；默认通过 hidden 属性隐藏，
+   app.js 移除 hidden 并加上 .visible 显示（淡入）；hover 略微上移/加深。 */
 #back-to-top {
   position: fixed;
-  bottom: 24px;
-  right: 24px;
-  z-index: 60;                       /* 低于搜索/帮助浮层(90/95)，高于进度条(50)与本页目录(40) */
+  bottom: 28px;
+  right: 28px;
+  z-index: 60;                       /* 低于搜索/帮助浮层(90/95)、CDN 横幅(9999)，高于进度条(50)与本页目录(40) */
   width: 44px;
   height: 44px;
   display: flex;
@@ -510,35 +515,59 @@ html[data-theme="dark"] .markdown img {
   justify-content: center;
   font-size: 20px;
   line-height: 1;
-  color: var(--text);
-  background: color-mix(in srgb, var(--panel) 80%, transparent);
-  border: 1px solid var(--border);
-  border-radius: 50%;
-  box-shadow: var(--shadow);
+  color: #fff;                       /* 白色箭头 */
+  background: var(--accent);         /* 站点主色背景 */
+  border: none;
+  border-radius: 50%;                /* 圆形 */
+  box-shadow: 0 4px 14px rgba(16, 24, 40, .18);   /* 轻微阴影 */
   cursor: pointer;
-  opacity: 0;
-  visibility: hidden;
+  text-decoration: none;
+  opacity: 0;                        /* 默认不可见，.visible 时淡入 */
   transform: translateY(8px);
-  transition: opacity .2s ease, transform .2s ease, visibility .2s,
-              color .15s, background .15s, border-color .15s;
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  transition: opacity .2s ease, transform .2s ease,
+              background .15s ease, box-shadow .15s ease;
 }
 #back-to-top.visible {
   opacity: 1;
-  visibility: visible;
   transform: translateY(0);
 }
 #back-to-top:hover {
-  color: #fff;
-  background: var(--accent);
-  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 82%, #000);  /* 加深 */
+  transform: translateY(-2px);                                /* 略微上移 */
+  box-shadow: 0 6px 18px rgba(16, 24, 40, .24);
 }
 #back-to-top:focus-visible {
   opacity: 1;
-  visibility: visible;
   outline: 2px solid var(--accent);
   outline-offset: 2px;
+}
+/* 尊重 prefers-reduced-motion：去掉过渡与位移 */
+@media (prefers-reduced-motion: reduce) {
+  #back-to-top { transition: none; }
+  #back-to-top:hover { transform: none; }
+}
+
+/* ---------- CDN 加载失败横幅 ----------
+   固定顶部通栏；默认通过 hidden 属性隐藏，app.js 在资源加载失败时移除 hidden 显示。
+   浅色：浅红底深字；深色：深红底浅字，保证对比清晰。 */
+#cdn-error {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 9999;                     /* 高于一切浮层 */
+  padding: 10px;
+  text-align: center;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #7a1f1f;                    /* 深字 */
+  background: #fde8e8;               /* 浅红底 */
+  border-bottom: 1px solid #f5c2c2;
+}
+html[data-theme="dark"] #cdn-error {
+  color: #ffd9d9;                    /* 浅字 */
+  background: #4a1414;               /* 深红底 */
+  border-bottom-color: #6b1f1f;
 }
 
 /* ---------- Responsive ---------- */
@@ -830,6 +859,17 @@ html[data-theme="dark"] .core-badge {
   background: var(--accent-soft);
 }
 
+/* ---------- 移动端表格横向滚动（<=768px） ----------
+   宽表在手机上改为块级 + 横向滚动，避免撑破页面；不改动桌面端表格样式。
+   （display:block 会丢失表格等高对齐，移动端可接受。） */
+@media (max-width: 768px) {
+  .markdown table {
+    display: block;
+    overflow-x: auto;
+    width: 100%;
+  }
+}
+
 /* ---------- 超窄屏（<=480px） ----------
    确保所有浮层/控件不溢出、可点；字号不挤；宽表格可横向滚动。 */
 @media (max-width: 480px) {
@@ -886,7 +926,7 @@ html[data-theme="dark"] .core-badge {
   .markdown a:hover { background: transparent; border-bottom-color: color-mix(in srgb, var(--accent) 35%, transparent); }
   .markdown a.cite:hover { background: transparent; border-bottom-color: color-mix(in srgb, var(--accent) 40%, transparent); }
   .page-toc-link:hover { background: transparent; color: var(--text-soft); }
-  #back-to-top:hover { color: var(--text); background: color-mix(in srgb, var(--panel) 80%, transparent); border-color: var(--border); }
+  #back-to-top:hover { color: #fff; background: var(--accent); }
   .fs-item:hover { background: transparent; border-color: transparent; }
   .copy-link-btn:hover { opacity: .6; color: var(--text-faint); border-color: var(--border); background: transparent; }
   .fs-close:hover { color: var(--text-soft); }

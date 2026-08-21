@@ -28,7 +28,7 @@ Codex 的运行链路上，模型客户端、工具执行、沙箱、鉴权、�
 
 错误不会原地崩溃，而是被翻译成协议层的客户端可理解结构。`CodexErr::to_error_event`（`protocol/src/error.rs:458`）先 `to_string` 拿到人类可读消息，再调用 `to_codex_protocol_error` 把内部 `CodexErrorDetails` 映射成线协议枚举 `pub enum CodexErrorInfo`（`protocol/src/protocol.rs:1771`，如 `ContextWindowExceeded`、`SandboxError`、`Unauthorized`），最终产出 `pub struct ErrorEvent { message, codex_error_info }`（`protocol/src/protocol.rs:1937`）。该事件被包进 `EventMsg::Error(ErrorEvent)`（`protocol/src/protocol.rs:1290`），经由第 3 章的事件队列推送至 TUI / app-server，UI 据此既展示文案也能按 `codex_error_info` 做针对性提示。
 
-进入第 4 章的 `run_turn` 主循环后，终态错误有专门的出口。循环对 `Err` 逐一 `matches!(err.details(), CodexErrorDetails::TurnAborted)`（`core/src/session/turn.rs:216`），把"被中断/中止"与"真正的硬失败"区分开：普通终态错误会再走一次 `to_error_event` 发 `EventMsg::Error`（`turn.rs:580`）后结束本轮；而 `TurnAborted` 则发出 `EventMsg::TurnAborted`，让线程保留状态、等待用户下一条输入，实现"优雅降级"而非进程退出。可重试错误则在上游就被拦截、按 `retry_delay` 退避重投，用户几乎无感。
+进入第 4 章的 `run_turn` 主循环后，终态错误有专门的出口。循环对 `Err` 逐一 `matches!(err.details(), CodexErrorDetails::TurnAborted)`（`core/src/session/turn.rs:216`），把"被中断/中止"与"真正的硬失败"区分开：普通终态错误会再走一次 `to_error_event` 发 `EventMsg::Error`（`core/src/session/turn.rs:580`）后结束本轮；而 `TurnAborted` 则发出 `EventMsg::TurnAborted`，让线程保留状态、等待用户下一条输入，实现"优雅降级"而非进程退出。可重试错误则在上游就被拦截、按 `retry_delay` 退避重投，用户几乎无感。
 
 ## 13.3 测试策略：这么大的仓库怎么保证不崩
 
@@ -66,7 +66,7 @@ insta::assert_snapshot!(
 03:message/user:inspect the active tab
 ```
 
-一旦 prompt 构造逻辑变动导致文本偏移，CI 立刻变红。TUI 侧同理：`history_ui_tests.rs:12` 的 `insta::assert_snapshot!("desktop_thread_opened_history", render_cell(&cell))` 把 `HistoryCell` 渲染成 80 列文本快照，守住历史面板的排版不退步。
+一旦 prompt 构造逻辑变动导致文本偏移，CI 立刻变红。TUI 侧同理：`tui/src/app/history_ui_tests.rs:12` 的 `insta::assert_snapshot!("desktop_thread_opened_history", render_cell(&cell))` 把 `HistoryCell` 渲染成 80 列文本快照，守住历史面板的排版不退步。
 
 Codex 的测试不是"越多越好"，而是"分层对位"：单元测试守住局部契约，`wiremock` 集成守住端到端行为；`insta` 快照看输出形态有没有漂，rollout 回放确保线上一致。
 

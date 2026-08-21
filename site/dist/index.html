@@ -50,6 +50,10 @@ html[data-theme="dark"] {
 
 * { box-sizing: border-box; }
 
+/* hidden 属性即隐藏：全局兜底，确保带 hidden 的元素（含高优先级 ID 选择器）
+   一定被收起；显示态由各元素自身的 .visible / 基础样式接管。 */
+[hidden] { display: none !important; }
+
 /* ---------- 可访问性：键盘焦点可见 ----------
    仅 :focus-visible（键盘 Tab 导航 / 程序聚焦）时显示轮廓，鼠标点击不出现刺眼光圈；
    accent 色 + 2px 描边 + 2px 偏移，清晰但不刺眼。 */
@@ -503,12 +507,13 @@ html[data-theme="dark"] .markdown img {
 
 /* ---------- 回到顶部浮动按钮 ----------
    固定右下角（移动端改到左下，避免与本页目录浮层右下角重叠）；
-   圆形、半透明、hover 明显；默认隐藏，滚动超过一屏高度后显示。 */
+   圆形、站点主色背景 + 白色箭头；默认通过 hidden 属性隐藏，
+   app.js 移除 hidden 并加上 .visible 显示（淡入）；hover 略微上移/加深。 */
 #back-to-top {
   position: fixed;
-  bottom: 24px;
-  right: 24px;
-  z-index: 60;                       /* 低于搜索/帮助浮层(90/95)，高于进度条(50)与本页目录(40) */
+  bottom: 28px;
+  right: 28px;
+  z-index: 60;                       /* 低于搜索/帮助浮层(90/95)、CDN 横幅(9999)，高于进度条(50)与本页目录(40) */
   width: 44px;
   height: 44px;
   display: flex;
@@ -516,35 +521,59 @@ html[data-theme="dark"] .markdown img {
   justify-content: center;
   font-size: 20px;
   line-height: 1;
-  color: var(--text);
-  background: color-mix(in srgb, var(--panel) 80%, transparent);
-  border: 1px solid var(--border);
-  border-radius: 50%;
-  box-shadow: var(--shadow);
+  color: #fff;                       /* 白色箭头 */
+  background: var(--accent);         /* 站点主色背景 */
+  border: none;
+  border-radius: 50%;                /* 圆形 */
+  box-shadow: 0 4px 14px rgba(16, 24, 40, .18);   /* 轻微阴影 */
   cursor: pointer;
-  opacity: 0;
-  visibility: hidden;
+  text-decoration: none;
+  opacity: 0;                        /* 默认不可见，.visible 时淡入 */
   transform: translateY(8px);
-  transition: opacity .2s ease, transform .2s ease, visibility .2s,
-              color .15s, background .15s, border-color .15s;
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  transition: opacity .2s ease, transform .2s ease,
+              background .15s ease, box-shadow .15s ease;
 }
 #back-to-top.visible {
   opacity: 1;
-  visibility: visible;
   transform: translateY(0);
 }
 #back-to-top:hover {
-  color: #fff;
-  background: var(--accent);
-  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 82%, #000);  /* 加深 */
+  transform: translateY(-2px);                                /* 略微上移 */
+  box-shadow: 0 6px 18px rgba(16, 24, 40, .24);
 }
 #back-to-top:focus-visible {
   opacity: 1;
-  visibility: visible;
   outline: 2px solid var(--accent);
   outline-offset: 2px;
+}
+/* 尊重 prefers-reduced-motion：去掉过渡与位移 */
+@media (prefers-reduced-motion: reduce) {
+  #back-to-top { transition: none; }
+  #back-to-top:hover { transform: none; }
+}
+
+/* ---------- CDN 加载失败横幅 ----------
+   固定顶部通栏；默认通过 hidden 属性隐藏，app.js 在资源加载失败时移除 hidden 显示。
+   浅色：浅红底深字；深色：深红底浅字，保证对比清晰。 */
+#cdn-error {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 9999;                     /* 高于一切浮层 */
+  padding: 10px;
+  text-align: center;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #7a1f1f;                    /* 深字 */
+  background: #fde8e8;               /* 浅红底 */
+  border-bottom: 1px solid #f5c2c2;
+}
+html[data-theme="dark"] #cdn-error {
+  color: #ffd9d9;                    /* 浅字 */
+  background: #4a1414;               /* 深红底 */
+  border-bottom-color: #6b1f1f;
 }
 
 /* ---------- Responsive ---------- */
@@ -836,6 +865,17 @@ html[data-theme="dark"] .core-badge {
   background: var(--accent-soft);
 }
 
+/* ---------- 移动端表格横向滚动（<=768px） ----------
+   宽表在手机上改为块级 + 横向滚动，避免撑破页面；不改动桌面端表格样式。
+   （display:block 会丢失表格等高对齐，移动端可接受。） */
+@media (max-width: 768px) {
+  .markdown table {
+    display: block;
+    overflow-x: auto;
+    width: 100%;
+  }
+}
+
 /* ---------- 超窄屏（<=480px） ----------
    确保所有浮层/控件不溢出、可点；字号不挤；宽表格可横向滚动。 */
 @media (max-width: 480px) {
@@ -892,7 +932,7 @@ html[data-theme="dark"] .core-badge {
   .markdown a:hover { background: transparent; border-bottom-color: color-mix(in srgb, var(--accent) 35%, transparent); }
   .markdown a.cite:hover { background: transparent; border-bottom-color: color-mix(in srgb, var(--accent) 40%, transparent); }
   .page-toc-link:hover { background: transparent; color: var(--text-soft); }
-  #back-to-top:hover { color: var(--text); background: color-mix(in srgb, var(--panel) 80%, transparent); border-color: var(--border); }
+  #back-to-top:hover { color: #fff; background: var(--accent); }
   .fs-item:hover { background: transparent; border-color: transparent; }
   .copy-link-btn:hover { opacity: .6; color: var(--text-faint); border-color: var(--border); background: transparent; }
   .fs-close:hover { color: var(--text-soft); }
@@ -1607,7 +1647,7 @@ use codex_sandboxing::policy_transforms::normalize_additional_permissions;     /
 <p>一次执行前，Codex 先问策略层"这条命令需不需要批准"。<code>core/src/exec_policy.rs:311</code> 的 <code>create_exec_approval_requirement_for_command</code> 把命令交给 <code>codex-execpolicy</code> 的 <code>Policy::check_multiple_with_options</code> 去匹配前缀规则——命中的 <code>allow</code> 规则意味着"这条之前已放行"，命不中且策略为 <code>on-request</code>/<code>on-failure</code> 时才会触发提问。</p>
 <p>真"等你点头"发生在审批中枢。<code>core/src/tools/approvals.rs:438</code> 的 <code>Session::request_approval</code> 是统一入口；判定需要人工确认时，<code>request_user_approval</code>（<code>core/src/tools/approvals.rs:610</code>）封装出 <code>ExecApprovalRequest</code>，通过事件推给前端（<code>protocol/src/protocol.rs:1409</code>）。你做出选择后，前端以 <code>Op::ExecApproval</code>（<code>protocol/src/protocol.rs:599</code>，携带 <code>id</code> 与 <code>ReviewDecision</code>）回提交队列，主循环据此放行或拒绝。第 3 章那对 <code>submit</code> / <code>next_event</code> 在这里落地。</p>
 <h2 id="06-sandbox-6-5-批准记录会被记住">6.5 批准记录会被记住</h2>
-<p>会话内，Codex 用 <code>with_cached_approval</code>（<code>core/src/tools/sandboxing.rs:70</code>）维护一张 <code>tool_approvals</code> 缓存：若某 key 已是 <code>ReviewDecision::ApprovedForSession</code>，直接跳过提问。跨会话的"永久记忆"则写在 <code>codex-execpolicy</code>：你选"记住这条命令"时，<code>execpolicy/src/amend.rs:65</code> 的 <code>blocking_append_allow_prefix_rule</code> 把一条 <code>prefix_rule(pattern=..., decision="allow")</code> 追加进策略文件（<code>amend.rs:174</code> 用咨询锁去重），下次加载策略直接命中，不再打扰你。</p>
+<p>会话内，Codex 用 <code>with_cached_approval</code>（<code>core/src/tools/sandboxing.rs:70</code>）维护一张 <code>tool_approvals</code> 缓存：若某 key 已是 <code>ReviewDecision::ApprovedForSession</code>，直接跳过提问。跨会话的"永久记忆"则写在 <code>codex-execpolicy</code>：你选"记住这条命令"时，<code>execpolicy/src/amend.rs:65</code> 的 <code>blocking_append_allow_prefix_rule</code> 把一条 <code>prefix_rule(pattern=..., decision="allow")</code> 追加进策略文件（<code>execpolicy/src/amend.rs:174</code> 用咨询锁去重），下次加载策略直接命中，不再打扰你。</p>
 <p>再往上一层是<strong>语义化审批</strong>：模型可以提议一条 <code>ExecPolicyAmendment</code>，把"以 <code>cargo test</code> 开头的命令都允许"这样的规则写进白名单，而不是记住某个具体命令行；配合 <code>ReviewDecision::ApprovedExecpolicyAmendment</code>，你批准的是一类行为。三种机制的差别就是信任粒度：<code>ApprovedForSession</code> 只管这次会话，追加的 <code>allow</code> 前缀规则记住这条命令，<code>ExecPolicyAmendment</code> 放行的是一类命令。</p>
 <h2 id="06-sandbox-6-6-整条链路">6.6 整条链路</h2>
 <blockquote>模型产出指令 → 工具系统接住 → 沙箱策略判定能碰哪 → 要紧的先问你（审批）→ exec-server 在受限进程里真跑 → 输出回流。</blockquote>
@@ -1933,16 +1973,16 @@ let msg = EventMsg::ExecCommandOutputDelta(ExecCommandOutputDeltaEvent {
 <h2 id="10-runtime-10-3-异步运行时-tokio-撑起整套并发">10.3 异步运行时：tokio 撑起整套并发</h2>
 <p>Codex 是 I/O 密集而非计算密集的程序：一次 turn 里，模型的 SSE 流要持续解析、exec-server 的 RPC 要等子进程回话、MCP 服务器在另一条连接上待命、TUI 还得随时响应键盘和重绘。这些任务的共同点是"大部分时间在等"，用线程池阻塞式地一对一伺候会浪费大量栈内存与上下文切换。于是整个工作区统一钉在 tokio 上：根 <code>Cargo.toml</code> 声明 <code>tokio = "1"</code>（<code>Cargo.toml:458</code>），core 再按需开启 <code>io-std</code>、<code>macros</code>、<code>process</code>、<code>rt-multi-thread</code>、<code>signal</code> 等 feature（<code>core/Cargo.toml:112</code>）。<code>process</code> 用于沙箱里拉起子进程，<code>signal</code> 用于捕获 Ctrl-C，<code>rt-multi-thread</code> 决定调度器形态。配套还引入了 <code>tokio-util</code>，只启用 <code>rt</code> feature（<code>core/Cargo.toml:119</code>），它提供的 <code>CancellationToken</code> 是全仓中断机制的基石。</p>
 <h3 id="10-runtime-channel-把-Op-与-Event-串起来">channel 把 Op 与 Event 串起来</h3>
-<p>第 3 章那两个口子 <code>submit</code> 与 <code>next_event</code>，异步实现就落在这一节。<code>CodexThread::submit</code>（<code>core/src/codex_thread.rs:190</code>）与 <code>CodexThread::next_event</code>（<code>core/src/codex_thread.rs:463</code>）都只是转交给内部的 <code>SessionIo</code>。真正的双向管道定义在 <code>pub(crate) struct SessionIo</code>（<code>core/src/session/mod.rs:367</code>）：一个 <code>tx_sub: Sender&lt;Submission&gt;</code> 把请求灌进会话循环，一个 <code>rx_event: Receiver&lt;Event&gt;</code> 把事件端出来。提交侧用的不是 <code>tokio::sync::mpsc</code>，而是 <code>async-channel</code>（<code>core/Cargo.toml:21</code>）的有界队列，容量常量 <code>SUBMISSION_CHANNEL_CAPACITY: usize = 512</code>（<code>core/src/session/mod.rs:460</code>）——选它是因为其 <code>Sender</code>/<code>Receiver</code> 两端都可克隆，方便为子 agent 再架一对桥接队列。有界还带来天然背压：<code>submit_with_id</code> 里 <code>self.tx_sub.send(sub).await</code> 会在队列满时挂起而不是无限堆积，若对端已死则映射为 <code>CodexErr::InternalAgentDied</code>（<code>core/src/session/mod.rs:832</code>）。模型流式那侧才用 tokio 原生 mpsc：<code>mpsc::channel::&lt;Result&lt;ResponseEvent&gt;&gt;(RESPONSE_STREAM_CHANNEL_CAPACITY)</code>（<code>core/src/client.rs:2023</code>，容量 1600 见 <code>client.rs:1983</code>），由一个 <code>tokio::spawn</code> 的映射任务（<code>client.rs:2028</code>）把原始 SSE 翻译成 <code>ResponseEvent</code> 喂给 <code>ResponseStream</code>（<code>core/src/client_common.rs:105</code>）。</p>
+<p>第 3 章那两个口子 <code>submit</code> 与 <code>next_event</code>，异步实现就落在这一节。<code>CodexThread::submit</code>（<code>core/src/codex_thread.rs:190</code>）与 <code>CodexThread::next_event</code>（<code>core/src/codex_thread.rs:463</code>）都只是转交给内部的 <code>SessionIo</code>。真正的双向管道定义在 <code>pub(crate) struct SessionIo</code>（<code>core/src/session/mod.rs:367</code>）：一个 <code>tx_sub: Sender&lt;Submission&gt;</code> 把请求灌进会话循环，一个 <code>rx_event: Receiver&lt;Event&gt;</code> 把事件端出来。提交侧用的不是 <code>tokio::sync::mpsc</code>，而是 <code>async-channel</code>（<code>core/Cargo.toml:21</code>）的有界队列，容量常量 <code>SUBMISSION_CHANNEL_CAPACITY: usize = 512</code>（<code>core/src/session/mod.rs:460</code>）——选它是因为其 <code>Sender</code>/<code>Receiver</code> 两端都可克隆，方便为子 agent 再架一对桥接队列。有界还带来天然背压：<code>submit_with_id</code> 里 <code>self.tx_sub.send(sub).await</code> 会在队列满时挂起而不是无限堆积，若对端已死则映射为 <code>CodexErr::InternalAgentDied</code>（<code>core/src/session/mod.rs:832</code>）。模型流式那侧才用 tokio 原生 mpsc：<code>mpsc::channel::&lt;Result&lt;ResponseEvent&gt;&gt;(RESPONSE_STREAM_CHANNEL_CAPACITY)</code>（<code>core/src/client.rs:2023</code>，容量 1600 见 <code>core/src/client.rs:1983</code>），由一个 <code>tokio::spawn</code> 的映射任务（<code>core/src/client.rs:2028</code>）把原始 SSE 翻译成 <code>ResponseEvent</code> 喂给 <code>ResponseStream</code>（<code>core/src/client_common.rs:105</code>）。</p>
 <h3 id="10-runtime-CancellationToken-实现中断">CancellationToken 实现中断</h3>
-<p>第 4 章的 <code>run_turn</code> 末位参数就是 <code>cancellation_token: CancellationToken</code>（<code>core/src/session/turn.rs:158</code>）。中断不靠 kill 线程，而靠协作式取消：仓库自定义了扩展 trait <code>OrCancelExt</code>，其 <code>or_cancel</code> 内部是一个 <code>tokio::select!</code>，在 <code>token.cancelled()</code> 与业务 future 之间赛跑，前者胜出即返回 <code>Err(CancelErr::Cancelled)</code>（<code>async-utils/src/lib.rs:26</code>）。于是主循环里每个可能长耗时的 await 只要挂上 <code>.or_cancel(&amp;cancellation_token)</code>（如 <code>turn.rs:195</code>）就获得了可中断能力，最终收敛成第 13 章会讲到的 <code>TurnAborted</code> 终态。token 还能派生子 token 做级联取消，<code>cancel_token.child_token()</code>（<code>core/src/codex_delegate.rs:146</code>）让父会话一取消，子 agent 的转发任务随之退出。</p>
+<p>第 4 章的 <code>run_turn</code> 末位参数就是 <code>cancellation_token: CancellationToken</code>（<code>core/src/session/turn.rs:158</code>）。中断不靠 kill 线程，而靠协作式取消：仓库自定义了扩展 trait <code>OrCancelExt</code>，其 <code>or_cancel</code> 内部是一个 <code>tokio::select!</code>，在 <code>token.cancelled()</code> 与业务 future 之间赛跑，前者胜出即返回 <code>Err(CancelErr::Cancelled)</code>（<code>async-utils/src/lib.rs:26</code>）。于是主循环里每个可能长耗时的 await 只要挂上 <code>.or_cancel(&amp;cancellation_token)</code>（如 <code>core/src/session/turn.rs:195</code>）就获得了可中断能力，最终收敛成第 13 章会讲到的 <code>TurnAborted</code> 终态。token 还能派生子 token 做级联取消，<code>cancel_token.child_token()</code>（<code>core/src/codex_delegate.rs:146</code>）让父会话一取消，子 agent 的转发任务随之退出。</p>
 <h3 id="10-runtime-多线程-runtime-怎么配出来">多线程 runtime 怎么配出来</h3>
 <p>runtime 并非由 <code>#[tokio::main]</code> 宏隐式创建，而是在 arg0 层手工构建：<code>fn build_runtime()</code> 里 <code>Builder::new_multi_thread()</code> 配合 <code>enable_all()</code>，并显式设置 <code>thread_stack_size(TOKIO_WORKER_STACK_SIZE_BYTES)</code>（<code>arg0/src/lib.rs:291</code>），该常量为 <code>16 * 1024 * 1024</code>，即 16 MB（<code>arg0/src/lib.rs:25</code>）。之所以把栈开这么大，是因为深层嵌套的 async 状态机与递归式的 JSON/协议解析容易撑爆默认 2 MB 栈。更细的一笔：入口没有直接 <code>block_on</code>，而是先 <code>std::thread::Builder::new().name("codex-main").stack_size(...)</code> 起一条同等栈预算的线程（<code>arg0/src/lib.rs:233</code>），再在其中 <code>runtime.block_on(...)</code>（<code>arg0/src/lib.rs:238</code>）——注释明确指出 <code>Runtime::block_on</code> 会把顶层 future 跑在调用者的 OS 栈上，不这么做主 future 就享受不到 16 MB 待遇。</p>
 <h2 id="10-runtime-10-4-Realtime-用语音-流式对话替代打字">10.4 Realtime：用语音/流式对话替代打字</h2>
 <p>常规的模型交互是请求—响应：<code>ModelClientSession::stream</code> 走 HTTP，把一整段 prompt 发出去，再逐 token 读回答案（第 12 章）。Realtime 换了一条通道——基于 WebSocket（或 WebRTC 媒体面 + sideband WebSocket 控制面）的<strong>低延迟双向音频/流式通道</strong>：麦克风采集的音频帧一帧一帧往服务端推，模型边听边想边说，回出来的也直接是音频与文本。它相当于 HTTP 流式能力的双向实时版。</p>
-<p>连接入口在 <code>ModelClient</code> 上：<code>create_realtime_call_with_headers</code> 先通过 HTTP 在 <code>/realtime/calls</code> 端点建一个媒体 call，再保留鉴权让实时 WebSocket 以 sideband 身份挂进同一个 call（<code>core/src/client.rs:659</code>，常量 <code>REALTIME_CALLS_ENDPOINT = "/realtime/calls"</code> 见 <code>client.rs:161</code>）。随后 sideband 任务调用 <code>client.connect_webrtc_sideband(...)</code> 建立那条双向通道（<code>core/src/realtime_conversation/sideband.rs:53</code>）。</p>
-<p>会话侧的状态中枢是 <code>RealtimeConversationManager</code>（<code>core/src/realtime_conversation.rs:126</code>），由 <code>start_realtime_conversation</code> 调用 <code>sess.conversation.start(start, mode_instructions)</code> 拉起（<code>realtime_conversation.rs:1480</code>）。音频的采集与上行都在 <code>run_realtime_input_task</code> 里完成，它用 <code>tokio::select!</code> 同时监听三路输入：服务端下发的事件、文本输入、以及麦克风音频帧。用户音频帧到达后调用 <code>handle_user_audio_input</code> 直接写进 WebSocket 写端（<code>realtime_conversation.rs:1770</code>，音频分支见 <code>realtime_conversation.rs:1866</code>）。模型回出来的音频在 fanout 任务里通过 <code>EventMsg::RealtimeConversationRealtime(RealtimeConversationRealtimeEvent { payload })</code> 广播给前端（<code>realtime_conversation.rs:1542</code>）。</p>
-<p>Realtime 并没有另起一套事件系统，用的还是第 3 章那条总线，只是多了专属变体。<code>RealtimeConversationStarted / Sdp / Realtime / Closed / ListVoicesResponse</code> 都是 <code>EventMsg</code> 的变体，经 <code>sess.send_event_raw(...)</code> 进入和 <code>submit</code>/<code>next_event</code>（<code>core/src/session/mod.rs:801</code>、<code>mod.rs:898</code>）完全相同的事件通道。接驳最深的一处是 "handoff"：模型在实时对话里要求把某段文本交给 Codex 真正执行时，实时层把它路由回正常的 turn 循环——<code>route_realtime_text_input</code> 用 <code>TurnInputMode::StartOrSteer</code> 把文本当作一次普通用户输入提交（<code>core/src/session/turn_input.rs:423</code>）。音频通道只是平行的传输方式，它产出的指令最终仍汇入第 3、4 章的 <code>submit → run_turn</code> 主循环。</p>
+<p>连接入口在 <code>ModelClient</code> 上：<code>create_realtime_call_with_headers</code> 先通过 HTTP 在 <code>/realtime/calls</code> 端点建一个媒体 call，再保留鉴权让实时 WebSocket 以 sideband 身份挂进同一个 call（<code>core/src/client.rs:659</code>，常量 <code>REALTIME_CALLS_ENDPOINT = "/realtime/calls"</code> 见 <code>core/src/client.rs:161</code>）。随后 sideband 任务调用 <code>client.connect_webrtc_sideband(...)</code> 建立那条双向通道（<code>core/src/realtime_conversation/sideband.rs:53</code>）。</p>
+<p>会话侧的状态中枢是 <code>RealtimeConversationManager</code>（<code>core/src/realtime_conversation.rs:126</code>），由 <code>start_realtime_conversation</code> 调用 <code>sess.conversation.start(start, mode_instructions)</code> 拉起（<code>core/src/realtime_conversation.rs:1480</code>）。音频的采集与上行都在 <code>run_realtime_input_task</code> 里完成，它用 <code>tokio::select!</code> 同时监听三路输入：服务端下发的事件、文本输入、以及麦克风音频帧。用户音频帧到达后调用 <code>handle_user_audio_input</code> 直接写进 WebSocket 写端（<code>core/src/realtime_conversation.rs:1770</code>，音频分支见 <code>core/src/realtime_conversation.rs:1866</code>）。模型回出来的音频在 fanout 任务里通过 <code>EventMsg::RealtimeConversationRealtime(RealtimeConversationRealtimeEvent { payload })</code> 广播给前端（<code>core/src/realtime_conversation.rs:1542</code>）。</p>
+<p>Realtime 并没有另起一套事件系统，用的还是第 3 章那条总线，只是多了专属变体。<code>RealtimeConversationStarted / Sdp / Realtime / Closed / ListVoicesResponse</code> 都是 <code>EventMsg</code> 的变体，经 <code>sess.send_event_raw(...)</code> 进入和 <code>submit</code>/<code>next_event</code>（<code>core/src/session/mod.rs:801</code>、<code>core/src/session/mod.rs:898</code>）完全相同的事件通道。接驳最深的一处是 "handoff"：模型在实时对话里要求把某段文本交给 Codex 真正执行时，实时层把它路由回正常的 turn 循环——<code>route_realtime_text_input</code> 用 <code>TurnInputMode::StartOrSteer</code> 把文本当作一次普通用户输入提交（<code>core/src/session/turn_input.rs:423</code>）。音频通道只是平行的传输方式，它产出的指令最终仍汇入第 3、4 章的 <code>submit → run_turn</code> 主循环。</p>
 <h2 id="10-runtime-10-5-小结">10.5 小结</h2>
 <p><strong>核心只产生意图（Op/Event），"在哪跑、怎么跑"全部外置</strong>。exec-server 是命令落地的独立进程；Environment 把本地/远程藏进 <code>ExecBackend</code> 与 <code>ExecutorFileSystem</code> 两个 trait；tokio 的有界 channel 提供背压，<code>CancellationToken</code> 提供协作式中断；Realtime 则是在同一条事件总线之上另接了一层低延迟音视频传输面。</p>
 </section>
@@ -2060,15 +2100,15 @@ metadata:
 <div class="chapter-level"><span class="level-badge advanced">深入</span></div>
 <p>这章把"模型吐字"这个黑盒拆开：客户端怎么把 HTTP 流变成内部 item、会话太长时怎么压缩、一次会话怎么被存下来重演。</p>
 <h2 id="12-model-ctx-12-1-模型客户端-流式响应怎么变成内部-item">12.1 模型客户端：流式响应怎么变成内部 item</h2>
-<p>Codex 走的是 OpenAI 的 <strong>Responses API</strong>，并且默认开启 <strong>SSE 流式</strong>（<code>stream: true</code>，见 <code>core/src/client.rs:933</code>）。一次"turn"不是等模型整段生成完再返回，而是服务端通过 HTTP 长连接按事件一块块地把 <code>ResponseEvent</code> 推过来。更底层 <code>codex-client</code> 把字节流转成 UTF-8 的 SSE <code>data:</code> 帧：<code>codex-client/src/sse.rs:12</code> 的 <code>sse_stream</code> 用 <code>eventsource()</code> 把 <code>ByteStream</code> 逐帧解析，并通过 <code>mpsc</code> 把每帧文本或 <code>StreamError</code> 发出来（<code>sse.rs:23</code> 的 <code>timeout(idle_timeout, …)</code> 还顺带做了空闲超时）。<code>codex-client/src/lib.rs:12</code> 则把 <code>CodexHttpClient</code> 重新导出，作为统一的底层 HTTP 封装。</p>
-<p>客户端入口在 <code>core/src/client.rs</code>。<code>ModelClientSession::stream</code>（<code>client.rs:1861</code>）是"turn 作用域"的流式入口：它先看 wire_api，若 provider 支持且 WebSocket 健康就走 <code>stream_responses_websocket</code>，否则回退到 <code>stream_responses_api</code>（<code>client.rs:1899</code>）。它有明确的降级路径——WS 失败会 <code>try_switch_fallback_transport</code> 强制切到 HTTP（<code>client.rs:1894</code>）。</p>
-<p>真正的 HTTP 流式请求在 <code>stream_responses_api</code>（<code>client.rs:1440</code>）：它构造 transport、组装 request，再调用 <code>ApiResponsesClient::stream_request</code>（<code>client.rs:1513</code>），拿到 <code>codex_api::ResponseStream</code> 后包一层 <code>map_response_stream</code> 返回。</p>
+<p>Codex 走的是 OpenAI 的 <strong>Responses API</strong>，并且默认开启 <strong>SSE 流式</strong>（<code>stream: true</code>，见 <code>core/src/client.rs:933</code>）。一次"turn"不是等模型整段生成完再返回，而是服务端通过 HTTP 长连接按事件一块块地把 <code>ResponseEvent</code> 推过来。更底层 <code>codex-client</code> 把字节流转成 UTF-8 的 SSE <code>data:</code> 帧：<code>codex-client/src/sse.rs:12</code> 的 <code>sse_stream</code> 用 <code>eventsource()</code> 把 <code>ByteStream</code> 逐帧解析，并通过 <code>mpsc</code> 把每帧文本或 <code>StreamError</code> 发出来（<code>codex-client/src/sse.rs:23</code> 的 <code>timeout(idle_timeout, …)</code> 还顺带做了空闲超时）。<code>codex-client/src/lib.rs:12</code> 则把 <code>CodexHttpClient</code> 重新导出，作为统一的底层 HTTP 封装。</p>
+<p>客户端入口在 <code>core/src/client.rs</code>。<code>ModelClientSession::stream</code>（<code>core/src/client.rs:1861</code>）是"turn 作用域"的流式入口：它先看 wire_api，若 provider 支持且 WebSocket 健康就走 <code>stream_responses_websocket</code>，否则回退到 <code>stream_responses_api</code>（<code>core/src/client.rs:1899</code>）。它有明确的降级路径——WS 失败会 <code>try_switch_fallback_transport</code> 强制切到 HTTP（<code>core/src/client.rs:1894</code>）。</p>
+<p>真正的 HTTP 流式请求在 <code>stream_responses_api</code>（<code>core/src/client.rs:1440</code>）：它构造 transport、组装 request，再调用 <code>ApiResponsesClient::stream_request</code>（<code>core/src/client.rs:1513</code>），拿到 <code>codex_api::ResponseStream</code> 后包一层 <code>map_response_stream</code> 返回。</p>
 <p>关键点：<code>client</code> 这一层<strong>不直接生成</strong> <code>AssistantMessage</code> / <code>Reasoning</code> / <code>FunctionCall</code> 这些 world_state 里的 item。它先把原始流的 <code>ResponseEvent</code> 原样搬运、重发，由上层 <code>run_turn</code> 去消费并落进 world_state。</p>
-<p><code>map_response_stream</code>（<code>client.rs:1986</code>）只是个转发壳，真正干活的是 <code>map_response_events</code>（<code>client.rs:2009</code>）。它 <code>tokio::spawn</code> 一个任务，在 <code>loop</code> 里 <code>api_stream.next()</code> 逐条取事件（<code>client.rs:2048</code>），然后分三类转发给 <code>mpsc</code> 通道：</p>
-<ul><li><code>ResponseEvent::OutputItemDone(item)</code>：一个完整 item 落地，压入 <code>items_added</code> 并转发（<code>client.rs:2054</code>）；</li><li><code>ResponseEvent::Completed { token_usage, end_turn }</code>：整轮结束，顺手把汇总的 <code>LastResponse</code> 经 <code>oneshot</code> 回传（<code>client.rs:2069</code>、<code>client.rs:2084</code>）；</li><li>其余事件（如各类 <code>*Delta</code>）原样转发（<code>client.rs:2102</code>）。</li></ul>
-<p>出错时则调用 <code>provider.map_api_error</code> 把底层错误归一化后再发（<code>client.rs:2117</code>、<code>client.rs:2125</code>）。这样上层拿到的永远是统一的 <code>ResponseEvent</code> 流，不关心底层是 HTTP 还是 WS。</p>
-<p>到 <code>run_turn</code>（<code>core/src/session/turn.rs:153</code>）这一层，才把事件翻译成 world_state 内容：<code>ResponseEvent::OutputItemDone(mut item)</code> 在 <code>turn.rs:2295</code> 被消费，配合 <code>AssistantMessageStreamParsers</code>（<code>turn.rs:1615</code>）把 Reasoning/文本增量逐块拼装，最终经 <code>event_mapping.rs</code> 映射成 <code>TurnItem::Reasoning</code> 等内部 item。这就是第 4 章说的"主循环消费这些 item"。</p>
-<p>整条链路是 <strong>channel + spawn</strong> 的异步流水线：底层 <code>sse_stream</code> 把字节帧塞进 channel → <code>ApiResponsesClient</code> 把 SSE 文本反序列化成 <code>ResponseEvent</code> → <code>map_response_events</code> 再转发到自己的 <code>tx_event</code>（<code>client.rs:2056</code>）→ <code>run_turn</code> 在 <code>while let Some(event) = stream.next()</code> 里逐个 <code>emit</code> 成 UI / 协议事件（如 <code>turn.rs:2653</code> 的 <code>ReasoningContentDeltaEvent</code>）。每一块 delta 都是"收到即 emit"，所以界面上文字是边生成边刷新的。</p>
+<p><code>map_response_stream</code>（<code>core/src/client.rs:1986</code>）只是个转发壳，真正干活的是 <code>map_response_events</code>（<code>core/src/client.rs:2009</code>）。它 <code>tokio::spawn</code> 一个任务，在 <code>loop</code> 里 <code>api_stream.next()</code> 逐条取事件（<code>core/src/client.rs:2048</code>），然后分三类转发给 <code>mpsc</code> 通道：</p>
+<ul><li><code>ResponseEvent::OutputItemDone(item)</code>：一个完整 item 落地，压入 <code>items_added</code> 并转发（<code>core/src/client.rs:2054</code>）；</li><li><code>ResponseEvent::Completed { token_usage, end_turn }</code>：整轮结束，顺手把汇总的 <code>LastResponse</code> 经 <code>oneshot</code> 回传（<code>core/src/client.rs:2069</code>、<code>core/src/client.rs:2084</code>）；</li><li>其余事件（如各类 <code>*Delta</code>）原样转发（<code>core/src/client.rs:2102</code>）。</li></ul>
+<p>出错时则调用 <code>provider.map_api_error</code> 把底层错误归一化后再发（<code>core/src/client.rs:2117</code>、<code>core/src/client.rs:2125</code>）。这样上层拿到的永远是统一的 <code>ResponseEvent</code> 流，不关心底层是 HTTP 还是 WS。</p>
+<p>到 <code>run_turn</code>（<code>core/src/session/turn.rs:153</code>）这一层，才把事件翻译成 world_state 内容：<code>ResponseEvent::OutputItemDone(mut item)</code> 在 <code>core/src/session/turn.rs:2295</code> 被消费，配合 <code>AssistantMessageStreamParsers</code>（<code>core/src/session/turn.rs:1615</code>）把 Reasoning/文本增量逐块拼装，最终经 <code>event_mapping.rs</code> 映射成 <code>TurnItem::Reasoning</code> 等内部 item。这就是第 4 章说的"主循环消费这些 item"。</p>
+<p>整条链路是 <strong>channel + spawn</strong> 的异步流水线：底层 <code>sse_stream</code> 把字节帧塞进 channel → <code>ApiResponsesClient</code> 把 SSE 文本反序列化成 <code>ResponseEvent</code> → <code>map_response_events</code> 再转发到自己的 <code>tx_event</code>（<code>core/src/client.rs:2056</code>）→ <code>run_turn</code> 在 <code>while let Some(event) = stream.next()</code> 里逐个 <code>emit</code> 成 UI / 协议事件（如 <code>core/src/session/turn.rs:2653</code> 的 <code>ReasoningContentDeltaEvent</code>）。每一块 delta 都是"收到即 emit"，所以界面上文字是边生成边刷新的。</p>
 <svg viewBox="0 0 800 560" font-family="system-ui, sans-serif">
   <defs>
     <marker id="blk_both" markerWidth="10" markerHeight="10" refX="6" refY="3" orient="auto-start-reverse" markerUnits="strokeWidth">
@@ -2106,7 +2146,7 @@ metadata:
 </svg>
 <p>图：模型响应回流链路（dataflow）——从 SSE 帧到内部 item。</p>
 <p>失败重试与限流分两层各自负责：</p>
-<ul><li><strong>客户端层</strong>：<code>stream_responses_api</code> 里对 <code>ApiError::Transport</code> 的可恢复鉴权错误会触发 <code>auth_recovery</code> 重试（<code>client.rs:1525</code>），WS→HTTP 的 fallback 也在这里兜底。</li><li><strong>底层 HTTP 层</strong>：<code>codex-client/src/retry.rs</code> 提供了通用重试。<code>RetryOn::should_retry</code>（<code>retry.rs:22</code>）明确对 <strong>429 限流</strong>、<strong>5xx</strong>、以及传输错误（<code>Timeout</code>/<code>Connection</code>/<code>Network</code>）决定是否重试；<code>run_with_retry</code>（<code>retry.rs:80</code>）按 <code>max_attempts</code> 循环，配合 <code>backoff</code>（<code>retry.rs:39</code>）做指数退避 + 抖动。</li></ul>
+<ul><li><strong>客户端层</strong>：<code>stream_responses_api</code> 里对 <code>ApiError::Transport</code> 的可恢复鉴权错误会触发 <code>auth_recovery</code> 重试（<code>core/src/client.rs:1525</code>），WS→HTTP 的 fallback 也在这里兜底。</li><li><strong>底层 HTTP 层</strong>：<code>codex-client/src/retry.rs</code> 提供了通用重试。<code>RetryOn::should_retry</code>（<code>codex-client/src/retry.rs:22</code>）明确对 <strong>429 限流</strong>、<strong>5xx</strong>、以及传输错误（<code>Timeout</code>/<code>Connection</code>/<code>Network</code>）决定是否重试；<code>run_with_retry</code>（<code>codex-client/src/retry.rs:80</code>）按 <code>max_attempts</code> 循环，配合 <code>backoff</code>（<code>codex-client/src/retry.rs:39</code>）做指数退避 + 抖动。</li></ul>
 <h2 id="12-model-ctx-12-2-上下文压缩-长会话怎么不爆-token">12.2 上下文压缩：长会话怎么不爆 token</h2>
 <p>第 4 章里 <code>run_turn</code> 是怎么"想一步、做一步"的。它每一次采样都把整段对话历史塞进 prompt；但历史不是无限的——模型有上下文窗口，token 越多越贵，也越容易把前面的指令稀释掉。</p>
 <p>压缩不在回合结束后，而在 <code>run_turn</code> 进主循环<strong>之前</strong>。第 4 章讲过，<code>run_turn</code> 开头先 drain 上一轮的 hook 结果，紧接着就调用 <code>run_pre_sampling_compact</code>（<code>core/src/session/turn.rs:169</code>）：</p>
@@ -2115,10 +2155,10 @@ if let Err(err) = run_pre_sampling_compact(
     &amp;sess, &amp;turn_context, &amp;mut client_session, &amp;cancellation_token,
 ).await { ... }</code></pre>
 <p>它的定义在 <code>core/src/session/turn.rs:1012</code>。它先检查 <code>context_window_token_status</code>，只有 <code>token_limit_reached</code> 为真才真正触发——压缩因此是"按需"的，短会话不会被无谓打扰。</p>
-<p><code>run_pre_sampling_compact</code> 最终落到 <code>run_inline_auto_compact_task</code>（<code>compact.rs:111</code>），再进入核心实现 <code>run_compact_task_inner_impl</code>（<code>compact.rs:240</code>）。本质策略是<strong>摘要旧消息 + 丢弃过期内容</strong>：</p>
-<ol><li>把整段 history 作为"待总结材料"喂给模型，让它生成一段摘要（<code>SUMMARIZATION_PROMPT</code>）；</li><li>摘要与挑选出的用户消息一起，经 <code>build_compacted_history</code>（<code>compact.rs:639</code>）重建出一段更短的历史，"摘要 item" 作为最后一项追加；</li><li>旧 history 被 <code>replace_compacted_history</code> 整体替换，并推进一个 <code>auto_compact_window</code> 计数。</li></ol>
-<p>策略不是简单"全删"：用户消息按 token 预算从新到旧挑选（<code>build_compacted_history_with_limit</code>，<code>compact.rs:652</code>，上限 <code>COMPACT_USER_MESSAGE_MAX_TOKENS = 20_000</code>），预算装不下的再截断。若压缩过程中又 <code>ContextWindowExceeded</code>，会从头部继续 <code>remove_first_item</code> 重试（<code>compact.rs:315</code>），优先保住近期消息。</p>
-<p>压缩本身也是一个会失败的异步任务。<code>run_compact_task_inner</code>（<code>compact.rs:169</code>）里：若 pre-compact hook 返回 <code>Stopped</code>，或 post-compact hook 中止，都直接 <code>return Err(CodexErr::TurnAborted)</code>（<code>compact.rs:193</code>、<code>:226</code>）。这个 <code>TurnAborted</code> 正是第 4 章讲过的终态之一——它会一路冒泡回 <code>run_turn:177</code>，让整个 turn 以 <code>TurnAborted</code> 收尾，而不是带着损坏的历史继续采样。</p>
+<p><code>run_pre_sampling_compact</code> 最终落到 <code>run_inline_auto_compact_task</code>（<code>core/src/compact.rs:111</code>），再进入核心实现 <code>run_compact_task_inner_impl</code>（<code>core/src/compact.rs:240</code>）。本质策略是<strong>摘要旧消息 + 丢弃过期内容</strong>：</p>
+<ol><li>把整段 history 作为"待总结材料"喂给模型，让它生成一段摘要（<code>SUMMARIZATION_PROMPT</code>）；</li><li>摘要与挑选出的用户消息一起，经 <code>build_compacted_history</code>（<code>core/src/compact.rs:639</code>）重建出一段更短的历史，"摘要 item" 作为最后一项追加；</li><li>旧 history 被 <code>replace_compacted_history</code> 整体替换，并推进一个 <code>auto_compact_window</code> 计数。</li></ol>
+<p>策略不是简单"全删"：用户消息按 token 预算从新到旧挑选（<code>build_compacted_history_with_limit</code>，<code>core/src/compact.rs:652</code>，上限 <code>COMPACT_USER_MESSAGE_MAX_TOKENS = 20_000</code>），预算装不下的再截断。若压缩过程中又 <code>ContextWindowExceeded</code>，会从头部继续 <code>remove_first_item</code> 重试（<code>core/src/compact.rs:315</code>），优先保住近期消息。</p>
+<p>压缩本身也是一个会失败的异步任务。<code>run_compact_task_inner</code>（<code>core/src/compact.rs:169</code>）里：若 pre-compact hook 返回 <code>Stopped</code>，或 post-compact hook 中止，都直接 <code>return Err(CodexErr::TurnAborted)</code>（<code>core/src/compact.rs:193</code>、<code>:226</code>）。这个 <code>TurnAborted</code> 正是第 4 章讲过的终态之一——它会一路冒泡回 <code>run_turn:177</code>，让整个 turn 以 <code>TurnAborted</code> 收尾，而不是带着损坏的历史继续采样。</p>
 <p>压缩是 <code>run_turn</code> 进循环前的"瘦身"步骤，保证后续循环始终跑在预算之内。</p>
 <h2 id="12-model-ctx-12-3-Rollout-与回放-一次会话怎么被存下来重演">12.3 Rollout 与回放：一次会话怎么被存下来重演</h2>
 <p>Codex 的每一次交互就是一条"事件流"：模型吐出的 token、工具调用、用户消息、回合边界。把这条流落盘，至少有三类用途。其一是<strong>评测</strong>——离线重放一段对话能精确复现模型当时的上下文，做回归或基准对比；其二是<strong>调试</strong>——线上出问题后，开发者可以 <code>jq -C . ~/.codex/sessions/rollout-*.jsonl</code> 直接围观原始事件（<code>rollout/src/recorder.rs:82</code>）；其三是<strong>回放</strong>——把存下的事件按顺序喂回去，就能在 TUI 里原样还原出当时的界面。</p>
@@ -2185,7 +2225,7 @@ if let Err(err) = run_pre_sampling_compact(
 <p>Codex 的运行链路上，模型客户端、工具执行、沙箱、鉴权、配置解析都可能失败，且分属不同 crate。若任由 <code>io::Error</code>、<code>serde_json::Error</code>、<code>HttpError</code> 各自上抛，调用方根本无法做统一决策。因此 protocol 层定义了一个唯一的错误类型 <code>CodexErr</code>，并把结果类型统一为 <code>pub type Result&lt;T&gt; = std::result::Result&lt;T, CodexErr&gt;</code>（<code>protocol/src/error.rs:30</code>）——这就是第 3 章公共 API 里 <code>CodexResult</code> 的真身。<code>CodexErr</code> 本身很薄，只包了两样东西：语义化的 <code>details: CodexErrorDetails</code> 和一个可选的 <code>retry_delay: Option&lt;Duration&gt;</code>（<code>protocol/src/error.rs:70</code>），前者归类、后者携带退避策略，便于上层判断"能不能重试"而不关心底层细节。</p>
 <p>真正用于分类的是 <code>pub enum CodexErrorDetails</code>（<code>protocol/src/error.rs:81</code>），它枚举了上下文超限、连接失败、沙箱拒绝、配额耗尽、策略违规等几十种情形。是否可重试由一个方法集中裁决：<code>pub fn is_retryable(&amp;self) -&gt; bool</code>（<code>protocol/src/error.rs:364</code>）。例如 <code>Stream</code>、<code>Timeout</code>、<code>ConnectionFailed</code>、<code>Io</code>、<code>Json</code> 等被标记为 <code>true</code>，主循环据此自动退避重试；而 <code>TurnAborted</code>、<code>ContextWindowExceeded</code>、<code>UsageLimitReached</code>、<code>Sandbox</code> 等返回 <code>false</code>，属终态错误，必须由用户或流程收尾。还有一类"用户可恢复"的并非走 <code>CodexErr</code>，而是第 6 章的审批流（如 <code>ExecApprovalRequest</code>）——它们以事件而非错误的形式交还用户决策，避免把"等用户点同意"误判成失败。</p>
 <p>错误不会原地崩溃，而是被翻译成协议层的客户端可理解结构。<code>CodexErr::to_error_event</code>（<code>protocol/src/error.rs:458</code>）先 <code>to_string</code> 拿到人类可读消息，再调用 <code>to_codex_protocol_error</code> 把内部 <code>CodexErrorDetails</code> 映射成线协议枚举 <code>pub enum CodexErrorInfo</code>（<code>protocol/src/protocol.rs:1771</code>，如 <code>ContextWindowExceeded</code>、<code>SandboxError</code>、<code>Unauthorized</code>），最终产出 <code>pub struct ErrorEvent { message, codex_error_info }</code>（<code>protocol/src/protocol.rs:1937</code>）。该事件被包进 <code>EventMsg::Error(ErrorEvent)</code>（<code>protocol/src/protocol.rs:1290</code>），经由第 3 章的事件队列推送至 TUI / app-server，UI 据此既展示文案也能按 <code>codex_error_info</code> 做针对性提示。</p>
-<p>进入第 4 章的 <code>run_turn</code> 主循环后，终态错误有专门的出口。循环对 <code>Err</code> 逐一 <code>matches!(err.details(), CodexErrorDetails::TurnAborted)</code>（<code>core/src/session/turn.rs:216</code>），把"被中断/中止"与"真正的硬失败"区分开：普通终态错误会再走一次 <code>to_error_event</code> 发 <code>EventMsg::Error</code>（<code>turn.rs:580</code>）后结束本轮；而 <code>TurnAborted</code> 则发出 <code>EventMsg::TurnAborted</code>，让线程保留状态、等待用户下一条输入，实现"优雅降级"而非进程退出。可重试错误则在上游就被拦截、按 <code>retry_delay</code> 退避重投，用户几乎无感。</p>
+<p>进入第 4 章的 <code>run_turn</code> 主循环后，终态错误有专门的出口。循环对 <code>Err</code> 逐一 <code>matches!(err.details(), CodexErrorDetails::TurnAborted)</code>（<code>core/src/session/turn.rs:216</code>），把"被中断/中止"与"真正的硬失败"区分开：普通终态错误会再走一次 <code>to_error_event</code> 发 <code>EventMsg::Error</code>（<code>core/src/session/turn.rs:580</code>）后结束本轮；而 <code>TurnAborted</code> 则发出 <code>EventMsg::TurnAborted</code>，让线程保留状态、等待用户下一条输入，实现"优雅降级"而非进程退出。可重试错误则在上游就被拦截、按 <code>retry_delay</code> 退避重投，用户几乎无感。</p>
 <h2 id="13-engineering-13-3-测试策略-这么大的仓库怎么保证不崩">13.3 测试策略：这么大的仓库怎么保证不崩</h2>
 <p>Codex 是个超大型 Rust 单体仓库（<code>codex-rs</code>）。要在持续迭代中不崩，靠的是一套<strong>分层的测试策略</strong>：</p>
 <ul><li><strong>单元测试</strong>：模块内 <code>#[test]</code>，例如 <code>tui/src/app/history_ui_tests.rs</code> 里直接构造 <code>history_cell</code> 来验证渲染契约，不依赖任何外部环境。</li><li><strong>集成测试</strong>：<code>core/tests/suite/</code> 下上百个用例，通过 <code>core_test_support</code> 提供的 <code>TestCodexBuilder::test_codex()</code>（<code>core/tests/common/test_codex.rs:1330</code>）拉起真实的 <code>Codex</code> 生命周期，覆盖工具、审批、compact 等端到端行为。</li><li><strong>快照测试（insta）</strong>：对"请求长什么样、界面长什么样"这类结构化输出做快照比对，是主力手段。</li><li><strong>评测回放</strong>：把线上 rollout 当成测试用例来回放，呼应第 12 章；如 <code>core/tests/suite/rollout_list_find.rs:93</code> 的 <code>find_locates_rollout_file_by_id()</code>，先用 <code>RolloutRecorder</code> 写出一个最小 rollout，再校验 <code>find_archived_thread_path_by_id_str</code> 的查找逻辑。</li></ul>
@@ -2207,7 +2247,7 @@ if let Err(err) = run_pre_sampling_compact(
 01:message/developer:&lt;automation_info&gt;run one&lt;/automation_info&gt;
 02:message/user:&lt;external_browser_info&gt;tab one&lt;/external_browser_info&gt;
 03:message/user:inspect the active tab</code></pre>
-<p>一旦 prompt 构造逻辑变动导致文本偏移，CI 立刻变红。TUI 侧同理：<code>history_ui_tests.rs:12</code> 的 <code>insta::assert_snapshot!("desktop_thread_opened_history", render_cell(&amp;cell))</code> 把 <code>HistoryCell</code> 渲染成 80 列文本快照，守住历史面板的排版不退步。</p>
+<p>一旦 prompt 构造逻辑变动导致文本偏移，CI 立刻变红。TUI 侧同理：<code>tui/src/app/history_ui_tests.rs:12</code> 的 <code>insta::assert_snapshot!("desktop_thread_opened_history", render_cell(&amp;cell))</code> 把 <code>HistoryCell</code> 渲染成 80 列文本快照，守住历史面板的排版不退步。</p>
 <p>Codex 的测试不是"越多越好"，而是"分层对位"：单元测试守住局部契约，<code>wiremock</code> 集成守住端到端行为；<code>insta</code> 快照看输出形态有没有漂，rollout 回放确保线上一致。</p>
 <h2 id="13-engineering-13-4-构建系统-cargo-之外为什么还有-bazel">13.4 构建系统：cargo 之外为什么还有 bazel</h2>
 <p>Codex 的 Rust 代码同时活在两套构建系统里。日常你跑 <code>cargo build</code>，CI 与发布却走 <code>bazel</code>。Cargo 与 bazel 看的是同一份 cargo workspace：一套给开发者，一套给流水线。</p>
@@ -2264,7 +2304,7 @@ if let Err(err) = run_pre_sampling_compact(
 <p>本指南一共 16 篇：开头的引子、第 1 章到第 13 章这十三章正文，以及结尾的术语表与架构全景、阅读路线两页参考。把引子、第 1 章到第 9 章（仓库地图一路读到配置系统）走完，Codex 的驱动轴和主干流程就清晰了：三进程模型、core 的 <code>submit/next_event</code> 驱动轴、采样—执行主循环、工具与沙箱、TUI 作为事件视图、协议把大脑变成服务、配置把一切串起来。后面第 10–13 章是围绕它展开的执行链路、扩展生态、模型与上下文、工程化，按你的目标挑读就行。</p>
 <p>下面按目标给出几条路线。</p>
 <h2 id="15-roadmap-路线-A-想改模型交互行为">路线 A：想改模型交互行为</h2>
-<p>从 <code>core/src/client.rs</code>（或更底层的 <code>codex-client</code>）读起，看流式响应怎么变成 <code>world_state</code>、再进 <code>run_turn</code> 的采样循环（<code>core/src/session/turn.rs:153</code>）。要调 prompt 工程，看 <code>build_skills_and_plugins</code>（<code>turn.rs:758</code>）和 skills 那几个 crate（<code>codex-skills</code>）。细节都在第 12 章。</p>
+<p>从 <code>core/src/client.rs</code>（或更底层的 <code>codex-client</code>）读起，看流式响应怎么变成 <code>world_state</code>、再进 <code>run_turn</code> 的采样循环（<code>core/src/session/turn.rs:153</code>）。要调 prompt 工程，看 <code>build_skills_and_plugins</code>（<code>core/src/session/turn.rs:758</code>）和 skills 那几个 crate（<code>codex-skills</code>）。细节都在第 12 章。</p>
 <h2 id="15-roadmap-路线-B-想加一个新工具">路线 B：想加一个新工具</h2>
 <p>照 <code>core/src/tools/handlers/</code> 里现有 handler（比如 <code>apply_patch.rs</code>）的骨架，实现同一套 trait，到 <code>core/src/tools/registry.rs</code> 注册。记得 PreToolUse / PostToolUse 两道 hook，以及要不要走审批闸门（第 5 章、第 6 章）。需要外部能力就走 <code>codex-mcp</code> / <code>codex-plugin-*</code>（第 11 章）。</p>
 <h2 id="15-roadmap-路线-C-想动安全边界">路线 C：想动安全边界</h2>

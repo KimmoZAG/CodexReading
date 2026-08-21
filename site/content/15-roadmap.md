@@ -6,7 +6,7 @@
 
 ## 路线 A：想改模型交互行为
 
-从 `core/src/client.rs`（或更底层的 `codex-client`）读起，看流式响应怎么变成 `world_state`、再进 `run_turn` 的采样循环（`core/src/session/turn.rs:153`）。要调 prompt 工程，看 `build_skills_and_plugins`（`turn.rs:758`）和 skills 那几个 crate（`codex-skills`）。细节都在第 12 章。
+从 `core/src/client.rs`（或更底层的 `codex-client`）读起，看流式响应怎么变成 `world_state`、再进 `run_turn` 的采样循环（`core/src/session/turn.rs:153`）。要调 prompt 工程，看 `build_skills_and_plugins`（`core/src/session/turn.rs:758`）和 skills 那几个 crate（`codex-skills`）。细节都在第 12 章。
 
 ## 路线 B：想加一个新工具
 

@@ -18,7 +18,7 @@
   <meta property="og:description" content="OpenAI Codex（codex-rs）仓库的由浅入深阅读指南：三进程模型、codex-core 主循环、工具系统、沙箱、协议与配置。" />
   <meta property="og:type" content="website" />
   <meta property="og:locale" content="zh_CN" />
-  <meta property="og:url" content="https://your-name.github.io/codex-guide/" />
+  <meta property="og:url" content="https://kimmozag.github.io/CodexReading/" />
   <meta name="twitter:card" content="summary" />
   <meta name="theme-color" content="#4F46E5" media="(prefers-color-scheme: light)" />
   <meta name="theme-color" content="#0F172A" media="(prefers-color-scheme: dark)" />
@@ -37,13 +37,13 @@
     "inLanguage": "zh-CN",
     "author": {
       "@type": "Person",
-      "name": "Codex 阅读指南维护者",
-      "url": "https://github.com/openai/codex"
+      "name": "Codex 阅读指南",
+      "url": "https://github.com/KimmoZAG/CodexReading"
     },
     "maintainer": {
       "@type": "Person",
-      "name": "Codex 阅读指南维护者",
-      "url": "https://github.com/openai/codex"
+      "name": "Codex 阅读指南",
+      "url": "https://github.com/KimmoZAG/CodexReading"
     },
     "about": {
       "@type": "SoftwareSourceCode",
@@ -57,38 +57,24 @@
       { "@type": "Chapter", "name": "第 3 章：codex-core 公共 API", "url": "#/read/03-core-api", "identifier": "03-core-api" },
       { "@type": "Chapter", "name": "第 4 章：主循环 run_turn", "url": "#/read/04-turn-loop", "identifier": "04-turn-loop" },
       { "@type": "Chapter", "name": "第 5 章：工具系统", "url": "#/read/05-tools", "identifier": "05-tools" },
-      { "@type": "Chapter", "name": "第 6 章：沙箱", "url": "#/read/06-sandbox", "identifier": "06-sandbox" },
-      { "@type": "Chapter", "name": "第 7 章：TUI", "url": "#/read/07-tui", "identifier": "07-tui" },
+      { "@type": "Chapter", "name": "第 6 章：沙箱与安全", "url": "#/read/06-sandbox", "identifier": "06-sandbox" },
+      { "@type": "Chapter", "name": "第 7 章：终端界面", "url": "#/read/07-tui", "identifier": "07-tui" },
       { "@type": "Chapter", "name": "第 8 章：协议与 app-server", "url": "#/read/08-protocol", "identifier": "08-protocol" },
       { "@type": "Chapter", "name": "第 9 章：配置系统", "url": "#/read/09-config", "identifier": "09-config" },
-      { "@type": "Chapter", "name": "第 11 章：exec-server 执行链路", "url": "#/read/11-exec-server", "identifier": "11-exec-server" },
-      { "@type": "Chapter", "name": "第 12 章：模型客户端与流式响应", "url": "#/read/12-model-client", "identifier": "12-model-client" },
-      { "@type": "Chapter", "name": "第 13 章：配置分层", "url": "#/read/13-config-layers", "identifier": "13-config-layers" },
-      { "@type": "Chapter", "name": "第 14 章：Hooks 系统", "url": "#/read/14-hooks", "identifier": "14-hooks" },
-      { "@type": "Chapter", "name": "第 15 章：Skills 系统", "url": "#/read/15-skills", "identifier": "15-skills" },
-      { "@type": "Chapter", "name": "第 16 章：MCP 接入", "url": "#/read/16-mcp", "identifier": "16-mcp" },
-      { "@type": "Chapter", "name": "第 17 章：上下文压缩", "url": "#/read/17-compact", "identifier": "17-compact" },
-      { "@type": "Chapter", "name": "第 18 章：Rollout 与回放", "url": "#/read/18-rollout", "identifier": "18-rollout" },
-      { "@type": "Chapter", "name": "第 19 章：登录与鉴权", "url": "#/read/19-auth", "identifier": "19-auth" },
-      { "@type": "Chapter", "name": "第 20 章：插件系统", "url": "#/read/20-plugins", "identifier": "20-plugins" },
-      { "@type": "Chapter", "name": "第 21 章：审批策略", "url": "#/read/21-approval", "identifier": "21-approval" },
-      { "@type": "Chapter", "name": "第 22 章：TUI 内部", "url": "#/read/22-tui-internals", "identifier": "22-tui-internals" },
-      { "@type": "Chapter", "name": "第 23 章：协议与类型生成", "url": "#/read/23-protocol-ts", "identifier": "23-protocol-ts" },
-      { "@type": "Chapter", "name": "第 24 章：多环境", "url": "#/read/24-environments", "identifier": "24-environments" },
-      { "@type": "Chapter", "name": "第 25 章：Realtime", "url": "#/read/25-realtime", "identifier": "25-realtime" },
-      { "@type": "Chapter", "name": "第 26 章：测试策略", "url": "#/read/26-testing", "identifier": "26-testing" },
-      { "@type": "Chapter", "name": "第 27 章：错误处理", "url": "#/read/27-error-handling", "identifier": "27-error-handling" },
-      { "@type": "Chapter", "name": "第 28 章：异步运行时", "url": "#/read/28-async", "identifier": "28-async" },
-      { "@type": "Chapter", "name": "第 29 章：构建系统", "url": "#/read/29-build", "identifier": "29-build" },
-      { "@type": "Chapter", "name": "第 30 章：安装与分发", "url": "#/read/30-installer", "identifier": "30-installer" },
-      { "@type": "Chapter", "name": "术语表", "url": "#/read/glossary", "identifier": "glossary" },
-      { "@type": "Chapter", "name": "架构全景", "url": "#/read/architecture", "identifier": "architecture" },
-      { "@type": "Chapter", "name": "收尾：阅读路线", "url": "#/read/10-roadmap", "identifier": "10-roadmap" }
+      { "@type": "Chapter", "name": "第 10 章：执行与运行时", "url": "#/read/10-runtime", "identifier": "10-runtime" },
+      { "@type": "Chapter", "name": "第 11 章：扩展生态", "url": "#/read/11-extensions", "identifier": "11-extensions" },
+      { "@type": "Chapter", "name": "第 12 章：模型与上下文", "url": "#/read/12-model-ctx", "identifier": "12-model-ctx" },
+      { "@type": "Chapter", "name": "第 13 章：工程化", "url": "#/read/13-engineering", "identifier": "13-engineering" },
+      { "@type": "Chapter", "name": "术语表与架构全景", "url": "#/read/14-glossary", "identifier": "14-glossary" },
+      { "@type": "Chapter", "name": "收尾：阅读路线与关于本站点", "url": "#/read/15-roadmap", "identifier": "15-roadmap" }
     ]
   }
   </script>
 </head>
 <body>
+  <!-- CDN 加载失败提示横幅：默认 hidden，三个 CDN 都挂时由页尾脚本显示 -->
+  <div id="cdn-error" hidden>本站依赖的脚本（marked / highlight.js / mermaid）加载失败，多半是网络无法访问 CDN。请检查网络后刷新；或改用离线版 site/dist/index.html。</div>
+
   <!-- 窄屏抽屉：汉堡按钮 + 半透明遮罩（桌面端由 CSS 隐藏） -->
   <button id="menu-toggle" class="menu-toggle" type="button"
           aria-label="打开章节菜单" aria-controls="sidebar" aria-expanded="false">☰</button>
@@ -138,11 +124,32 @@
   </div>
 
   <!-- 回到顶部浮动按钮：默认隐藏，向下滚动超过一屏时显示 -->
-  <button id="back-to-top" type="button" aria-label="回到顶部" title="回到顶部">↑</button>
+  <button id="back-to-top" type="button" aria-label="回到顶部" title="回到顶部" hidden>↑</button>
 
-  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js" defer></script>
-  <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js" defer></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" defer></script>
+  <!-- 关键 JS：主 CDN 失败则同步回退到 unpkg（document.write 保证加载顺序，避免白屏） -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script>window.marked||document.write('<script src="https://unpkg.com/marked/marked.min.js"><\/script>')</script>
+
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+  <script>window.mermaid||document.write('<script src="https://unpkg.com/mermaid@10/dist/mermaid.min.js"><\/script>')</script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>window.hljs||document.write('<script src="https://unpkg.com/@highlightjs/cdn-assets@11/highlight.min.js"><\/script>')</script>
+
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets@11/languages/rust.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets@11/languages/go.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets@11/languages/toml.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets@11/languages/bash.min.js"></script>
+<script>(window.hljs&&!hljs.getLanguage('rust'))||document.write('<script src="https://unpkg.com/@highlightjs/cdn-assets@11/languages/rust.min.js"><\/script><script src="https://unpkg.com/@highlightjs/cdn-assets@11/languages/go.min.js"><\/script><script src="https://unpkg.com/@highlightjs/cdn-assets@11/languages/toml.min.js"><\/script><script src="https://unpkg.com/@highlightjs/cdn-assets@11/languages/bash.min.js"><\/script>')</script>
+
   <script src="js/app.js" defer></script>
+
+  <!-- 兜底提示：若 marked 仍不可用（主 CDN 与 unpkg 皆失败），显示可见横幅而非白屏 -->
+  <script>
+  if (typeof marked === "undefined") {
+    var e = document.getElementById("cdn-error");
+    if (e) e.hidden = false;
+  }
+  </script>
 </body>
 </html>
