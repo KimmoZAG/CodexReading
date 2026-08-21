@@ -39,6 +39,77 @@ function updateProgress() {
 window.addEventListener("scroll", updateProgress, { passive: true });
 window.addEventListener("resize", updateProgress);
 
+// ---------- 回到顶部浮动按钮 ----------
+// 监听 window 滚动（内容区即整窗滚动），向下滚动超过一屏高度时显示按钮；
+// 点击平滑滚回顶部；章节切换时由 showChapter / showRepo 显式隐藏。
+const backToTopBtn = document.getElementById("back-to-top");
+function updateBackToTop() {
+  if (!backToTopBtn) return;
+  const scrollTop = window.scrollY || document.documentElement.scrollTop || 0;
+  const show = scrollTop > window.innerHeight;          // 超过一屏高度才显示
+  backToTopBtn.classList.toggle("visible", show);
+}
+function hideBackToTop() {
+  if (backToTopBtn) backToTopBtn.classList.remove("visible");
+}
+window.addEventListener("scroll", updateBackToTop, { passive: true });
+window.addEventListener("resize", updateBackToTop);
+if (backToTopBtn) {
+  backToTopBtn.addEventListener("click", () => {
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    window.scrollTo({ top: 0, left: 0, behavior: reduced ? "auto" : "smooth" });
+  });
+}
+
+// ---------- 记住每章滚动位置 ----------
+// 与「记住上次读的章节」(codex-guide-last) 区分：这里按章节 id 单独保存窗口滚动偏移，
+// 重新打开某章时恢复到上次读到的位置。切换章节 / 打开仓库地图时不恢复旧章偏移。
+const SCROLL_KEY_PREFIX = "codex-guide-scroll-";
+const SCROLL_SAVE_INTERVAL = 300;   // 节流间隔（ms）
+let activeChapterId = null;          // 当前正在阅读的章节 id（null 表示不在章节视图）
+let suppressScrollSave = false;      // 切章/清内容期间临时禁止保存，避免写入瞬态偏移
+let scrollSaveTimer = null;
+
+function scrollKeyFor(id) { return SCROLL_KEY_PREFIX + id; }
+
+// 切章 / 退出章节前，立即把“旧章节”的当前偏移落盘（此时 activeChapterId 仍是旧章）
+function flushChapterScroll() {
+  if (!activeChapterId) return;
+  try {
+    localStorage.setItem(scrollKeyFor(activeChapterId), String(window.scrollY || 0));
+  } catch (e) {}
+}
+
+// 保存当前章节的窗口滚动偏移（仅在章节视图且未被抑制时写入）
+function saveChapterScroll() {
+  if (!activeChapterId || suppressScrollSave) return;
+  try {
+    localStorage.setItem(scrollKeyFor(activeChapterId), String(window.scrollY || 0));
+  } catch (e) {}
+}
+
+// 读取并恢复某章保存的滚动偏移；无记录则回到顶部
+function restoreChapterScroll(id) {
+  let offset = 0;
+  try {
+    const raw = localStorage.getItem(scrollKeyFor(id));
+    if (raw != null) offset = parseInt(raw, 10) || 0;
+  } catch (e) {}
+  const content = document.getElementById("content");
+  if (content) content.scrollTop = offset;
+  window.scrollTo({ top: offset, left: 0, behavior: "instant" });
+}
+
+// 滚动时按 ~300ms 节流把偏移写入 localStorage（尾部触发，能捕获最终停止位置）
+function scheduleScrollSave() {
+  if (scrollSaveTimer) return;
+  scrollSaveTimer = setTimeout(() => {
+    scrollSaveTimer = null;
+    saveChapterScroll();
+  }, SCROLL_SAVE_INTERVAL);
+}
+window.addEventListener("scroll", scheduleScrollSave, { passive: true });
+
 // ---------- Markdown 配置 ----------
 marked.setOptions({ gfm: true, breaks: false });
 
@@ -377,6 +448,8 @@ function setActive(id) {
 
 async function showChapter(id) {
   const chap = state.manifest.find((c) => c.id === id) || state.manifest[0];
+  flushChapterScroll();                 // 保存旧章节滚动位置（activeChapterId 仍是旧章）
+  suppressScrollSave = true;            // 切章 / 清内容期间禁止写入瞬态偏移
   setActive(chap.id);
   const article = document.getElementById("article");
   article.innerHTML = `<p class="loading">正在加载 ${chap.title}…</p>`;
@@ -391,16 +464,31 @@ async function showChapter(id) {
     addCopyButtons(article);                // 给代码块加「复制」按钮
     linkifyCitations(article);              // 正文源码引用 → GitHub 链接
     try { localStorage.setItem("codex-guide-last", chap.id); } catch (e) {}
-    document.getElementById("content").scrollTop = 0;
-    window.scrollTo({ top: 0, left: 0, behavior: "instant" });   // 切章立即归零，不触发平滑滚动
-    updateProgress();                         // 切换章节后重新计算进度（重置为 0%）
-    setTimeout(updateProgress, 60);           // 等图片/字体加载、布局稳定后再校准一次
+    activeChapterId = chap.id;                // 标记当前章节，后续滚动写入该章 key
+    suppressScrollSave = false;               // 恢复完成前不再抑制写入
+    restoreChapterScroll(chap.id);            // 恢复上次读到的滚动位置（无记录则回到顶部）
+    // 图片加载完成后再校准一次，避免布局变化导致位置偏移
+    article.querySelectorAll("img").forEach((img) => {
+      if (!img.complete) img.addEventListener("load", () => {
+        if (activeChapterId === chap.id) restoreChapterScroll(chap.id);
+      }, { once: true });
+    });
+    hideBackToTop();                          // 章节切换时隐藏「回到顶部」（恢复滚动后会被 updateBackToTop 重新评估）
+    updateProgress();                         // 切换章节后重新计算进度
+    setTimeout(() => {                        // 等图片/字体加载、布局稳定后再校准一次
+      if (activeChapterId === chap.id) restoreChapterScroll(chap.id);
+      updateProgress();
+    }, 60);
   } catch (e) {
     article.innerHTML = `<p>加载失败：${e.message}<br/>请通过 HTTP 服务（如 GitHub Pages）访问，而不是直接用 file:// 打开。</p>`;
   }
 }
 
 async function showRepo() {
+  // 离开章节视图：保存当前章节滚动位置，并停止章节滚动恢复
+  flushChapterScroll();
+  suppressScrollSave = true;
+  activeChapterId = null;
   setActive(null);
   const box = document.getElementById("page-toc");
   if (box) box.hidden = true;             // 仓库地图不显示「本页目录」
@@ -453,7 +541,9 @@ async function showRepo() {
   draw("");
   document.getElementById("repo-search").addEventListener("input", (e) => draw(e.target.value.trim().toLowerCase()));
   window.scrollTo(0, 0);
+  hideBackToTop();                          // 仓库地图切换时同样隐藏「回到顶部」
   updateProgress();
+  suppressScrollSave = false;               // 恢复对仓库地图视图的滚动监听（activeChapterId 为 null，不会写入章节 key）
 }
 
 function router() {
@@ -482,6 +572,185 @@ function navigateRelative(delta) {
   const target = idx + delta;
   if (target < 0 || target >= state.manifest.length) return;
   window.location.hash = "#/read/" + state.manifest[target].id;
+}
+
+// ---------- 全文搜索浮层 ----------
+// 跨所有章节正文搜索（而非仅章节标题）。首次打开时按需 fetch 全部章节，
+// 去掉代码围栏后转成纯文本并缓存到内存（state.fullIndex），之后不再重复请求。
+// 输入时实时匹配，最多展示 20 条；每条含章节标题 + 命中上下文片段（关键词高亮），
+// 点击跳转到 #/read/<id>。不依赖构建步骤，也不影响现有标题过滤搜索 / mermaid / 复制按钮。
+const fullSearch = {
+  index: new Map(),   // id -> { title, plain }
+  loading: false,
+  loaded: false,
+};
+let fullSearchEl = null;
+
+// 把 markdown 转成用于搜索的纯文本：先去代码围栏/行内代码，再去掉常见标记。
+function mdToPlain(md) {
+  return (md || "")
+    .replace(/```[\s\S]*?```/g, " ")        // 代码围栏（含内容）整块剔除
+    .replace(/~~~[\s\S]*?~~~/g, " ")        // 可能的 ~~~ 围栏
+    .replace(/`[^`]*`/g, " ")               // 行内代码
+    .replace(/!\[[^\]]*\]\([^)]*\)/g, " ")  // 图片
+    .replace(/\[([^\]]*)\]\([^)]*\)/g, "$1") // 链接保留文字
+    .replace(/^#{1,6}\s+/gm, "")            // 标题 # 号
+    .replace(/[*_~>#|]/g, " ")              // 常见标记符号
+    .replace(/\s+/g, " ")                   // 多余空白压成单空格
+    .trim();
+}
+
+// 取首个关键词命中位置前后的上下文片段，并对关键词做高亮（<mark>）。
+function makeSnippet(rawText, query) {
+  const terms = query.toLowerCase().split(/\s+/).filter(Boolean);
+  if (!terms.length) return "";
+  const lower = rawText.toLowerCase();
+  let pos = -1;
+  for (const t of terms) {
+    const i = lower.indexOf(t);
+    if (i >= 0) pos = pos < 0 ? i : Math.min(pos, i);
+  }
+  if (pos < 0) pos = 0;
+  const start = Math.max(0, pos - 40);
+  const end = Math.min(rawText.length, pos + 120);
+  const snip = (start > 0 ? "…" : "") + rawText.slice(start, end) + (end < rawText.length ? "…" : "");
+  return highlightTerms(snip, terms);
+}
+
+function escapeHtml(s) {
+  return (s || "").replace(/[&<>"']/g, (c) =>
+    ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])
+  );
+}
+function escapeReg(s) {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+function highlightTerms(text, terms) {
+  const html = escapeHtml(text);
+  const re = new RegExp("(" + terms.map(escapeReg).join("|") + ")", "gi");
+  return html.replace(re, "<mark>$1</mark>");
+}
+
+// 首次打开时拉取并缓存全部章节正文（Promise.all 并发，逐个 chapter 只 fetch 一次）。
+async function loadAllChapters() {
+  if (fullSearch.loaded || fullSearch.loading) return;
+  fullSearch.loading = true;
+  try {
+    await Promise.all(
+      state.manifest.map(async (c) => {
+        if (fullSearch.index.has(c.id)) return;
+        const md = await (await fetch(c.file)).text();
+        fullSearch.index.set(c.id, { title: c.title, plain: mdToPlain(md) });
+      })
+    );
+    fullSearch.loaded = true;
+  } finally {
+    fullSearch.loading = false;
+  }
+}
+
+function runFullSearch(q) {
+  const resultsEl = fullSearchEl.querySelector("#fs-results");
+  const query = (q || "").trim();
+  if (!query) {
+    resultsEl.innerHTML = '<p class="fs-empty">输入关键词，跨所有章节正文搜索。</p>';
+    return;
+  }
+  const terms = query.toLowerCase().split(/\s+/).filter(Boolean);
+  const hits = [];
+  for (const c of state.manifest) {
+    const entry = fullSearch.index.get(c.id);
+    if (!entry) continue;
+    const lower = entry.plain.toLowerCase();
+    // 所有关键词都需命中（AND 语义），对中文按子串包含即可。
+    if (!terms.every((t) => lower.includes(t))) continue;
+    // 统计首个关键词出现次数，作为相关性排序依据
+    let count = 0;
+    const first = terms[0];
+    let idx = lower.indexOf(first);
+    while (idx >= 0) {
+      count++;
+      idx = lower.indexOf(first, idx + first.length);
+    }
+    hits.push({ id: c.id, title: entry.title, count, snippet: makeSnippet(entry.plain, query) });
+  }
+  hits.sort((a, b) => b.count - a.count);
+  const top = hits.slice(0, 20);
+  if (!top.length) {
+    resultsEl.innerHTML = `<p class="fs-empty">没有匹配「${escapeHtml(query)}」的结果。</p>`;
+    return;
+  }
+  resultsEl.innerHTML = top
+    .map(
+      (h) => `
+      <a class="fs-item" href="#/read/${h.id}">
+        <span class="fs-item-head">
+          <span class="fs-title">${escapeHtml(h.title)}</span>
+          <span class="fs-meta">${h.count} 处命中</span>
+        </span>
+        <span class="fs-snippet">${h.snippet}</span>
+      </a>`
+    )
+    .join("");
+  // 点击：交由默认 hash 跳转，关闭浮层（覆盖层 z-index 较高，需手动收起）
+  resultsEl.querySelectorAll(".fs-item").forEach((a) => {
+    a.addEventListener("click", () => setTimeout(closeFullSearch, 0));
+  });
+}
+
+function buildFullSearch() {
+  if (fullSearchEl) return fullSearchEl;
+  const overlay = document.createElement("div");
+  overlay.className = "full-search-overlay";
+  overlay.id = "full-search-overlay";
+  overlay.hidden = true;
+  overlay.setAttribute("role", "dialog");
+  overlay.setAttribute("aria-modal", "true");
+  overlay.setAttribute("aria-label", "全文搜索");
+  overlay.innerHTML = `
+    <div class="full-search-card">
+      <div class="fs-input-row">
+        <input id="fs-input" type="search" placeholder="搜索全部章节正文…（Ctrl / ⌘ + K）" autocomplete="off" />
+        <button id="fs-close" class="fs-close" type="button" aria-label="关闭">✕</button>
+      </div>
+      <div id="fs-results" class="fs-results">
+        <p class="fs-empty">输入关键词，跨所有章节正文搜索。</p>
+      </div>
+    </div>
+  `;
+  // 仅点击遮罩本身（而非卡片）时关闭
+  overlay.addEventListener("click", (e) => { if (e.target === overlay) closeFullSearch(); });
+  document.body.appendChild(overlay);
+  fullSearchEl = overlay;
+
+  const input = overlay.querySelector("#fs-input");
+  input.addEventListener("input", () => runFullSearch(input.value));
+  overlay.querySelector("#fs-close").addEventListener("click", closeFullSearch);
+  return overlay;
+}
+
+async function openFullSearch() {
+  const o = buildFullSearch();
+  o.hidden = false;
+  const input = o.querySelector("#fs-input");
+  input.value = "";
+  input.focus();
+  if (fullSearch.loaded) {
+    o.querySelector("#fs-results").innerHTML =
+      '<p class="fs-empty">输入关键词，跨所有章节正文搜索。</p>';
+  } else {
+    o.querySelector("#fs-results").innerHTML = '<p class="fs-empty">正在准备全文索引…</p>';
+    loadAllChapters().then(() => { if (!o.hidden) runFullSearch(""); });
+  }
+}
+
+function closeFullSearch() {
+  if (fullSearchEl) fullSearchEl.hidden = true;
+}
+
+function initFullSearchButton() {
+  const btn = document.getElementById("full-search-btn");
+  if (btn) btn.addEventListener("click", openFullSearch);
 }
 
 // ---------- 快捷键帮助浮层 ----------
@@ -524,9 +793,20 @@ function closeHelpOverlay() {
 }
 
 window.addEventListener("keydown", (e) => {
+  // 全文搜索浮层打开时：仅 Esc 可关闭，其余按键交给浮层内的输入框处理
+  if (fullSearchEl && !fullSearchEl.hidden) {
+    if (e.key === "Escape") { e.preventDefault(); closeFullSearch(); }
+    return;
+  }
   // 帮助浮层打开时：仅 Esc 可关闭，其余按键均不触发翻章
   if (helpOverlayEl && !helpOverlayEl.hidden) {
     if (e.key === "Escape") { e.preventDefault(); closeHelpOverlay(); }
+    return;
+  }
+  // Ctrl / ⌘ + K 打开全文搜索（放在输入框/修饰键守卫之前，确保任何时候都能唤起）
+  if ((e.metaKey || e.ctrlKey) && (e.key === "k" || e.key === "K")) {
+    e.preventDefault();
+    openFullSearch();
     return;
   }
   // 焦点在输入框 / 搜索框时不拦截，避免与搜索冲突
@@ -551,5 +831,6 @@ window.addEventListener("keydown", (e) => {
 // ---------- 启动 ----------
 (async function main() {
   await buildToc();
+  initFullSearchButton();
   router();
 })();

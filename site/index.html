@@ -5,6 +5,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Codex 阅读指南 · codex-rs 源码导读</title>
   <meta name="description" content="OpenAI Codex（codex-rs）仓库的由浅入深阅读指南：三进程模型、codex-core 主循环、工具系统、沙箱、协议与配置。" />
+
+  <!-- 社交分享 / 浏览器元标签 -->
+  <meta property="og:title" content="Codex 阅读指南 · codex-rs 源码导读" />
+  <meta property="og:description" content="OpenAI Codex（codex-rs）仓库的由浅入深阅读指南：三进程模型、codex-core 主循环、工具系统、沙箱、协议与配置。" />
+  <meta property="og:type" content="website" />
+  <meta property="og:locale" content="zh_CN" />
+  <meta property="og:url" content="https://your-name.github.io/codex-guide/" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="theme-color" content="#4F46E5" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#0F172A" media="(prefers-color-scheme: dark)" />
+
   <link rel="stylesheet" href="css/styles.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" id="hljs-light" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css" id="hljs-dark" disabled />
@@ -88,6 +99,8 @@
 
       <div class="search">
         <input id="search" type="search" placeholder="搜索章节…" autocomplete="off" />
+        <button id="full-search-btn" class="full-search-btn" type="button"
+                title="全文搜索（Ctrl / ⌘ + K）" aria-label="全文搜索">全文</button>
       </div>
 
       <nav class="toc" id="toc"><!-- chapters injected by app.js --></nav>
@@ -116,6 +129,9 @@
       </footer>
     </main>
   </div>
+
+  <!-- 回到顶部浮动按钮：默认隐藏，向下滚动超过一屏时显示 -->
+  <button id="back-to-top" type="button" aria-label="回到顶部" title="回到顶部">↑</button>
 
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
