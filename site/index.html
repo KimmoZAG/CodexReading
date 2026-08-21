@@ -129,14 +129,15 @@
         <p class="loading">正在加载…</p>
       </article>
 
+      <!-- 互动演示视图：与 #article 互斥显示，故标题用 h1（保证每个视图有且只有一个 h1） -->
       <div id="interactive-panel" hidden>
-        <h2>互动演示</h2>
+        <h1>互动演示</h1>
         <div class="interactive-grid" id="interactive-grid"></div>
       </div>
 
       <footer id="site-footer">
         <p class="footer-note">本指南为 codex-rs 仓库的源码导读，引用位置随上游版本可能漂移，以函数/结构体名为准。</p>
-        <p class="footer-meta">最后更新：2026-08-21 · <a href="https://github.com/openai/codex" target="_blank" rel="noopener">openai/codex ↗</a></p>
+        <p class="footer-meta">最后更新：2026-08-21 · <a href="https://github.com/openai/codex" target="_blank" rel="noopener">openai/codex <span aria-hidden="true">↗</span><span class="sr-only">（在新标签页打开）</span></a></p>
       </footer>
     </main>
   </div>
