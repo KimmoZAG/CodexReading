@@ -31,6 +31,29 @@ html[data-theme="dark"] {
 
 * { box-sizing: border-box; }
 
+/* ---------- 可访问性：键盘焦点可见 ----------
+   仅 :focus-visible（键盘 Tab 导航 / 程序聚焦）时显示轮廓，鼠标点击不出现刺眼光圈；
+   accent 色 + 2px 描边 + 2px 偏移，清晰但不刺眼。 */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* 输入框默认用 outline:none（仅以边框变色提示鼠标聚焦），需显式补回键盘焦点轮廓 */
+.search input:focus-visible,
+.repo-filter input:focus-visible,
+.fs-input-row #fs-input:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* 跳转到页内锚点的链接（本页目录等）：键盘聚焦时显示清晰焦点轮廓 */
+.page-toc-link:focus-visible,
+.markdown a:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
 html, body { margin: 0; padding: 0; }
 html { scroll-behavior: smooth; }   /* 锚点跳转平滑滚动 */
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
@@ -542,6 +565,13 @@ kbd {
   padding: 14px 16px;
   border-bottom: 1px solid var(--border);
 }
+.fs-dialog-title {
+  margin: 0;
+  padding: 16px 16px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text);
+}
 .fs-input-row #fs-input {
   flex: 1; min-width: 0; font-size: 15px;
   padding: 8px 10px; border-radius: 9px;
@@ -616,8 +646,41 @@ html[data-theme="dark"] .level-badge.intermediate { color: #a9adf7; background: 
 html[data-theme="dark"] .level-badge.advanced     { color: #f3b673; background: #33240f; border-color: #4d3717; }
 html[data-theme="dark"] .level-badge.reference    { color: #aab2c0; background: #1c2029; border-color: #2c323c; }
 
-/* 章节标题下方的难度徽标（showChapter 时插入） */
-.chapter-level { margin: 0 0 16px; }
+/* 章节标题下方的难度徽标（showChapter 时插入）；同时承载「复制链接」按钮，同行为一行 */
+.chapter-level {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 16px;
+}
+
+/* 复制本章链接：极小、低调的文字按钮，hover 明显，不打扰阅读 */
+.copy-link-btn {
+  flex: none;
+  font-family: var(--sans);
+  font-size: 12px;
+  line-height: 1;
+  padding: 3px 9px;
+  color: var(--text-faint);
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  cursor: pointer;
+  opacity: .6;
+  transition: opacity .15s, color .15s, background .15s, border-color .15s;
+}
+.copy-link-btn:hover {
+  opacity: 1;
+  color: var(--accent);
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+.copy-link-btn.copied {
+  opacity: 1;
+  color: var(--accent);
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
 
 /* ---------- 打印 / 导出 PDF ----------
    目标：去掉一切界面装饰，只留正文阅读稿。 */
@@ -630,6 +693,7 @@ html[data-theme="dark"] .level-badge.reference    { color: #aab2c0; background: 
   #progress-bar,
   .page-toc,
   .copy-btn,
+  .copy-link-btn,
   .help-overlay,
   .full-search-overlay,
   .menu-toggle,

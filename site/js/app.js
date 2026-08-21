@@ -9,20 +9,56 @@ const state = {
 };
 
 // ---------- 主题 ----------
+// 主题键：codex-guide-theme（当前主题 light/dark）
+// 手动标记：codex-guide-theme-manual（用户点过切换按钮则置 "1"）。
+// 未手动选过时，初始主题与系统 prefers-color-scheme 保持一致，并在系统主题变化时自动跟随；
+// 一旦用户手动切换过，就不再自动跟随，完全以手动选择为准。
+const THEME_KEY = "codex-guide-theme";
+const THEME_MANUAL_KEY = "codex-guide-theme-manual";
+
+function systemPrefersDark() {
+  try { return window.matchMedia("(prefers-color-scheme: dark)").matches; }
+  catch (e) { return false; }
+}
+function systemTheme() { return systemPrefersDark() ? "dark" : "light"; }
+
+function isManualTheme() {
+  try { return localStorage.getItem(THEME_MANUAL_KEY) === "1"; }
+  catch (e) { return false; }
+}
+
 function applyTheme(theme) {
   document.documentElement.setAttribute("data-theme", theme);
   document.getElementById("hljs-light").disabled = theme === "dark";
   document.getElementById("hljs-dark").disabled = theme === "light";
-  try { localStorage.setItem("codex-guide-theme", theme); } catch (e) {}
+  try { localStorage.setItem(THEME_KEY, theme); } catch (e) {}
 }
+
 (function initTheme() {
-  let t = "light";
-  try { t = localStorage.getItem("codex-guide-theme") || "light"; } catch (e) {}
-  applyTheme(t);
+  // 已手动选过：信任已存主题；否则始终跟随系统（忽略已存主题，应对系统切换发生在页面关闭期间）。
+  const theme = isManualTheme()
+    ? (function () { try { return localStorage.getItem(THEME_KEY); } catch (e) {} })() || "light"
+    : systemTheme();
+  applyTheme(theme);
+
   document.getElementById("theme-toggle").addEventListener("click", () => {
     const cur = document.documentElement.getAttribute("data-theme");
     applyTheme(cur === "dark" ? "light" : "dark");
+    // 用户手动切换，标记后不再自动跟随系统主题。
+    try { localStorage.setItem(THEME_MANUAL_KEY, "1"); } catch (e) {}
   });
+
+  // 监听系统主题变化，仅在用户未手动选过时自动跟随。
+  const mq = window.matchMedia("(prefers-color-scheme: dark)");
+  const onSystemThemeChange = (e) => {
+    if (isManualTheme()) return;
+    applyTheme(e && e.matches ? "dark" : "light");
+  };
+  if (typeof mq.addEventListener === "function") {
+    mq.addEventListener("change", onSystemThemeChange);
+  } else if (typeof mq.addListener === "function") {
+    mq.addListener(onSystemThemeChange);   // 兼容旧版 Safari
+  }
 })();
 
 // ---------- 顶部阅读进度条 ----------
@@ -267,6 +303,39 @@ function insertLevelBadge(article, level) {
   else article.insertBefore(wrap, article.firstChild);
 }
 
+// ---------- 复制本章链接按钮 ----------
+// 在难度徽标同一行（.chapter-level）末尾追加一个低调的文字按钮；
+// 点击把当前章节的规范 URL 写入 navigator.clipboard，并短暂提示「已复制」。
+// URL 形如 location.origin + location.pathname + '#/read/' + 章节id。
+function insertCopyLinkButton(article, id) {
+  if (!article || !id) return;
+  const btn = document.createElement("button");
+  btn.type = "button";
+  btn.className = "copy-link-btn";
+  btn.textContent = "复制链接";
+  btn.setAttribute("aria-label", "复制本章链接");
+  btn.addEventListener("click", async () => {
+    const url = location.origin + location.pathname + "#/read/" + id;
+    try {
+      await navigator.clipboard.writeText(url);
+      btn.textContent = "已复制";
+      btn.classList.add("copied");
+      setTimeout(() => {
+        btn.textContent = "复制链接";
+        btn.classList.remove("copied");
+      }, 1500);
+    } catch (e) {
+      btn.textContent = "复制失败";
+      setTimeout(() => { btn.textContent = "复制链接"; }, 1500);
+    }
+  });
+  // 优先挂到难度徽标同一行；无徽标时退化为挂在 h1 之后，不改动其它内容。
+  const host = article.querySelector(".chapter-level") || article.querySelector("h1");
+  if (host && host.classList && host.classList.contains("chapter-level")) host.appendChild(btn);
+  else if (host) host.parentNode.insertBefore(btn, host.nextSibling);
+  else article.insertBefore(btn, article.firstChild);
+}
+
 // 在标题（首个 h1）之后、正文之前插入「约 X 分钟读完」标签，不改动其它内容。
 function insertReadingTime(article, minutes) {
   if (!article) return;
@@ -458,6 +527,7 @@ async function showChapter(id) {
     article.innerHTML = renderMarkdown(md) + buildChapterNav(chap);
     insertReadingTime(article, estimateReadingMinutes(md));   // 标题下插入阅读时长
     insertLevelBadge(article, chap.level);                    // 标题下插入难度徽标
+    insertCopyLinkButton(article, chap.id);                   // 标题旁插入「复制链接」按钮
     article.querySelectorAll("pre code").forEach((el) => hljs.highlightElement(el));
     renderMermaid(article);
     buildPageToc(article);                  // 生成「本页目录」与标题锚点
@@ -706,9 +776,10 @@ function buildFullSearch() {
   overlay.hidden = true;
   overlay.setAttribute("role", "dialog");
   overlay.setAttribute("aria-modal", "true");
-  overlay.setAttribute("aria-label", "全文搜索");
+  overlay.setAttribute("aria-labelledby", "fs-title");
   overlay.innerHTML = `
     <div class="full-search-card">
+      <h2 id="fs-title" class="fs-dialog-title">全文搜索</h2>
       <div class="fs-input-row">
         <input id="fs-input" type="search" placeholder="搜索全部章节正文…（Ctrl / ⌘ + K）" autocomplete="off" />
         <button id="fs-close" class="fs-close" type="button" aria-label="关闭">✕</button>
@@ -765,10 +836,10 @@ function buildHelpOverlay() {
   overlay.hidden = true;
   overlay.setAttribute("role", "dialog");
   overlay.setAttribute("aria-modal", "true");
-  overlay.setAttribute("aria-label", "快捷键帮助");
+  overlay.setAttribute("aria-labelledby", "help-title");
   overlay.innerHTML = `
     <div class="help-card">
-      <h2 class="help-title">快捷键</h2>
+      <h2 class="help-title" id="help-title">快捷键</h2>
       <ul class="help-list">
         <li><kbd>←</kbd><kbd>→</kbd><span>上一章 / 下一章</span></li>
         <li><kbd>j</kbd><kbd>k</kbd><span>下一章 / 上一章</span></li>

@@ -31,5 +31,6 @@
   { "id": "30-installer", "title": "第 30 章：安装与分发", "file": "content/30-installer.md", "level": "深入" },
   { "id": "glossary", "title": "术语表", "file": "content/glossary.md", "level": "参考" },
   { "id": "architecture", "title": "架构全景", "file": "content/architecture.md", "level": "参考" },
+  { "id": "about", "title": "关于本指南", "file": "content/about.md", "level": "参考" },
   { "id": "10-roadmap", "title": "收尾：阅读路线", "file": "content/10-roadmap.md", "level": "参考" }
 ]

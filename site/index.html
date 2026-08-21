@@ -98,15 +98,15 @@
       </div>
 
       <div class="search">
-        <input id="search" type="search" placeholder="搜索章节…" autocomplete="off" />
+        <input id="search" type="search" placeholder="搜索章节…" autocomplete="off" aria-label="搜索章节" />
         <button id="full-search-btn" class="full-search-btn" type="button"
                 title="全文搜索（Ctrl / ⌘ + K）" aria-label="全文搜索">全文</button>
       </div>
 
-      <nav class="toc" id="toc"><!-- chapters injected by app.js --></nav>
+      <nav class="toc" id="toc" role="navigation" aria-label="章节导航"><!-- chapters injected by app.js --></nav>
 
       <div class="sidebar-foot">
-        <button id="theme-toggle" class="theme-toggle" title="切换深/浅色">◐ 主题</button>
+        <button id="theme-toggle" class="theme-toggle" title="切换深/浅色" aria-label="切换深/浅色主题">◐ 主题</button>
         <a class="ext-link" href="https://github.com/openai/codex" target="_blank" rel="noopener">GitHub 仓库 ↗</a>
       </div>
     </aside>
