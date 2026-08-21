@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 560" font-family="system-ui, sans-serif">
+  <defs>
+    <marker id="a" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L9,3 L0,6 Z" fill="#4F46E5"/>
+    </marker>
+  </defs>
+  <rect width="760" height="560" fill="#FFFFFF"/>
+  <text x="40" y="40" font-size="22" font-weight="700" fill="#111827">配置分层栈</text>
+  <text x="40" y="64" font-size="13" fill="#6B7280">上层覆盖下层：内置默认 → 系统 → 用户 → 项目 → 命令行覆盖</text>
+
+  <!-- stacked cards (bottom -> top) -->
+  <rect x="200" y="450" width="380" height="60" rx="10" fill="#F3F4F6" stroke="#9CA3AF" stroke-width="2"/>
+  <text x="224" y="486" font-size="16" font-weight="600" fill="#374151">① 内置默认 Built-in</text>
+
+  <rect x="215" y="382" width="380" height="60" rx="10" fill="#EEF2FF" stroke="#6366F1" stroke-width="2"/>
+  <text x="239" y="418" font-size="16" font-weight="600" fill="#312E81">② 系统级 System</text>
+
+  <rect x="230" y="314" width="380" height="60" rx="10" fill="#EEF2FF" stroke="#6366F1" stroke-width="2"/>
+  <text x="254" y="350" font-size="16" font-weight="600" fill="#312E81">③ 用户全局 User</text>
+
+  <rect x="245" y="246" width="380" height="60" rx="10" fill="#EEF2FF" stroke="#6366F1" stroke-width="2"/>
+  <text x="269" y="282" font-size="16" font-weight="600" fill="#312E81">④ 项目级 Project</text>
+
+  <rect x="260" y="178" width="380" height="60" rx="10" fill="#4F46E5" stroke="#4F46E5" stroke-width="2"/>
+  <text x="284" y="214" font-size="16" font-weight="700" fill="#FFFFFF">⑤ 命令行覆盖 CLI Override</text>
+
+  <!-- precedence arrow -->
+  <line x1="120" y1="470" x2="120" y2="190" stroke="#4F46E5" stroke-width="2.5" marker-end="url(#a)"/>
+  <text x="100" y="330" font-size="12" fill="#6B7280" transform="rotate(-90 100 330)" text-anchor="middle">优先级 ↑ 上层覆盖下层</text>
+</svg>

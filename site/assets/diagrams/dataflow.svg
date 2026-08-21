@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 560" font-family="system-ui, sans-serif">
+  <defs>
+    <marker id="both" markerWidth="10" markerHeight="10" refX="6" refY="3" orient="auto-start-reverse" markerUnits="strokeWidth">
+      <path d="M0,0 L6,3 L0,6 Z" fill="#4F46E5"/>
+    </marker>
+  </defs>
+  <rect width="800" height="560" fill="#FFFFFF"/>
+  <text x="40" y="40" font-size="22" font-weight="700" fill="#111827">Op / Event 跨组件流动</text>
+  <text x="40" y="64" font-size="13" fill="#6B7280">codex-protocol 作为通用语言居中，cli/tui、app-server、core、exec-server 围绕它通信</text>
+
+  <!-- center -->
+  <rect x="320" y="220" width="160" height="120" rx="14" fill="#4F46E5" stroke="#4F46E5" stroke-width="2"/>
+  <text x="400" y="268" text-anchor="middle" font-size="15" font-weight="700" fill="#FFFFFF">codex-protocol</text>
+  <text x="400" y="292" text-anchor="middle" font-size="12" fill="#EEF2FF">通用语言</text>
+  <text x="400" y="314" text-anchor="middle" font-size="11" fill="#EEF2FF">Op / Event</text>
+
+  <!-- surrounding -->
+  <rect x="120" y="90"  width="200" height="80" rx="12" fill="#EEF2FF" stroke="#4F46E5" stroke-width="2"/>
+  <text x="220" y="135" text-anchor="middle" font-size="16" font-weight="600" fill="#312E81">CLI / TUI</text>
+
+  <rect x="480" y="90"  width="200" height="80" rx="12" fill="#EEF2FF" stroke="#4F46E5" stroke-width="2"/>
+  <text x="580" y="135" text-anchor="middle" font-size="16" font-weight="600" fill="#312E81">App Server</text>
+
+  <rect x="480" y="390" width="200" height="80" rx="12" fill="#EEF2FF" stroke="#4F46E5" stroke-width="2"/>
+  <text x="580" y="435" text-anchor="middle" font-size="16" font-weight="600" fill="#312E81">Core</text>
+
+  <rect x="120" y="390" width="200" height="80" rx="12" fill="#F9FAFB" stroke="#9CA3AF" stroke-width="2"/>
+  <text x="220" y="435" text-anchor="middle" font-size="16" font-weight="600" fill="#374151">Exec Server</text>
+
+  <!-- double-headed links -->
+  <line x1="320" y1="250" x2="122" y2="130" stroke="#4F46E5" stroke-width="2.5" marker-start="url(#both)" marker-end="url(#both)"/>
+  <line x1="480" y1="250" x2="478" y2="130" stroke="#4F46E5" stroke-width="2.5" marker-start="url(#both)" marker-end="url(#both)"/>
+  <line x1="480" y1="310" x2="478" y2="430" stroke="#4F46E5" stroke-width="2.5" marker-start="url(#both)" marker-end="url(#both)"/>
+  <line x1="320" y1="310" x2="122" y2="430" stroke="#4F46E5" stroke-width="2.5" marker-start="url(#both)" marker-end="url(#both)"/>
+</svg>

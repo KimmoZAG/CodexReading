@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 520" font-family="system-ui, sans-serif">
+  <defs>
+    <marker id="a" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L9,3 L0,6 Z" fill="#4F46E5"/>
+    </marker>
+  </defs>
+  <rect width="760" height="520" fill="#FFFFFF"/>
+  <text x="36" y="40" font-size="22" font-weight="700" fill="#111827">run_turn 主循环</text>
+  <text x="36" y="64" font-size="13" fill="#6B7280">问模型 → 回 function call 或 assistant message → 执行工具 → 回到模型</text>
+
+  <!-- 问模型 -->
+  <rect x="280" y="90" width="200" height="70" rx="12" fill="#EEF2FF" stroke="#4F46E5" stroke-width="2"/>
+  <text x="380" y="122" text-anchor="middle" font-size="18" font-weight="600" fill="#312E81">问模型 Ask</text>
+  <text x="380" y="144" text-anchor="middle" font-size="13" fill="#4F46E5">调用 LLM</text>
+
+  <!-- function call -->
+  <rect x="80" y="210" width="240" height="70" rx="12" fill="#EEF2FF" stroke="#6366F1" stroke-width="2"/>
+  <text x="200" y="242" text-anchor="middle" font-size="16" font-weight="600" fill="#312E81">Function Call</text>
+  <text x="200" y="264" text-anchor="middle" font-size="12" fill="#4F46E5">模型请求调用工具</text>
+
+  <!-- assistant message -->
+  <rect x="440" y="210" width="240" height="70" rx="12" fill="#EEF2FF" stroke="#6366F1" stroke-width="2"/>
+  <text x="560" y="242" text-anchor="middle" font-size="16" font-weight="600" fill="#312E81">Assistant Message</text>
+  <text x="560" y="264" text-anchor="middle" font-size="12" fill="#4F46E5">模型直接回复</text>
+
+  <!-- 执行工具 -->
+  <rect x="80" y="360" width="240" height="70" rx="12" fill="#EEF2FF" stroke="#4F46E5" stroke-width="2"/>
+  <text x="200" y="392" text-anchor="middle" font-size="16" font-weight="600" fill="#312E81">执行工具 Tool</text>
+  <text x="200" y="414" text-anchor="middle" font-size="12" fill="#4F46E5">沙箱内运行</text>
+
+  <!-- 终态 -->
+  <rect x="440" y="360" width="240" height="70" rx="12" fill="#F3F4F6" stroke="#9CA3AF" stroke-width="2"/>
+  <text x="560" y="392" text-anchor="middle" font-size="16" font-weight="600" fill="#374151">终态 Terminal</text>
+  <text x="560" y="414" text-anchor="middle" font-size="12" fill="#6B7280">本轮结束</text>
+
+  <!-- Arrows -->
+  <line x1="340" y1="160" x2="240" y2="208" stroke="#4F46E5" stroke-width="2.5" marker-end="url(#a)"/>
+  <line x1="420" y1="160" x2="520" y2="208" stroke="#4F46E5" stroke-width="2.5" marker-end="url(#a)"/>
+  <line x1="200" y1="280" x2="200" y2="358" stroke="#4F46E5" stroke-width="2.5" marker-end="url(#a)"/>
+  <line x1="560" y1="280" x2="560" y2="358" stroke="#4F46E5" stroke-width="2.5" marker-end="url(#a)"/>
+  <path d="M200,395 C 50,395 50,120 278,118" fill="none" stroke="#4F46E5" stroke-width="2.5" stroke-dasharray="7 5" marker-end="url(#a)"/>
+  <text x="60" y="260" font-size="12" fill="#6B7280">下一轮循环</text>
+</svg>

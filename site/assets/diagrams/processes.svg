@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 540" font-family="system-ui, sans-serif">
+  <defs>
+    <marker id="a" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L9,3 L0,6 Z" fill="#4F46E5"/>
+    </marker>
+  </defs>
+  <rect width="800" height="540" fill="#FFFFFF"/>
+  <text x="40" y="40" font-size="22" font-weight="700" fill="#111827">三进程模型与信任边界</text>
+  <text x="40" y="64" font-size="13" fill="#6B7280">CLI / App-Server / Exec-Server 为三个进程，Codex-Core 常驻于 App-Server 内</text>
+
+  <!-- CLI -->
+  <rect x="300" y="90" width="200" height="70" rx="12" fill="#EEF2FF" stroke="#4F46E5" stroke-width="2"/>
+  <text x="400" y="122" text-anchor="middle" font-size="18" font-weight="600" fill="#312E81">CLI 命令行</text>
+  <text x="400" y="144" text-anchor="middle" font-size="13" fill="#4F46E5">薄壳 · Thin Shell</text>
+
+  <!-- App Server -->
+  <rect x="300" y="220" width="200" height="90" rx="12" fill="#EEF2FF" stroke="#4F46E5" stroke-width="2"/>
+  <text x="400" y="258" text-anchor="middle" font-size="18" font-weight="600" fill="#312E81">App Server</text>
+  <text x="400" y="282" text-anchor="middle" font-size="13" fill="#4F46E5">常驻 · Always-on</text>
+
+  <!-- Codex Core -->
+  <rect x="120" y="380" width="240" height="90" rx="12" fill="#EEF2FF" stroke="#6366F1" stroke-width="2"/>
+  <text x="240" y="418" text-anchor="middle" font-size="18" font-weight="600" fill="#312E81">Codex Core</text>
+  <text x="240" y="442" text-anchor="middle" font-size="13" fill="#4F46E5">大脑 · Brain</text>
+
+  <!-- Trust boundary + Exec Server -->
+  <rect x="520" y="360" width="260" height="190" rx="16" fill="#F9FAFB" stroke="#9CA3AF" stroke-width="2" stroke-dasharray="8 6"/>
+  <text x="650" y="386" text-anchor="middle" font-size="12" fill="#6B7280">沙箱 · 信任边界</text>
+  <rect x="560" y="410" width="180" height="100" rx="12" fill="#EEF2FF" stroke="#4F46E5" stroke-width="2"/>
+  <text x="650" y="452" text-anchor="middle" font-size="16" font-weight="600" fill="#312E81">Exec Server</text>
+  <text x="650" y="476" text-anchor="middle" font-size="12" fill="#4F46E5">沙箱 · Sandbox</text>
+
+  <!-- Arrows -->
+  <line x1="400" y1="160" x2="400" y2="218" stroke="#4F46E5" stroke-width="2.5" marker-end="url(#a)"/>
+  <line x1="370" y1="310" x2="265" y2="378" stroke="#4F46E5" stroke-width="2.5" marker-end="url(#a)"/>
+  <line x1="455" y1="310" x2="620" y2="370" stroke="#4F46E5" stroke-width="2.5" marker-end="url(#a)"/>
+  <text x="690" y="345" font-size="11" fill="#6B7280">RPC</text>
+</svg>

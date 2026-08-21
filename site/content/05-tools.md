@@ -41,7 +41,7 @@ self.registry
 - **执行中**：把流式进度通过 `ToolEmitter` 往外发（`EventMsg` 里的 `ExecCommandOutputDelta`、`PatchApplyUpdated` 都来自这里）。
 - **执行后（PostToolUse）**：把结果转成协议里的 `ToolCallOutput`，并决定要不要记入会话历史。
 
-也就是说，一个工具从"被模型点名"到"结果回到模型"，中间要过三道关卡。这跟第 6 章的沙箱是一体两面的设计。
+一个工具从"被模型点名"到"结果回到模型"，中间要过三道关卡。这跟第 6 章的沙箱是一体两面的设计。
 
 ## 5.3 例子：`apply_patch`——它是怎么一边改文件一边直播的
 
@@ -78,14 +78,8 @@ impl ToolArgumentDiffConsumer for ApplyPatchArgumentDiffConsumer {
 
 ## 5.4 命令类工具：审批从哪来
 
-模型想跑 `cargo test` 这类 shell 命令，走的也是工具系统，但多一道人工关卡。当它要执行时，不会直接在本机 `system()`，而是发出一个 `ExecApprovalRequest` 事件（第 3 章见过），停下来等你用 `Op::ExecApproval` 表态。你点头之后，请求才被转交给 `exec-server` 在沙箱里执行，输出再经 `ExecCommandOutputDelta` 流回界面。
+模型想跑 `cargo test` 这类 shell 命令，走的也是工具系统，但多一道人工关卡。它不会直接在本机 `system()`，而是先发 `ExecApprovalRequest` 事件（第 3 章见过），等你用 `Op::ExecApproval` 表态，点头后才转交给 `exec-server` 在沙箱里执行，输出经 `ExecCommandOutputDelta` 流回界面。整条分发链路长这样：
 
-```text
-模型: ToolCall(exec, "cargo test")
-  → 工具系统: 策略检查 → 需要批准？
-      → 是: 发 ExecApprovalRequest，暂停，等 Op::ExecApproval
-      → 否（在白名单里）: 直接交给 exec-server
-  → exec-server 在沙箱里跑，输出经 ExecCommandOutputDelta 回流
-```
+![](assets/diagrams/tool-dispatch.svg)
 
-这一道"审批闸门 + 沙箱执行"，就是 Codex 敢让模型跑命令的底气。下一章我们专门拆沙箱。
+从 `ToolCall` 进 `ToolRouter`、`ToolRegistry` 找到 handler，到"审批"那道虚线闸门（命中白名单才放行，否则拦下等你确认），最后落到 `Exec-Server`/沙箱。这一道"审批闸门 + 沙箱执行"，就是 Codex 敢让模型跑命令的底气。下一章我们专门拆沙箱。

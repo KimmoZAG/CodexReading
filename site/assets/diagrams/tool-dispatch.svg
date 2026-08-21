@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 600" font-family="system-ui, sans-serif">
+  <defs>
+    <marker id="a" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L9,3 L0,6 Z" fill="#4F46E5"/>
+    </marker>
+  </defs>
+  <rect width="760" height="600" fill="#FFFFFF"/>
+  <text x="36" y="40" font-size="22" font-weight="700" fill="#111827">工具分发链路</text>
+  <text x="36" y="64" font-size="13" fill="#6B7280">ToolCall → ToolRouter → ToolRegistry → Handler → 审批 → Exec-Server</text>
+
+  <rect x="240" y="80"  width="280" height="64" rx="12" fill="#EEF2FF" stroke="#4F46E5" stroke-width="2"/>
+  <text x="380" y="118" text-anchor="middle" font-size="17" font-weight="600" fill="#312E81">ToolCall 工具调用</text>
+
+  <rect x="240" y="170" width="280" height="64" rx="12" fill="#EEF2FF" stroke="#6366F1" stroke-width="2"/>
+  <text x="380" y="208" text-anchor="middle" font-size="17" font-weight="600" fill="#312E81">ToolRouter 路由</text>
+
+  <rect x="240" y="260" width="280" height="64" rx="12" fill="#EEF2FF" stroke="#6366F1" stroke-width="2"/>
+  <text x="380" y="298" text-anchor="middle" font-size="17" font-weight="600" fill="#312E81">ToolRegistry 注册表</text>
+
+  <rect x="240" y="350" width="280" height="64" rx="12" fill="#EEF2FF" stroke="#6366F1" stroke-width="2"/>
+  <text x="380" y="388" text-anchor="middle" font-size="17" font-weight="600" fill="#312E81">Handler 处理器</text>
+
+  <rect x="240" y="440" width="280" height="64" rx="12" fill="#EEF2FF" stroke="#4F46E5" stroke-width="2" stroke-dasharray="7 5"/>
+  <text x="380" y="478" text-anchor="middle" font-size="17" font-weight="600" fill="#312E81">审批 Approval</text>
+
+  <rect x="240" y="530" width="280" height="64" rx="12" fill="#F9FAFB" stroke="#9CA3AF" stroke-width="2"/>
+  <text x="380" y="568" text-anchor="middle" font-size="17" font-weight="600" fill="#374151">Exec-Server / 沙箱</text>
+
+  <line x1="380" y1="144" x2="380" y2="168" stroke="#4F46E5" stroke-width="2.5" marker-end="url(#a)"/>
+  <line x1="380" y1="234" x2="380" y2="258" stroke="#4F46E5" stroke-width="2.5" marker-end="url(#a)"/>
+  <line x1="380" y1="324" x2="380" y2="348" stroke="#4F46E5" stroke-width="2.5" marker-end="url(#a)"/>
+  <line x1="380" y1="414" x2="380" y2="438" stroke="#4F46E5" stroke-width="2.5" marker-end="url(#a)"/>
+  <line x1="380" y1="504" x2="380" y2="528" stroke="#4F46E5" stroke-width="2.5" marker-end="url(#a)"/>
+  <text x="535" y="474" font-size="11" fill="#6B7280">需批准才拦截</text>
+</svg>
