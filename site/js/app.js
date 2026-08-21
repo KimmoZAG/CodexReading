@@ -578,28 +578,39 @@ async function buildToc() {
   const res = await fetch("content/manifest.json");
   state.manifest = await res.json();
   const toc = document.getElementById("toc");
-  // 保留侧边栏静态的「🎮 互动演示」入口（#nav-interactive 与其上方分隔线 hr），
-  // buildToc 重渲章节列表时会被 innerHTML 清掉，这里先取出、重渲后再挂回末尾。
+  // 保留侧边栏静态的「🎮 互动演示」入口（#nav-interactive）：
+  // buildToc 重渲章节列表时会被 innerHTML 清掉，这里先取出、重渲后再包进 <li> 挂回列表末尾。
   const staticInteractive = toc.querySelector("#nav-interactive");
-  const staticHr = toc.querySelector("hr");
-  const repoLink = `<a href="#/repo" class="repo" data-route="repo">▦ 仓库地图（${state.manifest.length} 章 + crates）</a>`;
-  toc.innerHTML =
-    state.manifest.map((c) =>
-      `<a href="#/read/${c.id}" data-id="${c.id}">
+  // 导航语义：nav > ul > li > a，屏幕阅读器可播报「列表，共 N 项」并按项浏览
+  const items = state.manifest.map((c) =>
+    `<li><a href="#/read/${c.id}" data-id="${c.id}">
         <span class="toc-title">${c.title}</span>${levelBadgeHtml(c.level)}
-       </a>`
-    ).join("") + repoLink;
-  if (staticHr) toc.appendChild(staticHr);
-  if (staticInteractive) toc.appendChild(staticInteractive);
+       </a></li>`
+  ).join("");
+  const repoItem =
+    `<li><a href="#/repo" class="repo" data-route="repo"><span aria-hidden="true">▦</span> 仓库地图（${state.manifest.length} 章 + crates）</a></li>`;
+  toc.innerHTML = `<ul class="toc-list" id="toc-list">${items}${repoItem}</ul>`;
+  const list = toc.querySelector("#toc-list");
+  if (staticInteractive) {
+    const li = document.createElement("li");
+    li.className = "toc-item-extra";     // 上方细分隔线（替代原先的 <hr>，避免列表被打断）
+    li.appendChild(staticInteractive);
+    list.appendChild(li);
+  }
 
   // 章节搜索（只匹配标题文字，不把难度徽标文字计入搜索）
+  // 用 hidden 收起整个 <li>（而非只隐藏 <a>），否则空 li 仍会占用列表间距
   const search = document.getElementById("search");
   search.addEventListener("input", () => {
     const q = search.value.trim().toLowerCase();
+    let shown = 0;
     toc.querySelectorAll("a[data-id]").forEach((a) => {
       const txt = (a.querySelector(".toc-title") || a).textContent.toLowerCase();
-      a.style.display = !q || txt.includes(q) ? "" : "none";
+      const match = !q || txt.includes(q);
+      (a.closest("li") || a).hidden = !match;
+      if (match) shown++;
     });
+    announce(q ? `章节过滤：${shown} 个结果` : `已清空过滤，共 ${shown} 章`);
   });
 }
 
