@@ -1,0 +1,370 @@
+<!--
+  配置分层可视化器 · 可嵌入 HTML 片段
+  纯静态、零依赖。可直接双击在浏览器打开，也可 <iframe>/fetch 嵌入页面。
+  无 <html>/<head>，仅根容器 + 内联 <style> + 内联 <script>。
+  交互：① 点击卡片弹出至最前并展示该层详情；② "覆盖演示"逐层覆盖同一个配置项；③ "重置"回到初始堆叠。
+-->
+<style>
+  .config-layers {
+    --brand: #4F46E5;
+    --brand-soft: #EEF2FF;
+    --ink: #111827;
+    --muted: #6B7280;
+    --line: #E5E7EB;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, "PingFang SC", "Microsoft YaHei", sans-serif;
+    color: var(--ink);
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 16px;
+    box-sizing: border-box;
+  }
+  .config-layers * { box-sizing: border-box; }
+
+  .cl-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+  }
+  .cl-title {
+    font-size: 17px;
+    font-weight: 700;
+    margin: 0;
+  }
+  .cl-hint {
+    font-size: 13px;
+    color: var(--muted);
+    margin: 4px 0 0;
+  }
+  .cl-toolbar {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .cl-btn {
+    appearance: none;
+    border: 1.5px solid var(--brand);
+    background: var(--brand);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 7px 14px;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: background .15s, transform .1s, opacity .15s;
+  }
+  .cl-btn:hover { background: #4338CA; }
+  .cl-btn:active { transform: scale(.97); }
+  .cl-btn.ghost {
+    background: transparent;
+    color: var(--brand);
+  }
+  .cl-btn.ghost:hover { background: var(--brand-soft); }
+  .cl-btn:disabled { opacity: .45; cursor: not-allowed; }
+
+  /* ---- 卡片层叠舞台 ---- */
+  .cl-stage {
+    position: relative;
+    height: 360px;
+    margin: 6px auto 4px;
+  }
+  .cl-card {
+    position: absolute;
+    left: 50%;
+    top: calc(var(--i) * 30px);
+    width: 320px;
+    max-width: 92%;
+    transform: translateX(-50%);
+    border-radius: 10px;
+    padding: 14px 16px;
+    box-shadow: 0 4px 10px rgba(17,24,39,.12);
+    cursor: pointer;
+    border: 1.5px solid rgba(17,24,39,.06);
+    transition: transform .3s ease, box-shadow .3s ease, opacity .3s ease, filter .3s ease;
+    user-select: none;
+  }
+  .cl-card:hover { box-shadow: 0 8px 18px rgba(17,24,39,.18); }
+  .cl-card .cl-name {
+    font-size: 15px;
+    font-weight: 700;
+    margin: 0 0 4px;
+  }
+  .cl-card .cl-desc {
+    font-size: 12.5px;
+    line-height: 1.45;
+    opacity: .85;
+    margin: 0 0 10px;
+  }
+  .cl-card .cl-example {
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    font-size: 12.5px;
+    background: rgba(255,255,255,.55);
+    border-radius: 6px;
+    padding: 6px 8px;
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    align-items: baseline;
+  }
+  .cl-card .cl-example .cl-kv { font-weight: 700; }
+  .cl-card .cl-example .cl-note { opacity: .8; font-size: 11.5px; text-align: right; }
+
+  /* 弹出（最前）状态 */
+  .cl-card.active {
+    transform: translateX(-50%) translateY(-22px) scale(1.05);
+    box-shadow: 0 18px 34px rgba(17,24,39,.28);
+    filter: none;
+    opacity: 1;
+  }
+  /* 非激活卡片在非演示态被淡化 */
+  .cl-stage.has-active .cl-card:not(.active) {
+    opacity: .5;
+    filter: saturate(.7);
+  }
+  /* 演示态高亮当前层 */
+  .cl-card.flash {
+    transform: translateX(-50%) translateY(-14px) scale(1.04);
+    box-shadow: 0 14px 28px rgba(17,24,39,.26);
+    opacity: 1;
+  }
+  .cl-stage.demo .cl-card:not(.flash) { opacity: .4; filter: saturate(.6); }
+
+  /* ---- 详情面板 ---- */
+  .cl-detail {
+    margin-top: 8px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 14px 16px;
+    background: #fff;
+    min-height: 96px;
+    transition: opacity .25s ease;
+  }
+  .cl-detail .cl-d-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 10px;
+    font-size: 13px;
+    margin: 0 0 8px;
+  }
+  .cl-detail .cl-d-label {
+    color: var(--muted);
+    min-width: 96px;
+  }
+  .cl-detail .cl-d-val { font-weight: 600; }
+  .cl-detail code {
+    font-family: "SFMono-Regular", Consolas, Menlo, monospace;
+    background: var(--brand-soft);
+    color: #312E81;
+    padding: 1px 6px;
+    border-radius: 5px;
+    font-size: 12.5px;
+  }
+  .cl-detail .cl-d-prio {
+    font-size: 12.5px;
+    color: var(--brand);
+    font-weight: 600;
+    background: var(--brand-soft);
+    border-radius: 6px;
+    padding: 6px 10px;
+    display: inline-block;
+  }
+
+  /* ---- 覆盖演示面板 ---- */
+  .cl-demo {
+    margin-top: 10px;
+    border: 1px dashed var(--brand);
+    border-radius: 10px;
+    padding: 14px 16px;
+    background: #FAFAFF;
+    display: none;
+  }
+  .cl-demo.show { display: block; }
+  .cl-demo .cl-demo-title {
+    font-size: 14px;
+    font-weight: 700;
+    margin: 0 0 8px;
+  }
+  .cl-demo .cl-resolved {
+    font-family: "SFMono-Regular", Consolas, Menlo, monospace;
+    font-size: 15px;
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 10px 12px;
+    margin-bottom: 10px;
+  }
+  .cl-demo .cl-resolved b { color: var(--brand); }
+  .cl-demo .cl-step {
+    font-size: 12.5px;
+    color: var(--muted);
+    min-height: 18px;
+  }
+  .cl-demo .cl-from {
+    font-weight: 700;
+    color: var(--ink);
+  }
+
+  /* ---- 移动端：纵向排列而非堆叠 ---- */
+  @media (max-width: 480px) {
+    .cl-stage { height: auto; }
+    .cl-card {
+      position: relative;
+      left: auto;
+      top: auto !important;
+      transform: none !important;
+      width: 100%;
+      max-width: 100%;
+      margin: 0 0 10px;
+    }
+    .cl-card.active,
+    .cl-card.flash {
+      transform: none !important;
+    }
+    .cl-stage.has-active .cl-card:not(.active),
+    .cl-stage.demo .cl-card:not(.flash) { opacity: 1; filter: none; }
+  }
+</style>
+
+<div class="config-layers" id="root">
+  <div class="cl-head">
+    <div>
+      <h2 class="cl-title">配置分层可视化器</h2>
+      <p class="cl-hint">点击任意卡片查看该层详情 · 上层覆盖下层</p>
+    </div>
+    <div class="cl-toolbar">
+      <button class="cl-btn ghost" id="demoBtn">覆盖演示</button>
+      <button class="cl-btn" id="resetBtn">重置</button>
+    </div>
+  </div>
+
+  <div class="cl-stage" id="stage"></div>
+
+  <div class="cl-detail" id="detail">
+    <div class="cl-d-row"><span class="cl-d-label">说明</span><span class="cl-d-val">点击上方任意一层卡片，查看其配置文件路径、优先级与代码引用。</span></div>
+  </div>
+
+  <div class="cl-demo" id="demo">
+    <p class="cl-demo-title">覆盖演示：<code style="background:#EEF2FF;color:#312E81;padding:1px 6px;border-radius:5px;">model = ?</code> 如何被逐层覆盖</p>
+    <div class="cl-resolved" id="resolved">最终生效：<b id="resolvedVal">（点击"覆盖演示"开始）</b></div>
+    <div class="cl-step" id="demoStep"></div>
+  </div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  // 数据：5 个配置层，由底到顶（底层先被加载，顶层最终覆盖）
+  const layers = [
+    { id: "builtin", name: "① 内置默认 Built-in", desc: "编译进二进制的默认值，始终作为兜底。", path: "(hardcoded)", example: { key: "model", value: '"gpt-4o"', note: "默认模型" }, color: "#F3F4F6", textColor: "#374151", code: "config/src/config/defaults.rs:42" },
+    { id: "system", name: "② 系统级 System", desc: "/etc/codex/config.toml 或等效系统目录，影响本机所有用户。", path: "/etc/codex/config.toml", example: { key: "model", value: '"gpt-4o"', note: "未覆盖，沿用下层" }, color: "#E5E7EB", textColor: "#374151", code: "config/src/loader/mod.rs:88" },
+    { id: "user", name: "③ 用户全局 User", desc: "~/.config/codex/config.toml，当前用户的全局偏好。", path: "~/.config/codex/config.toml", example: { key: "model", value: '"o3"', note: "用户改为 o3" }, color: "#EEF2FF", textColor: "#312E81", code: "config/src/loader/mod.rs:128" },
+    { id: "project", name: "④ 项目级 Project", desc: ".codex/config.toml（项目根目录），随仓库共享。", path: ".codex/config.toml", example: { key: "model", value: '"o3"', note: "未覆盖" }, color: "#E0E7FF", textColor: "#312E81", code: "config/src/loader/mod.rs:167" },
+    { id: "cli", name: "⑤ 命令行覆盖 CLI Override", desc: "--model o4 等命令行参数，优先级最高。", path: "--model <value>", example: { key: "model", value: '"o4"', note: "CLI 最终覆盖为 o4！" }, color: "#4F46E5", textColor: "#FFFFFF", code: "config/src/args/mod.rs:73" }
+  ];
+
+  const stage = document.getElementById("stage");
+  const detail = document.getElementById("detail");
+  const demo = document.getElementById("demo");
+  const demoBtn = document.getElementById("demoBtn");
+  const resetBtn = document.getElementById("resetBtn");
+  const resolved = document.getElementById("resolvedVal");
+  const demoStep = document.getElementById("demoStep");
+
+  const cards = [];
+  let activeId = null;
+  let demoTimer = null;
+
+  // 构建卡片
+  layers.forEach(function (layer, i) {
+    const card = document.createElement("div");
+    card.className = "cl-card";
+    card.style.setProperty("--i", i);
+    card.style.background = layer.color;
+    card.style.color = layer.textColor;
+    card.style.zIndex = String(10 + i); // cli 在视觉最上层
+    card.dataset.id = layer.id;
+    card.innerHTML =
+      '<p class="cl-name">' + layer.name + '</p>' +
+      '<p class="cl-desc">' + layer.desc + '</p>' +
+      '<div class="cl-example">' +
+        '<span class="cl-kv">' + layer.example.key + ' = ' + layer.example.value + '</span>' +
+        '<span class="cl-note">' + layer.example.note + '</span>' +
+      '</div>';
+    card.addEventListener("click", function () { if (!stage.classList.contains("demo")) selectLayer(layer.id); });
+    stage.appendChild(card);
+    cards.push(card);
+  });
+
+  function cardById(id) {
+    return cards.find(function (c) { return c.dataset.id === id; });
+  }
+
+  function selectLayer(id) {
+    activeId = id;
+    const layer = layers.find(function (l) { return l.id === id; });
+    stage.classList.add("has-active");
+    cards.forEach(function (c) { c.classList.toggle("active", c.dataset.id === id); });
+
+    detail.innerHTML =
+      '<div class="cl-d-row"><span class="cl-d-label">配置文件路径</span><span class="cl-d-val"><code>' + layer.path + '</code></span></div>' +
+      '<div class="cl-d-row"><span class="cl-d-label">示例配置项</span><span class="cl-d-val"><code>' + layer.example.key + ' = ' + layer.example.value + '</code> · ' + layer.example.note + '</span></div>' +
+      '<div class="cl-d-row"><span class="cl-d-label">代码引用</span><span class="cl-d-val"><code>' + layer.code + '</code></span></div>' +
+      '<div class="cl-d-prio">' + (id === "cli"
+          ? "最高优先级：此层覆盖以下所有层。"
+          : "此层覆盖其下方（更低优先级）的所有层；若下方有值且本层未定义，则沿用下方值。") + '</div>';
+  }
+
+  function reset() {
+    if (demoTimer) { clearInterval(demoTimer); demoTimer = null; }
+    activeId = null;
+    stage.classList.remove("has-active", "demo");
+    cards.forEach(function (c) { c.classList.remove("active", "flash"); });
+    detail.innerHTML =
+      '<div class="cl-d-row"><span class="cl-d-label">说明</span><span class="cl-d-val">点击上方任意一层卡片，查看其配置文件路径、优先级与代码引用。</span></div>';
+    demo.classList.remove("show");
+    resolved.textContent = "（点击\"覆盖演示\"开始）";
+    demoStep.textContent = "";
+    demoBtn.textContent = "覆盖演示";
+    demoBtn.disabled = false;
+  }
+
+  function runDemo() {
+    if (demoTimer) { clearInterval(demoTimer); demoTimer = null; }
+    demo.classList.add("show");
+    stage.classList.add("demo");
+    stage.classList.remove("has-active");
+    cards.forEach(function (c) { c.classList.remove("active"); });
+
+    let step = 0;
+    resolved.textContent = "计算中…";
+    demoStep.textContent = "从最底层（内置默认）开始逐层加载…";
+
+    demoTimer = setInterval(function () {
+      if (step >= layers.length) {
+        clearInterval(demoTimer); demoTimer = null;
+        demoStep.textContent = "✓ 全部 5 层已合并，命令行覆盖（⑤）的值胜出。";
+        demoBtn.textContent = "覆盖演示";
+        return;
+      }
+      const layer = layers[step];
+      cards.forEach(function (c) { c.classList.toggle("flash", c.dataset.id === layer.id); });
+      resolved.textContent = layer.example.value;
+      demoStep.innerHTML = "第 " + (step + 1) + " 层 <span class=\"cl-from\">" + layer.name + "</span> 生效 → model = " + layer.example.value + "（" + layer.example.note + "）";
+      step++;
+    }, 900);
+  }
+
+  demoBtn.addEventListener("click", function () {
+    if (demoTimer) { reset(); return; }
+    demoBtn.textContent = "停止演示";
+    runDemo();
+  });
+  resetBtn.addEventListener("click", reset);
+
+  // 初始：选中顶层作为示例
+  selectLayer("cli");
+})();
+</script>

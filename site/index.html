@@ -72,8 +72,15 @@
   </script>
 </head>
 <body>
+  <!-- 跳转到正文：键盘用户可越过左侧长章节列表直达主内容。
+       默认视觉隐藏、聚焦时显示；点击由 app.js 拦截（不写入 hash，避免触发路由重载）。 -->
+  <a class="skip-link" href="#content">跳到正文</a>
+
+  <!-- 屏幕阅读器播报区：章节切换 / 搜索结果数 / 过滤结果数等动态变化在此朗读 -->
+  <div id="sr-live" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></div>
+
   <!-- CDN 加载失败提示横幅：默认 hidden，三个 CDN 都挂时由页尾脚本显示 -->
-  <div id="cdn-error" hidden>本站依赖的脚本（marked / highlight.js / mermaid）加载失败，多半是网络无法访问 CDN。请检查网络后刷新；或改用离线版 site/dist/index.html。</div>
+  <div id="cdn-error" role="alert" hidden>本站依赖的脚本（marked / highlight.js / mermaid）加载失败，多半是网络无法访问 CDN。请检查网络后刷新；或改用离线版 site/dist/index.html。</div>
 
   <!-- 窄屏抽屉：汉堡按钮 + 半透明遮罩（桌面端由 CSS 隐藏） -->
   <button id="menu-toggle" class="menu-toggle" type="button"
@@ -96,7 +103,10 @@
                 title="全文搜索（Ctrl / ⌘ + K）" aria-label="全文搜索">全文</button>
       </div>
 
-      <nav class="toc" id="toc" role="navigation" aria-label="章节导航"><!-- chapters injected by app.js --></nav>
+      <nav class="toc" id="toc" role="navigation" aria-label="章节导航"><!-- chapters injected by app.js -->
+        <hr style="border:none; border-top:1px solid #e5e7eb; margin:12px 0;">
+        <a href="#/interactive" id="nav-interactive" class="nav-item" style="color:#4F46E5; font-weight:600;">🎮 互动演示</a>
+      </nav>
 
       <div class="sidebar-foot">
         <button id="theme-toggle" class="theme-toggle" title="切换深/浅色" aria-label="切换深/浅色主题">◐ 主题</button>
@@ -106,15 +116,20 @@
 
     <main class="content" id="content">
       <div id="progress-bar"></div>
-      <aside class="page-toc" id="page-toc" hidden>
-        <button class="page-toc-toggle" id="page-toc-toggle" type="button" aria-expanded="true">
-          本页目录 <span class="page-toc-chev">▾</span>
+      <aside class="inpage-toc" id="inpage-toc" hidden>
+        <button class="inpage-toc-toggle" id="inpage-toc-toggle" type="button" aria-expanded="true">
+          目录 <span class="inpage-toc-chev">∨</span>
         </button>
-        <nav class="page-toc-list" id="page-toc-list"></nav>
+        <ul class="inpage-toc-list" id="inpage-toc-list"></ul>
       </aside>
       <article class="markdown" id="article">
         <p class="loading">正在加载…</p>
       </article>
+
+      <div id="interactive-panel" hidden>
+        <h2>互动演示</h2>
+        <div class="interactive-grid" id="interactive-grid"></div>
+      </div>
 
       <footer id="site-footer">
         <p class="footer-note">本指南为 codex-rs 仓库的源码导读，引用位置随上游版本可能漂移，以函数/结构体名为准。</p>

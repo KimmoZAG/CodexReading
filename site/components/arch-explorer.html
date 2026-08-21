@@ -1,0 +1,425 @@
+<!--
+  架构探索器 · 可嵌入 HTML 片段
+  纯静态、零依赖。可直接双击在浏览器打开，也可 <iframe>/fetch 嵌入页面。
+  无 <html>/<head>，仅根容器 + 内联 <style> + 内联 <svg> + <script>。
+-->
+<style>
+  .arch-explorer {
+    --brand: #4F46E5;
+    --brand-soft: #EEF2FF;
+    --brand-hover: #E0E7FF;
+    --ink: #111827;
+    --muted: #6B7280;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, "PingFang SC", "Microsoft YaHei", sans-serif;
+    color: var(--ink);
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 16px;
+    box-sizing: border-box;
+  }
+  .arch-explorer * { box-sizing: border-box; }
+
+  .ae-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+  }
+  .ae-hint {
+    font-size: 14px;
+    color: var(--muted);
+  }
+  .ae-score {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--brand);
+    min-width: 84px;
+    text-align: right;
+  }
+  .ae-btn {
+    appearance: none;
+    border: 1.5px solid var(--brand);
+    background: var(--brand);
+    color: #fff;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 8px 16px;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: background .15s, transform .1s;
+  }
+  .ae-btn:hover { background: #4338CA; }
+  .ae-btn:active { transform: scale(.97); }
+  .ae-btn.ghost {
+    background: transparent;
+    color: var(--brand);
+  }
+  .ae-btn.ghost:hover { background: var(--brand-soft); }
+
+  .ae-stage {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+  .ae-svg-wrap {
+    flex: 1 1 420px;
+    min-width: 280px;
+    background: #fff;
+    border: 1px solid #E5E7EB;
+    border-radius: 16px;
+    padding: 8px;
+  }
+  .ae-svg-wrap svg { width: 100%; height: auto; display: block; }
+
+  /* 信息卡片：默认隐藏，滑入 */
+  .ae-info {
+    flex: 1 1 280px;
+    min-width: 240px;
+    border: 1px solid #E5E7EB;
+    border-left: 4px solid var(--brand);
+    border-radius: 12px;
+    padding: 16px 18px;
+    background: #fff;
+    opacity: 0;
+    transform: translateY(12px);
+    transition: opacity .25s ease, transform .25s ease;
+    pointer-events: none;
+  }
+  .ae-info.show { opacity: 1; transform: translateY(0); pointer-events: auto; }
+  .ae-info h3 {
+    margin: 0 0 6px;
+    font-size: 20px;
+    color: var(--brand);
+  }
+  .ae-info .ae-role {
+    margin: 0 0 12px;
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--ink);
+  }
+  .ae-info .ae-label {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    margin: 12px 0 4px;
+  }
+  .ae-info ul { margin: 0; padding-left: 0; list-style: none; }
+  .ae-info li { margin: 4px 0; }
+  .ae-info a {
+    color: var(--brand);
+    text-decoration: none;
+    font-size: 14px;
+  }
+  .ae-info a:hover { text-decoration: underline; }
+  .ae-info .ae-chapter a {
+    display: inline-block;
+    margin-top: 4px;
+    font-weight: 600;
+  }
+
+  /* SVG 节点交互 */
+  .arch-node { cursor: pointer; transition: opacity .2s; }
+  .node-box { transition: fill .15s, stroke-width .15s; }
+  .arch-node:hover .node-box { fill: var(--brand-hover); stroke-width: 3.5; }
+  .arch-node.selected .node-box { fill: var(--brand-hover); stroke-width: 4.5; }
+
+  /* Quiz 闪烁高亮 */
+  @keyframes ae-blink {
+    0%, 100% { fill: var(--brand-soft); stroke-width: 3; }
+    50%      { fill: #C7D2FE; stroke-width: 6; }
+  }
+  .arch-node.target .node-box { animation: ae-blink 1s ease-in-out infinite; }
+
+  /* 点击反馈动画 */
+  @keyframes ae-pop {
+    0%   { transform: scale(1); }
+    40%  { transform: scale(1.18); }
+    100% { transform: scale(1); }
+  }
+  .ae-feedback {
+    font-size: 28px;
+    font-weight: 800;
+    display: inline-block;
+  }
+  .ae-feedback.pop { animation: ae-pop .45s ease; }
+  .ae-feedback.ok  { color: #16A34A; }
+  .ae-feedback.no  { color: #DC2626; }
+
+  @media (max-width: 560px) {
+    .ae-stage { flex-direction: column; }
+    .ae-svg-wrap, .ae-info { flex: 1 1 auto; width: 100%; }
+  }
+</style>
+
+<div class="arch-explorer" id="arch-explorer">
+  <div class="ae-toolbar">
+    <span class="ae-hint" id="ae-hint">点击架构图中的组件查看详情 →</span>
+    <span class="ae-score" id="ae-score" hidden>得分: 0/5</span>
+    <button class="ae-btn" id="ae-quiz-btn" type="button">Quiz 模式</button>
+  </div>
+
+  <div class="ae-stage">
+    <div class="ae-svg-wrap">
+      <svg viewBox="0 0 800 480" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Codex 架构图">
+        <defs>
+          <marker id="ae-arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+            <path d="M0,0 L9,3 L0,6 Z" fill="#4F46E5"/>
+          </marker>
+        </defs>
+        <rect width="800" height="480" fill="#FFFFFF"/>
+        <text x="40" y="40" font-size="22" font-weight="700" fill="#111827">Codex 整体架构 · 万米视角</text>
+        <text x="40" y="64" font-size="13" fill="#6B7280">CLI / App-Server / Codex-Core / Exec-Server 四者关系</text>
+
+        <!-- CLI -->
+        <g class="arch-node" data-key="cli" tabindex="0" role="button" aria-label="CLI 命令行">
+          <rect class="node-box" x="300" y="100" width="200" height="70" rx="12" fill="#EEF2FF" stroke="#4F46E5" stroke-width="2"/>
+          <text x="400" y="132" text-anchor="middle" font-size="18" font-weight="600" fill="#312E81">CLI 命令行</text>
+          <text x="400" y="154" text-anchor="middle" font-size="13" fill="#4F46E5">薄壳 · Thin Shell</text>
+        </g>
+
+        <!-- App Server 容器（点击头部区域选中） -->
+        <g class="arch-node" data-key="appserver" tabindex="0" role="button" aria-label="App Server">
+          <rect class="node-box" x="190" y="220" width="420" height="210" rx="16" fill="#F9FAFB" stroke="#4F46E5" stroke-width="2"/>
+          <text x="212" y="248" font-size="16" font-weight="600" fill="#312E81">App Server</text>
+          <text x="324" y="248" font-size="12" fill="#4F46E5">常驻 · Always-on</text>
+        </g>
+
+        <!-- Codex Core（覆盖在 App Server 之上，优先接收点击） -->
+        <g class="arch-node" data-key="core" tabindex="0" role="button" aria-label="Codex Core">
+          <rect class="node-box" x="250" y="290" width="300" height="110" rx="12" fill="#EEF2FF" stroke="#6366F1" stroke-width="2"/>
+          <text x="400" y="335" text-anchor="middle" font-size="18" font-weight="600" fill="#312E81">Codex Core</text>
+          <text x="400" y="360" text-anchor="middle" font-size="13" fill="#4F46E5">大脑 · Brain</text>
+        </g>
+
+        <!-- 信任边界（虚线容器） -->
+        <g class="arch-node" data-key="boundary" tabindex="0" role="button" aria-label="信任边界">
+          <rect class="node-box" x="640" y="220" width="160" height="210" rx="16" fill="#F9FAFB" stroke="#9CA3AF" stroke-width="2" stroke-dasharray="8 6"/>
+          <text x="720" y="246" text-anchor="middle" font-size="12" fill="#6B7280">信任边界</text>
+        </g>
+
+        <!-- Exec Server（在信任边界之内） -->
+        <g class="arch-node" data-key="execserver" tabindex="0" role="button" aria-label="Exec Server">
+          <rect class="node-box" x="660" y="290" width="120" height="110" rx="12" fill="#EEF2FF" stroke="#4F46E5" stroke-width="2"/>
+          <text x="720" y="335" text-anchor="middle" font-size="16" font-weight="600" fill="#312E81">Exec Server</text>
+          <text x="720" y="358" text-anchor="middle" font-size="12" fill="#4F46E5">沙箱 · Sandbox</text>
+        </g>
+
+        <!-- 连接箭头 -->
+        <line x1="400" y1="170" x2="400" y2="218" stroke="#4F46E5" stroke-width="2.5" marker-end="url(#ae-arrow)"/>
+        <line x1="610" y1="345" x2="658" y2="345" stroke="#4F46E5" stroke-width="2.5" marker-end="url(#ae-arrow)"/>
+        <text x="624" y="335" text-anchor="middle" font-size="11" fill="#6B7280">RPC</text>
+      </svg>
+    </div>
+
+    <div class="ae-info" id="arch-info" aria-live="polite">
+      <!-- 由 JS 填充 -->
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  // —— 组件数据（基于站点既有内容硬编码）——
+  var DATA = {
+    cli: {
+      name: "CLI 命令行",
+      role: "薄壳入口，接收用户命令并转发给 App Server",
+      files: ["cli/"],
+      chapter: "02-process-model",
+      chTitle: "进程模型"
+    },
+    appserver: {
+      name: "App Server",
+      role: "常驻后台服务，托管 Codex Core 并管理会话生命周期",
+      files: ["app-server/"],
+      chapter: "02-process-model",
+      chTitle: "进程模型"
+    },
+    core: {
+      name: "Codex Core",
+      role: "大脑：运行 turn 循环、调度工具、管理对话上下文",
+      files: ["core/src/session/turn.rs"],
+      chapter: "04-turn-loop",
+      chTitle: "Turn 循环"
+    },
+    execserver: {
+      name: "Exec Server",
+      role: "沙箱执行环境，隔离运行用户代码和命令",
+      files: ["exec-server/"],
+      chapter: "06-sandbox",
+      chTitle: "安全沙箱"
+    },
+    boundary: {
+      name: "信任边界",
+      role: "Core 与 Exec Server 之间的安全隔离带，通过 RPC 通信",
+      files: ["protocol/"],
+      chapter: "08-protocol",
+      chTitle: "通信协议"
+    }
+  };
+
+  var KEYS = ["cli", "appserver", "core", "execserver", "boundary"];
+  var TOTAL_ROUNDS = 5;
+
+  var root = document.getElementById("arch-explorer");
+  var nodes = root.querySelectorAll(".arch-node");
+  var info = document.getElementById("arch-info");
+  var hint = document.getElementById("ae-hint");
+  var scoreEl = document.getElementById("ae-score");
+  var quizBtn = document.getElementById("ae-quiz-btn");
+
+  var mode = "explore"; // "explore" | "quiz"
+  var selectedKey = null;
+  var quiz = { round: 0, score: 0, target: null, locked: false };
+
+  function clearSelection() {
+    nodes.forEach(function (n) { n.classList.remove("selected"); });
+  }
+
+  function showInfo(key) {
+    var d = DATA[key];
+    if (!d) return;
+    var fileLinks = d.files.map(function (f) {
+      return '<li><a href="#/read/' + d.chapter + '">' + f + '</a></li>';
+    }).join("");
+    info.innerHTML =
+      '<h3>' + d.name + '</h3>' +
+      '<p class="ae-role">' + d.role + '</p>' +
+      '<div class="ae-label">关键文件 / 目录</div>' +
+      '<ul>' + fileLinks + '</ul>' +
+      '<div class="ae-label ae-chapter">了解更多</div>' +
+      '<a href="#/read/' + d.chapter + '">→ 第 ' + d.chapter.split("-")[0] + ' 章 · ' + d.chTitle + '</a>';
+    info.classList.add("show");
+  }
+
+  // —— 探索模式：点击展示详情 ——
+  function handleExploreClick(key) {
+    selectedKey = key;
+    clearSelection();
+    var el = root.querySelector('.arch-node[data-key="' + key + '"]');
+    if (el) el.classList.add("selected");
+    showInfo(key);
+    hint.textContent = "已选中：" + DATA[key].name + " — 点击其他组件继续探索";
+  }
+
+  // —— Quiz 模式 ——
+  function startQuiz() {
+    mode = "quiz";
+    quiz.round = 0;
+    quiz.score = 0;
+    quiz.locked = false;
+    selectedKey = null;
+    clearSelection();
+    info.classList.remove("show");
+    scoreEl.hidden = false;
+    scoreEl.textContent = "得分: 0/" + TOTAL_ROUNDS;
+    quizBtn.textContent = "退出 Quiz";
+    quizBtn.classList.add("ghost");
+    nextRound();
+  }
+
+  function nextRound() {
+    if (quiz.round >= TOTAL_ROUNDS) {
+      endQuiz();
+      return;
+    }
+    quiz.locked = false;
+    quiz.target = KEYS[Math.floor(Math.random() * KEYS.length)];
+    nodes.forEach(function (n) {
+      n.classList.remove("selected");
+      n.classList.toggle("target", n.getAttribute("data-key") === quiz.target);
+    });
+    hint.innerHTML = '第 ' + (quiz.round + 1) + ' / ' + TOTAL_ROUNDS + ' 轮：闪烁的组件是？点击它！';
+  }
+
+  function handleQuizClick(key) {
+    if (quiz.locked) return;
+    quiz.locked = true;
+    var correct = (key === quiz.target);
+    if (correct) quiz.score++;
+    scoreEl.textContent = "得分: " + quiz.score + "/" + TOTAL_ROUNDS;
+
+    // 反馈动画：在提示区显示 ✅ / ❌
+    var mark = document.createElement("span");
+    mark.className = "ae-feedback pop " + (correct ? "ok" : "no");
+    mark.textContent = correct ? "✅" : "❌";
+    hint.textContent = "";
+    hint.appendChild(mark);
+    var msg = document.createElement("span");
+    msg.style.fontSize = "14px";
+    msg.style.color = correct ? "#16A34A" : "#DC2626";
+    msg.style.marginLeft = "8px";
+    msg.textContent = correct
+      ? "答对了！这是 " + DATA[quiz.target].name
+      : "答错了，正确答案是 " + DATA[quiz.target].name;
+    hint.appendChild(msg);
+
+    // 高亮显示正确答案
+    nodes.forEach(function (n) {
+      n.classList.remove("target");
+      if (n.getAttribute("data-key") === quiz.target) n.classList.add("selected");
+    });
+
+    quiz.round++;
+    setTimeout(nextRound, 1400);
+  }
+
+  function endQuiz() {
+    mode = "explore";
+    quizBtn.textContent = "Quiz 模式";
+    quizBtn.classList.remove("ghost");
+    scoreEl.hidden = true;
+    nodes.forEach(function (n) { n.classList.remove("target", "selected"); });
+
+    var pct = quiz.score / TOTAL_ROUNDS;
+    var comment = pct === 1 ? "满分！架构大师 🏆"
+      : pct >= 0.6 ? "不错，核心组件都记住了 👍"
+      : "再读几章就熟了，回去翻翻架构全景 📖";
+    hint.textContent = "Quiz 结束 — 得分 " + quiz.score + "/" + TOTAL_ROUNDS + "：" + comment;
+    info.innerHTML =
+      '<h3>本轮战绩</h3>' +
+      '<p class="ae-role">得分 <b>' + quiz.score + '</b> / ' + TOTAL_ROUNDS + '<br>' + comment + '</p>' +
+      '<div class="ae-label ae-chapter">温故知新</div>' +
+      '<a href="#/read/00-overview">→ 第 00 章 · 架构全景总览</a>';
+    info.classList.add("show");
+  }
+
+  function exitQuiz() {
+    mode = "explore";
+    quizBtn.textContent = "Quiz 模式";
+    quizBtn.classList.remove("ghost");
+    scoreEl.hidden = true;
+    nodes.forEach(function (n) { n.classList.remove("target", "selected"); });
+    hint.textContent = "点击架构图中的组件查看详情 →";
+    info.classList.remove("show");
+  }
+
+  // —— 事件绑定 ——
+  nodes.forEach(function (n) {
+    var key = n.getAttribute("data-key");
+    n.addEventListener("click", function () {
+      if (mode === "quiz") handleQuizClick(key);
+      else handleExploreClick(key);
+    });
+    n.addEventListener("keydown", function (e) {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        if (mode === "quiz") handleQuizClick(key);
+        else handleExploreClick(key);
+      }
+    });
+  });
+
+  quizBtn.addEventListener("click", function () {
+    if (mode === "quiz") exitQuiz();
+    else startQuiz();
+  });
+})();
+</script>

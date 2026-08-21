@@ -65,7 +65,7 @@ html[data-theme="dark"] {
 }
 
 /* 跳转到页内锚点的链接（本页目录等）：键盘聚焦时显示清晰焦点轮廓 */
-.page-toc-link:focus-visible,
+.inpage-toc a:focus-visible,
 .markdown a:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
@@ -225,8 +225,8 @@ body {
   width: 0%;
   background: var(--accent);
   z-index: 50;
-  transition: width .15s ease-out;
-  pointer-events: none;
+  transition: width 0.15s linear;   /* 进度条平滑过渡（细粒度更新更顺滑） */
+  pointer-events: none;             /* 不拦截点击，避免干扰正文交互 */
 }
 .content { padding: 56px clamp(20px, 4vw, 48px) 120px; }
 .markdown {
@@ -452,11 +452,11 @@ html[data-theme="dark"] .markdown img {
 .chap-nav-link.prev { text-align: left; }
 .chap-nav-link.next { text-align: right; }
 
-/* ---------- 本页目录（页内锚点浮层） ----------
+/* ---------- 章节内 Heading TOC（inpage-toc 浮层） ----------
    默认（中等宽度）：作为正文上方的内联卡片，绝不遮挡正文，可折叠；
-   大屏（>=1520px）：固定在右侧留白带内（见文件末尾媒体查询）；
-   窄屏（<=860px）：右下角可收起悬浮按钮（见 Responsive 段）。 */
-.page-toc {
+   大屏（>=1520px）：固定在右侧留白带内（见文件末尾媒体查询，max-width=200px）；
+   移动端（<=768px）：右下角可收起悬浮按钮（见 Responsive 段）。 */
+.inpage-toc {
   position: static;                 /* 默认内联，置于正文上方，不覆盖文字 */
   width: 100%;
   max-width: 860px;                 /* 与正文同宽对齐 */
@@ -470,34 +470,37 @@ html[data-theme="dark"] .markdown img {
   max-height: 50vh;
   overflow-y: auto;
 }
-.page-toc[hidden] { display: none; }
-.page-toc-toggle {
+.inpage-toc[hidden] { display: none; }
+.inpage-toc-toggle {
   display: flex;                   /* 默认显示折叠按钮（中等宽度可收起） */
   width: 100%; align-items: center; justify-content: space-between;
   background: transparent; border: none; color: var(--text);
   font-size: 13px; font-weight: 600; cursor: pointer; padding: 2px 2px 8px;
 }
-.page-toc-chev { transition: transform .2s; }
-.page-toc.collapsed .page-toc-chev { transform: rotate(-90deg); }
+.inpage-toc-chev { transition: transform .2s; }
+.inpage-toc.collapsed .inpage-toc-chev { transform: rotate(-90deg); }
 /* 折叠态：列表高度收为 0（而非 display:none），从而可平滑过渡展开/收起 */
-.page-toc.collapsed .page-toc-list { max-height: 0; opacity: 0; overflow: hidden; }
-.page-toc-list {
+.inpage-toc.collapsed .inpage-toc-list { max-height: 0; opacity: 0; overflow: hidden; }
+.inpage-toc-list {
+  list-style: none;                /* 无样式列表 */
+  margin: 0; padding: 0;
   display: flex; flex-direction: column; gap: 1px;
   overflow-y: auto;                 /* 长目录内部滚动，不撑破卡片 */
   max-height: 42vh;                 /* 展开态高度上限，配合 .collapsed 做过渡 */
   transition: max-height .25s ease, opacity .2s ease;
 }
-.page-toc-link {
-  display: block; text-decoration: none; color: var(--text-soft);
-  padding: 5px 8px; border-radius: 8px; border-left: 2px solid transparent;
+.inpage-toc a {
+  display: block; text-decoration: none; color: inherit;
+  padding: 5px 8px; border-radius: 8px;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis; transition: .15s;
 }
-.page-toc-link:hover { background: var(--bg-soft); color: var(--text); }
-.page-toc-link.active {
+.inpage-toc a:hover { color: var(--accent); text-decoration: underline; }
+.inpage-toc li.active { border-left: 2px solid var(--accent); }
+.inpage-toc li.active a {
   background: var(--accent-soft); color: var(--accent);
-  border-left-color: var(--accent); font-weight: 600;
+  font-weight: 600;
 }
-.page-toc-link.h3 { padding-left: 20px; font-size: 12.5px; color: var(--text-faint); }
+.inpage-toc-item.h3 a { padding-left: 20px; font-size: 12.5px; color: var(--text-faint); }
 
 /* ---------- 回到顶部浮动按钮 ----------
    固定右下角（移动端改到左下，避免与本页目录浮层右下角重叠）；
@@ -575,16 +578,16 @@ html[data-theme="dark"] #cdn-error {
    不再占用正文上方空间。为内容区右侧预留留白，本页目录固定在留白带内。 */
 @media (min-width: 1520px) {
   .content { padding-right: 300px; }     /* 预留右侧留白给固定目录 */
-  .page-toc {
+  .inpage-toc {
     position: fixed;
     top: 88px; right: 24px; left: auto;
-    width: 220px; max-width: 220px;
+    width: 200px; max-width: 200px;       /* 规格：最大宽 200px */
     margin: 0; max-height: calc(100vh - 120px);
     padding: 14px;
   }
-  .page-toc-toggle { display: none; }     /* 大屏常开，隐藏折叠按钮 */
-  .page-toc-list { max-height: none; }    /* 大屏目录随卡片滚动，不限高 */
-  .page-toc.collapsed .page-toc-list { max-height: none; opacity: 1; overflow: visible; }
+  .inpage-toc-toggle { display: none; }     /* 大屏常开，隐藏折叠按钮 */
+  .inpage-toc-list { max-height: none; }    /* 大屏目录随卡片滚动，不限高 */
+  .inpage-toc.collapsed .inpage-toc-list { max-height: none; opacity: 1; overflow: visible; }
 }
 
 /* 窄屏：侧边栏变成从左滑出的抽屉。默认整体移出视口（translateX(-100%)），
@@ -623,22 +626,24 @@ html[data-theme="dark"] #cdn-error {
   .content { padding: 60px 20px 80px; }
   #progress-bar { left: 0; }
 
-  /* 本页目录：窄屏改为右下角可收起悬浮按钮（JS 默认折叠，不挡正文）；
-     与左下角的「回到顶部」错开，互不遮挡。 */
-  .page-toc {
+  /* 移动端改到左下角，避免与本页目录浮层（右下角）重叠挡住内容 */
+  #back-to-top { bottom: 16px; left: 16px; right: auto; }
+}
+
+/* 移动端（<=768px）：inpage-toc 改为右下角可收起悬浮按钮（JS 默认折叠，不挡正文）；
+   与左下角的「回到顶部」错开，互不遮挡。 */
+@media (max-width: 768px) {
+  .inpage-toc {
     position: fixed;
     top: auto; bottom: 16px; right: 16px; left: auto;
     width: auto; max-width: 72vw;
     margin: 0; padding: 8px 12px;
     max-height: 60vh;
   }
-  .page-toc-toggle { display: flex; }
-  /* 折叠态：仅留紧凑的「本页目录」小条（右下角），不挡正文；
-     展开/收起由 .page-toc-list 的 max-height 过渡完成，见上方基础规则 */
-  .page-toc.collapsed { max-height: none; }
-
-  /* 移动端改到左下角，避免与本页目录浮层（右下角）重叠挡住内容 */
-  #back-to-top { bottom: 16px; left: 16px; right: auto; }
+  .inpage-toc-toggle { display: flex; }
+  /* 折叠态：仅留紧凑的「目录 ∨」小条（右下角），不挡正文；
+     展开/收起由 .inpage-toc-list 的 max-height 过渡完成，见上方基础规则 */
+  .inpage-toc.collapsed { max-height: none; }
 }
 
 @media (max-width: 860px) and (prefers-reduced-motion: reduce) {
@@ -881,8 +886,8 @@ html[data-theme="dark"] .core-badge {
   .menu-toggle { top: 10px; left: 10px; width: 38px; height: 34px; font-size: 17px; }
   #progress-bar { left: 0; }
   /* 本页目录：更紧凑、限制宽度，让出左下角回到顶部按钮的空间，不挡正文 */
-  .page-toc { bottom: 12px; right: 12px; left: auto; max-width: 78vw; padding: 8px 10px; }
-  .page-toc-toggle { font-size: 12.5px; padding-bottom: 6px; }
+  .inpage-toc { bottom: 12px; right: 12px; left: auto; max-width: 78vw; padding: 8px 10px; }
+  .inpage-toc-toggle { font-size: 12.5px; padding-bottom: 6px; }
   /* 回到顶部：略缩小、固定在左下角，不与右下目录重叠 */
   #back-to-top { bottom: 12px; left: 12px; width: 40px; height: 40px; font-size: 18px; }
   /* 宽表格在窄屏可横向滚动，避免撑破页面；小圆角让滚动容器更柔和 */
@@ -925,7 +930,7 @@ html[data-theme="dark"] .core-badge {
   .ext-link:hover { color: var(--text-faint); }
   .markdown a:hover { background: transparent; border-bottom-color: color-mix(in srgb, var(--accent) 35%, transparent); }
   .markdown a.cite:hover { background: transparent; border-bottom-color: color-mix(in srgb, var(--accent) 40%, transparent); }
-  .page-toc-link:hover { background: transparent; color: var(--text-soft); }
+  .inpage-toc a:hover { background: transparent; color: var(--text-soft); }
   #back-to-top:hover { color: #fff; background: var(--accent); }
   .fs-item:hover { background: transparent; border-color: transparent; }
   .copy-link-btn:hover { opacity: .6; color: var(--text-faint); border-color: var(--border); background: transparent; }
@@ -933,12 +938,12 @@ html[data-theme="dark"] .core-badge {
 
   /* 点按最小高度 ~40px，拇指友好；去掉 iOS 点击灰块 */
   .toc a,
-  .page-toc-link,
+  .inpage-toc a,
   .crate-card a,
   .theme-toggle,
   .full-search-btn,
   .menu-toggle,
-  .page-toc-toggle,
+  .inpage-toc-toggle,
   .copy-link-btn,
   .fs-close,
   #back-to-top {
@@ -948,11 +953,11 @@ html[data-theme="dark"] .core-badge {
   .theme-toggle,
   .full-search-btn,
   .menu-toggle,
-  .page-toc-toggle { display: flex; align-items: center; justify-content: center; }
+  .inpage-toc-toggle { display: flex; align-items: center; justify-content: center; }
 
   /* 按压反馈：轻微收缩，替代 hover 给出触控确认 */
   .toc a:active,
-  .page-toc-link:active,
+  .inpage-toc a:active,
   .crate-card:active,
   .crate-card a:active,
   .chap-nav-link:active,
@@ -960,7 +965,7 @@ html[data-theme="dark"] .core-badge {
   .theme-toggle:active,
   .full-search-btn:active,
   .menu-toggle:active,
-  .page-toc-toggle:active,
+  .inpage-toc-toggle:active,
   #back-to-top:active,
   .fs-item:active,
   .copy-link-btn:active,
@@ -977,6 +982,56 @@ html[data-theme="dark"] .core-badge {
 }
 .copy-btn.copied { color: var(--accent); border-color: var(--accent); background: var(--accent-soft); }
 .copy-link-btn.copied { color: var(--accent); border-color: var(--accent); background: var(--accent-soft); }
+
+/* ---------- 互动演示入口 ----------
+   侧边栏「🎮 互动演示」(#nav-interactive) 进入 #interactive-panel，
+   展示组件卡片网格；点「打开演示」在面板内嵌入 iframe（方案 B，整合更紧密）。 */
+#nav-interactive.active {
+  background: var(--accent-soft); color: var(--accent);
+  border-left-color: var(--accent); font-weight: 600;
+}
+#interactive-panel h2 {
+  font-size: 23px; line-height: 1.4; margin: 0 0 18px; padding-bottom: 14px;
+  letter-spacing: -.2px; font-weight: 700;
+  border-bottom: 1px solid var(--border);    /* 与正文 h2 一致的风格 */
+}
+.interactive-grid {
+  max-width: 860px; margin: 0 auto;
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px;
+}
+.interactive-card {
+  display: flex; flex-direction: column; gap: 10px;
+  background: var(--panel); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 18px;
+  transition: border-color .18s ease, transform .18s ease, box-shadow .18s ease, background .18s ease;
+}
+.interactive-card:hover {
+  border-color: color-mix(in srgb, var(--accent) 55%, var(--border));
+  background: color-mix(in srgb, var(--accent-soft) 45%, var(--panel));
+  transform: translateY(-3px); box-shadow: var(--shadow);
+}
+.interactive-card-icon { font-size: 28px; line-height: 1; }
+.interactive-card-title { margin: 0; font-size: 16.5px; font-weight: 650; color: var(--text); }
+.interactive-card-desc { margin: 0; font-size: 13.5px; line-height: 1.6; color: var(--text-soft); flex: 1; }
+.interactive-open-btn {
+  align-self: flex-start;
+  font-family: var(--sans); font-size: 13.5px; font-weight: 600; line-height: 1;
+  padding: 9px 16px; color: #fff;
+  background: var(--accent); border: 1px solid var(--accent); border-radius: 9px;
+  cursor: pointer; transition: background .15s ease, transform .15s ease, box-shadow .15s ease;
+}
+.interactive-open-btn:hover {
+  background: color-mix(in srgb, var(--accent) 82%, #000);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px color-mix(in srgb, var(--accent) 22%, transparent);
+}
+.interactive-frame {
+  display: block;
+  width: 100%; height: 600px;
+  margin: 18px auto 0; max-width: 860px;
+  border: 1px solid var(--border); border-radius: 12px;
+  background: var(--panel); box-shadow: var(--shadow);
+}
 
 /* ---------- 打印 / 导出 PDF ----------
    目标：去掉一切界面装饰，只留正文阅读稿。 */

@@ -71,7 +71,7 @@ html[data-theme="dark"] {
 }
 
 /* 跳转到页内锚点的链接（本页目录等）：键盘聚焦时显示清晰焦点轮廓 */
-.page-toc-link:focus-visible,
+.inpage-toc a:focus-visible,
 .markdown a:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
@@ -231,8 +231,8 @@ body {
   width: 0%;
   background: var(--accent);
   z-index: 50;
-  transition: width .15s ease-out;
-  pointer-events: none;
+  transition: width 0.15s linear;   /* 进度条平滑过渡（细粒度更新更顺滑） */
+  pointer-events: none;             /* 不拦截点击，避免干扰正文交互 */
 }
 .content { padding: 56px clamp(20px, 4vw, 48px) 120px; }
 .markdown {
@@ -458,11 +458,11 @@ html[data-theme="dark"] .markdown img {
 .chap-nav-link.prev { text-align: left; }
 .chap-nav-link.next { text-align: right; }
 
-/* ---------- 本页目录（页内锚点浮层） ----------
+/* ---------- 章节内 Heading TOC（inpage-toc 浮层） ----------
    默认（中等宽度）：作为正文上方的内联卡片，绝不遮挡正文，可折叠；
-   大屏（>=1520px）：固定在右侧留白带内（见文件末尾媒体查询）；
-   窄屏（<=860px）：右下角可收起悬浮按钮（见 Responsive 段）。 */
-.page-toc {
+   大屏（>=1520px）：固定在右侧留白带内（见文件末尾媒体查询，max-width=200px）；
+   移动端（<=768px）：右下角可收起悬浮按钮（见 Responsive 段）。 */
+.inpage-toc {
   position: static;                 /* 默认内联，置于正文上方，不覆盖文字 */
   width: 100%;
   max-width: 860px;                 /* 与正文同宽对齐 */
@@ -476,34 +476,37 @@ html[data-theme="dark"] .markdown img {
   max-height: 50vh;
   overflow-y: auto;
 }
-.page-toc[hidden] { display: none; }
-.page-toc-toggle {
+.inpage-toc[hidden] { display: none; }
+.inpage-toc-toggle {
   display: flex;                   /* 默认显示折叠按钮（中等宽度可收起） */
   width: 100%; align-items: center; justify-content: space-between;
   background: transparent; border: none; color: var(--text);
   font-size: 13px; font-weight: 600; cursor: pointer; padding: 2px 2px 8px;
 }
-.page-toc-chev { transition: transform .2s; }
-.page-toc.collapsed .page-toc-chev { transform: rotate(-90deg); }
+.inpage-toc-chev { transition: transform .2s; }
+.inpage-toc.collapsed .inpage-toc-chev { transform: rotate(-90deg); }
 /* 折叠态：列表高度收为 0（而非 display:none），从而可平滑过渡展开/收起 */
-.page-toc.collapsed .page-toc-list { max-height: 0; opacity: 0; overflow: hidden; }
-.page-toc-list {
+.inpage-toc.collapsed .inpage-toc-list { max-height: 0; opacity: 0; overflow: hidden; }
+.inpage-toc-list {
+  list-style: none;                /* 无样式列表 */
+  margin: 0; padding: 0;
   display: flex; flex-direction: column; gap: 1px;
   overflow-y: auto;                 /* 长目录内部滚动，不撑破卡片 */
   max-height: 42vh;                 /* 展开态高度上限，配合 .collapsed 做过渡 */
   transition: max-height .25s ease, opacity .2s ease;
 }
-.page-toc-link {
-  display: block; text-decoration: none; color: var(--text-soft);
-  padding: 5px 8px; border-radius: 8px; border-left: 2px solid transparent;
+.inpage-toc a {
+  display: block; text-decoration: none; color: inherit;
+  padding: 5px 8px; border-radius: 8px;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis; transition: .15s;
 }
-.page-toc-link:hover { background: var(--bg-soft); color: var(--text); }
-.page-toc-link.active {
+.inpage-toc a:hover { color: var(--accent); text-decoration: underline; }
+.inpage-toc li.active { border-left: 2px solid var(--accent); }
+.inpage-toc li.active a {
   background: var(--accent-soft); color: var(--accent);
-  border-left-color: var(--accent); font-weight: 600;
+  font-weight: 600;
 }
-.page-toc-link.h3 { padding-left: 20px; font-size: 12.5px; color: var(--text-faint); }
+.inpage-toc-item.h3 a { padding-left: 20px; font-size: 12.5px; color: var(--text-faint); }
 
 /* ---------- 回到顶部浮动按钮 ----------
    固定右下角（移动端改到左下，避免与本页目录浮层右下角重叠）；
@@ -581,16 +584,16 @@ html[data-theme="dark"] #cdn-error {
    不再占用正文上方空间。为内容区右侧预留留白，本页目录固定在留白带内。 */
 @media (min-width: 1520px) {
   .content { padding-right: 300px; }     /* 预留右侧留白给固定目录 */
-  .page-toc {
+  .inpage-toc {
     position: fixed;
     top: 88px; right: 24px; left: auto;
-    width: 220px; max-width: 220px;
+    width: 200px; max-width: 200px;       /* 规格：最大宽 200px */
     margin: 0; max-height: calc(100vh - 120px);
     padding: 14px;
   }
-  .page-toc-toggle { display: none; }     /* 大屏常开，隐藏折叠按钮 */
-  .page-toc-list { max-height: none; }    /* 大屏目录随卡片滚动，不限高 */
-  .page-toc.collapsed .page-toc-list { max-height: none; opacity: 1; overflow: visible; }
+  .inpage-toc-toggle { display: none; }     /* 大屏常开，隐藏折叠按钮 */
+  .inpage-toc-list { max-height: none; }    /* 大屏目录随卡片滚动，不限高 */
+  .inpage-toc.collapsed .inpage-toc-list { max-height: none; opacity: 1; overflow: visible; }
 }
 
 /* 窄屏：侧边栏变成从左滑出的抽屉。默认整体移出视口（translateX(-100%)），
@@ -629,22 +632,24 @@ html[data-theme="dark"] #cdn-error {
   .content { padding: 60px 20px 80px; }
   #progress-bar { left: 0; }
 
-  /* 本页目录：窄屏改为右下角可收起悬浮按钮（JS 默认折叠，不挡正文）；
-     与左下角的「回到顶部」错开，互不遮挡。 */
-  .page-toc {
+  /* 移动端改到左下角，避免与本页目录浮层（右下角）重叠挡住内容 */
+  #back-to-top { bottom: 16px; left: 16px; right: auto; }
+}
+
+/* 移动端（<=768px）：inpage-toc 改为右下角可收起悬浮按钮（JS 默认折叠，不挡正文）；
+   与左下角的「回到顶部」错开，互不遮挡。 */
+@media (max-width: 768px) {
+  .inpage-toc {
     position: fixed;
     top: auto; bottom: 16px; right: 16px; left: auto;
     width: auto; max-width: 72vw;
     margin: 0; padding: 8px 12px;
     max-height: 60vh;
   }
-  .page-toc-toggle { display: flex; }
-  /* 折叠态：仅留紧凑的「本页目录」小条（右下角），不挡正文；
-     展开/收起由 .page-toc-list 的 max-height 过渡完成，见上方基础规则 */
-  .page-toc.collapsed { max-height: none; }
-
-  /* 移动端改到左下角，避免与本页目录浮层（右下角）重叠挡住内容 */
-  #back-to-top { bottom: 16px; left: 16px; right: auto; }
+  .inpage-toc-toggle { display: flex; }
+  /* 折叠态：仅留紧凑的「目录 ∨」小条（右下角），不挡正文；
+     展开/收起由 .inpage-toc-list 的 max-height 过渡完成，见上方基础规则 */
+  .inpage-toc.collapsed { max-height: none; }
 }
 
 @media (max-width: 860px) and (prefers-reduced-motion: reduce) {
@@ -887,8 +892,8 @@ html[data-theme="dark"] .core-badge {
   .menu-toggle { top: 10px; left: 10px; width: 38px; height: 34px; font-size: 17px; }
   #progress-bar { left: 0; }
   /* 本页目录：更紧凑、限制宽度，让出左下角回到顶部按钮的空间，不挡正文 */
-  .page-toc { bottom: 12px; right: 12px; left: auto; max-width: 78vw; padding: 8px 10px; }
-  .page-toc-toggle { font-size: 12.5px; padding-bottom: 6px; }
+  .inpage-toc { bottom: 12px; right: 12px; left: auto; max-width: 78vw; padding: 8px 10px; }
+  .inpage-toc-toggle { font-size: 12.5px; padding-bottom: 6px; }
   /* 回到顶部：略缩小、固定在左下角，不与右下目录重叠 */
   #back-to-top { bottom: 12px; left: 12px; width: 40px; height: 40px; font-size: 18px; }
   /* 宽表格在窄屏可横向滚动，避免撑破页面；小圆角让滚动容器更柔和 */
@@ -931,7 +936,7 @@ html[data-theme="dark"] .core-badge {
   .ext-link:hover { color: var(--text-faint); }
   .markdown a:hover { background: transparent; border-bottom-color: color-mix(in srgb, var(--accent) 35%, transparent); }
   .markdown a.cite:hover { background: transparent; border-bottom-color: color-mix(in srgb, var(--accent) 40%, transparent); }
-  .page-toc-link:hover { background: transparent; color: var(--text-soft); }
+  .inpage-toc a:hover { background: transparent; color: var(--text-soft); }
   #back-to-top:hover { color: #fff; background: var(--accent); }
   .fs-item:hover { background: transparent; border-color: transparent; }
   .copy-link-btn:hover { opacity: .6; color: var(--text-faint); border-color: var(--border); background: transparent; }
@@ -939,12 +944,12 @@ html[data-theme="dark"] .core-badge {
 
   /* 点按最小高度 ~40px，拇指友好；去掉 iOS 点击灰块 */
   .toc a,
-  .page-toc-link,
+  .inpage-toc a,
   .crate-card a,
   .theme-toggle,
   .full-search-btn,
   .menu-toggle,
-  .page-toc-toggle,
+  .inpage-toc-toggle,
   .copy-link-btn,
   .fs-close,
   #back-to-top {
@@ -954,11 +959,11 @@ html[data-theme="dark"] .core-badge {
   .theme-toggle,
   .full-search-btn,
   .menu-toggle,
-  .page-toc-toggle { display: flex; align-items: center; justify-content: center; }
+  .inpage-toc-toggle { display: flex; align-items: center; justify-content: center; }
 
   /* 按压反馈：轻微收缩，替代 hover 给出触控确认 */
   .toc a:active,
-  .page-toc-link:active,
+  .inpage-toc a:active,
   .crate-card:active,
   .crate-card a:active,
   .chap-nav-link:active,
@@ -966,7 +971,7 @@ html[data-theme="dark"] .core-badge {
   .theme-toggle:active,
   .full-search-btn:active,
   .menu-toggle:active,
-  .page-toc-toggle:active,
+  .inpage-toc-toggle:active,
   #back-to-top:active,
   .fs-item:active,
   .copy-link-btn:active,
@@ -983,6 +988,56 @@ html[data-theme="dark"] .core-badge {
 }
 .copy-btn.copied { color: var(--accent); border-color: var(--accent); background: var(--accent-soft); }
 .copy-link-btn.copied { color: var(--accent); border-color: var(--accent); background: var(--accent-soft); }
+
+/* ---------- 互动演示入口 ----------
+   侧边栏「🎮 互动演示」(#nav-interactive) 进入 #interactive-panel，
+   展示组件卡片网格；点「打开演示」在面板内嵌入 iframe（方案 B，整合更紧密）。 */
+#nav-interactive.active {
+  background: var(--accent-soft); color: var(--accent);
+  border-left-color: var(--accent); font-weight: 600;
+}
+#interactive-panel h2 {
+  font-size: 23px; line-height: 1.4; margin: 0 0 18px; padding-bottom: 14px;
+  letter-spacing: -.2px; font-weight: 700;
+  border-bottom: 1px solid var(--border);    /* 与正文 h2 一致的风格 */
+}
+.interactive-grid {
+  max-width: 860px; margin: 0 auto;
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px;
+}
+.interactive-card {
+  display: flex; flex-direction: column; gap: 10px;
+  background: var(--panel); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 18px;
+  transition: border-color .18s ease, transform .18s ease, box-shadow .18s ease, background .18s ease;
+}
+.interactive-card:hover {
+  border-color: color-mix(in srgb, var(--accent) 55%, var(--border));
+  background: color-mix(in srgb, var(--accent-soft) 45%, var(--panel));
+  transform: translateY(-3px); box-shadow: var(--shadow);
+}
+.interactive-card-icon { font-size: 28px; line-height: 1; }
+.interactive-card-title { margin: 0; font-size: 16.5px; font-weight: 650; color: var(--text); }
+.interactive-card-desc { margin: 0; font-size: 13.5px; line-height: 1.6; color: var(--text-soft); flex: 1; }
+.interactive-open-btn {
+  align-self: flex-start;
+  font-family: var(--sans); font-size: 13.5px; font-weight: 600; line-height: 1;
+  padding: 9px 16px; color: #fff;
+  background: var(--accent); border: 1px solid var(--accent); border-radius: 9px;
+  cursor: pointer; transition: background .15s ease, transform .15s ease, box-shadow .15s ease;
+}
+.interactive-open-btn:hover {
+  background: color-mix(in srgb, var(--accent) 82%, #000);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px color-mix(in srgb, var(--accent) 22%, transparent);
+}
+.interactive-frame {
+  display: block;
+  width: 100%; height: 600px;
+  margin: 18px auto 0; max-width: 860px;
+  border: 1px solid var(--border); border-radius: 12px;
+  background: var(--panel); box-shadow: var(--shadow);
+}
 
 /* ---------- 打印 / 导出 PDF ----------
    目标：去掉一切界面装饰，只留正文阅读稿。 */
@@ -1110,7 +1165,7 @@ html[data-theme="dark"] .core-badge {
 <p>CLI、App-Server、Codex-Core、Exec-Server 各占一块，Exec-Server 被虚线框住的「信任边界」单独隔在外面。</p>
 <svg viewBox="0 0 800 480" font-family="system-ui, sans-serif">
   <defs>
-    <marker id="blk_a" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+    <marker id="blk_a" markerWidth="10" markerHeight="10" refX="10" refY="3" orient="auto" markerUnits="strokeWidth">
       <path d="M0,0 L9,3 L0,6 Z" fill="#4F46E5"/>
     </marker>
   </defs>
@@ -1125,8 +1180,8 @@ html[data-theme="dark"] .core-badge {
 
   <!-- App Server container -->
   <rect x="190" y="220" width="420" height="210" rx="16" fill="#F9FAFB" stroke="#4F46E5" stroke-width="2"/>
-  <text x="212" y="248" font-size="16" font-weight="600" fill="#312E81">App Server</text>
-  <text x="324" y="248" font-size="12" fill="#4F46E5">常驻 · Always-on</text>
+  <text x="400" y="245" text-anchor="middle" font-size="16" font-weight="600" fill="#312E81">App Server</text>
+  <text x="400" y="263" text-anchor="middle" font-size="12" fill="#4F46E5">常驻 · Always-on</text>
 
   <!-- Codex Core inside -->
   <rect x="250" y="290" width="300" height="110" rx="12" fill="#EEF2FF" stroke="#6366F1" stroke-width="2"/>
@@ -1179,7 +1234,7 @@ codex exec "给 src/utils.rs 的 debounce 补一个测试并跑 npm test"</code>
 <blockquote>站点顶部的「仓库地图」页有一份可展开的交互式清单，数据来自对 <code>codex-rs</code> 下全部 141 个带 <code>Cargo.toml</code> 的 crate 的扫描。要查某个具体 crate 去那页，这里只讲分类逻辑。</blockquote>
 <svg viewBox="0 0 800 480" font-family="system-ui, sans-serif">
   <defs>
-    <marker id="blk_a" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+    <marker id="blk_a" markerWidth="10" markerHeight="10" refX="10" refY="3" orient="auto" markerUnits="strokeWidth">
       <path d="M0,0 L9,3 L0,6 Z" fill="#4F46E5"/>
     </marker>
   </defs>
@@ -1194,8 +1249,8 @@ codex exec "给 src/utils.rs 的 debounce 补一个测试并跑 npm test"</code>
 
   <!-- App Server container -->
   <rect x="190" y="220" width="420" height="210" rx="16" fill="#F9FAFB" stroke="#4F46E5" stroke-width="2"/>
-  <text x="212" y="248" font-size="16" font-weight="600" fill="#312E81">App Server</text>
-  <text x="324" y="248" font-size="12" fill="#4F46E5">常驻 · Always-on</text>
+  <text x="400" y="245" text-anchor="middle" font-size="16" font-weight="600" fill="#312E81">App Server</text>
+  <text x="400" y="263" text-anchor="middle" font-size="12" fill="#4F46E5">常驻 · Always-on</text>
 
   <!-- Codex Core inside -->
   <rect x="250" y="290" width="300" height="110" rx="12" fill="#EEF2FF" stroke="#6366F1" stroke-width="2"/>
@@ -2050,7 +2105,7 @@ fi
 <p>它和 prompt / tool 的区别：</p>
 <ul><li><strong>prompt（系统提示词）</strong>是写死的、通用的背景说明；Skill 是按需、可点名加载的一段专门指令。</li><li><strong>tool</strong> 是模型可调用的确定性函数（有输入输出 schema）；Skill 不是函数，而是一段被拼进上下文的提示词，用来改变模型的意图与做法，本身不执行副作用。</li><li>tool 给模型"手"，skill 给模型"心法"。两者可以配合——skill 的 <code>SkillToolDependency</code> 还能声明它要靠哪个 MCP 工具完成工作。</li></ul>
 <p>Skill 的 <code>SKILL.md</code> frontmatter 由 <code>parse_skill_frontmatter_metadata</code> 解析校验（<code>skills/src/parser.rs:44</code>），产出 <code>ParsedSkillFrontmatter</code>（<code>skills/src/parser.rs:24</code>）；非法 YAML 还会尝试逐行修复。</p>
-<p>加载与主循环注入发生在 <code>build_skills_and_plugins</code>（<code>core/src/session/turn.rs:758</code>，呼应第 4 章的 turn 主循环）。该函数先取出 <code>skills_snapshot</code>，再用 <code>collect_explicit_skill_mentions</code>（<code>core/src/session/turn.rs:809</code>）收集用户 <code>@</code> 提到的 skill，随后调用 <code>skills_snapshot.load_skill_prompts(&amp;mentioned_skills)</code>（<code>core/src/session/turn.rs:826</code>）把这些 skill 正文渲染成 <code>ContextualUserFragment</code> 片段。最终这些片段作为 <code>injection_items</code> 在 turn 开头被 <code>record_conversation_items</code> 写进会话（<code>core/src/session/turn.rs:278</code>），从而进入模型看到的上下文。Codex 还会用 <code>InjectedHostSkillPrompts</code> 做去重（<code>core/src/session/turn.rs:879</code> 起），避免同一个 host skill 既经扩展机制又经本次逻辑被重复注入。隐式调用则由 <code>detect_implicit_skill_invocation_for_command</code>（<code>skills/src/invocation.rs:26</code>）识别命令里对 skill 脚本/文档的访问来完成。</p>
+<p>加载与主循环注入发生在 <code>build_skills_and_plugins</code>（<code>core/src/session/turn.rs:758</code>，呼应第 4 章的 turn 主循环）。该函数先取出 <code>skills_snapshot</code>，再用 <code>collect_explicit_skill_mentions</code>（<code>skills/src/selection.rs:42</code>）收集用户 <code>@</code> 提到的 skill，随后调用 <code>skills_snapshot.load_skill_prompts(&amp;mentioned_skills)</code>（<code>core/src/session/turn.rs:826</code>）把这些 skill 正文渲染成 <code>ContextualUserFragment</code> 片段。最终这些片段作为 <code>injection_items</code> 在 turn 开头被 <code>record_conversation_items</code> 写进会话（<code>core/src/session/mod.rs:3061</code>），从而进入模型看到的上下文。Codex 还会用 <code>InjectedHostSkillPrompts</code> 做去重（<code>core/src/session/turn.rs:879</code> 起），避免同一个 host skill 既经扩展机制又经本次逻辑被重复注入。隐式调用则由 <code>detect_implicit_skill_invocation_for_command</code>（<code>skills/src/invocation.rs:26</code>）识别命令里对 skill 脚本/文档的访问来完成。</p>
 <p>最小 <code>SKILL.md</code>：</p>
 <pre><code>---
 name: sum-csv
@@ -2067,7 +2122,7 @@ metadata:
 <p>握手成功后，紧接着调用 <code>list_tools_for_client_uncached</code> 拉取对端工具清单，内部走 <code>client.list_tools_with_connector_ids</code>，并按协议分页收集（<code>:610</code>）。resources 的列举同理，在 <code>codex-mcp/src/mcp/mod.rs:691</code> 的 <code>collect_mcp_server_status_snapshot_from_manager</code> 中由 <code>list_all_resources</code> / <code>list_all_resource_templates</code> 完成。</p>
 <p>传输层在 <code>make_rmcp_client</code> 里按配置分叉（<code>:1058</code>）：最常见的是 <strong>stdio</strong>——Codex 直接拉起一个子进程并通过其标准输入输出收发 JSON-RPC，对应 <code>RmcpClient::new_stdio_client_with_protocol_mode</code>（<code>:1117</code>）；另一种是 <strong>Streamable HTTP</strong>，用于远程托管的 server，对应 <code>new_streamable_http_client_with_protocol_mode_and_redirect_mode</code>（<code>:1150</code>）。stdio 之所以最普遍，是因为它无需监听端口、部署最简单。</p>
 <p>外部工具汇入注册表的路径是这样的。所有已连 server 的工具在 <code>codex-mcp/src/connection_manager/tool_catalog.rs:89</code> 的 <code>McpConnectionSet::list_all_tools</code> 里被聚合并规范化名称（默认加 <code>mcp__</code> 前缀，见 <code>codex-mcp/src/mcp/mod.rs:79</code> 的 <code>qualified_mcp_tool_name_prefix</code>）。聚合结果封装成 <code>McpBinding</code>，其 <code>tools</code>（模型可见声明）与 <code>calls</code>（按 server+tool 名字索引的 <code>PreparedMcpCall</code>）一起交给 core。</p>
-<p>最终，在 <code>core/src/tools/spec_plan.rs:285</code> 的 <code>append_source_tools</code> 中，每个 MCP 工具通过 <code>registry.register_external_with_exposure(tool.runtime, tool.exposure)</code> 被注册进统一的 <code>ToolRegistry</code>（<code>core/src/tools/registry.rs:271</code>、<code>register_external</code> 见 <code>:336</code>）。一旦进表，模型的一次 <code>tool_use</code> 就会落到第 5 章讲过的 <code>ToolRegistry::dispatch_any_with_terminal_outcome</code>（<code>core/src/tools/registry.rs:479</code>）里：按名字查表、跑 PreToolUse 钩子（见 11.1）、执行、再跑 PostToolUse 钩子——MCP 工具和内置工具走的是同一套分发与审批链路。</p>
+<p>最终，在 <code>core/src/tools/spec_plan.rs:274</code> 的 <code>append_source_tools</code> 中，每个 MCP 工具通过 <code>registry.register_external_with_exposure(tool.runtime, tool.exposure)</code> 被注册进统一的 <code>ToolRegistry</code>（<code>core/src/tools/registry.rs:341</code>、<code>register_external</code> 见 <code>:336</code>）。一旦进表，模型的一次 <code>tool_use</code> 就会落到第 5 章讲过的 <code>ToolRegistry::dispatch_any_with_terminal_outcome</code>（<code>core/src/tools/registry.rs:479</code>）里：按名字查表、跑 PreToolUse 钩子（见 11.1）、执行、再跑 PostToolUse 钩子——MCP 工具和内置工具走的是同一套分发与审批链路。</p>
 <h2 id="11-extensions-11-4-插件-把-Skill-MCP-Hooks-打包分发">11.4 插件：把 Skill/MCP/Hooks 打包分发</h2>
 <p>前面讲了 Skill、MCP、Hooks，它们都靠用户手动在配置里一个个写。插件系统解决的是<strong>分发</strong>问题：把 skill、MCP server、slash 命令（app）、hook 一起打成一份可安装、可升级、可下发的包。</p>
 <p>一个插件（Plugin）是一份"能力包"，一次加载就能同时贡献四类东西：</p>
@@ -2081,7 +2136,7 @@ metadata:
     pub hooks: Option&lt;PluginManifestHooks&lt;Resource&gt;&gt;,
 }</code></pre>
 <p><code>Resource</code> 在宿主侧是绝对路径，在远程解析后换成带 authority 的 locator。manifest 里写的是 paths/objects，加载器负责把它们映射成实际资源。<code>interface</code> 字段（<code>plugin/src/manifest.rs:42</code>）则承载展示用的名称、描述、图标等元信息——这是"可分发"必须的门面。</p>
-<p>加载的入口在 <code>core-plugins</code> 的 <code>PluginManager::plugins_for_config</code>，它内部调用 <code>load_plugins_from_layer_stack</code> 把配置层栈上的插件全部读进来（<code>core-plugins/src/manager.rs:610</code>、<code>:675</code>）：</p>
+<p>加载的入口在 <code>core-plugins</code> 的 <code>PluginManager::plugins_for_config</code>，它内部调用 <code>load_plugins_from_layer_stack</code> 把配置层栈上的插件全部读进来（<code>core-plugins/src/manager.rs:610</code>、<code>core-plugins/src/loader.rs:129</code>）：</p>
 <pre><code>let plugins = load_plugins_from_layer_stack(
     &amp;config.config_layer_stack,
     self.remote_installed_plugins_snapshot(),
@@ -2177,7 +2232,7 @@ if let Err(err) = run_pre_sampling_compact(
 <p>先放一张全局架构图，把鉴权、错误处理、测试、构建这些工程子系统对准到各自的进程与 crate 上：</p>
 <svg viewBox="0 0 800 480" font-family="system-ui, sans-serif">
   <defs>
-    <marker id="blk_a" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+    <marker id="blk_a" markerWidth="10" markerHeight="10" refX="10" refY="3" orient="auto" markerUnits="strokeWidth">
       <path d="M0,0 L9,3 L0,6 Z" fill="#4F46E5"/>
     </marker>
   </defs>
@@ -2192,8 +2247,8 @@ if let Err(err) = run_pre_sampling_compact(
 
   <!-- App Server container -->
   <rect x="190" y="220" width="420" height="210" rx="16" fill="#F9FAFB" stroke="#4F46E5" stroke-width="2"/>
-  <text x="212" y="248" font-size="16" font-weight="600" fill="#312E81">App Server</text>
-  <text x="324" y="248" font-size="12" fill="#4F46E5">常驻 · Always-on</text>
+  <text x="400" y="245" text-anchor="middle" font-size="16" font-weight="600" fill="#312E81">App Server</text>
+  <text x="400" y="263" text-anchor="middle" font-size="12" fill="#4F46E5">常驻 · Always-on</text>
 
   <!-- Codex Core inside -->
   <rect x="250" y="290" width="300" height="110" rx="12" fill="#EEF2FF" stroke="#6366F1" stroke-width="2"/>
@@ -2268,7 +2323,7 @@ if let Err(err) = run_pre_sampling_compact(
 <div class="chapter-level"><span class="level-badge reference">参考</span></div>
 <p>读这份指南时反复撞到的词，先在这里统一对个暗号。每个词一句话大白话，后面标了它主要在哪章被掰开揉碎讲。</p>
 <h2 id="14-glossary-术语表">术语表</h2>
-<table><thead><tr><th>术语</th><th>大白话解释</th><th>主要出现在</th></tr></thead><tbody><tr><td><strong>Op</strong></td><td>你（或 IDE、桌面 app）发给 Codex 的"指令信封"，比如"开始一轮对话""同意跑这条命令"都装在这里面。</td><td><a href="content/08-protocol.md">第 8 章：协议与 app-server</a></td></tr><tr><td><strong>EventMsg</strong></td><td>Codex 回给你的"事件信封"，模型说了啥、命令跑出啥、出啥错，全靠它一路往外流。界面层就是它的"显示器"。</td><td><a href="content/03-core-api.md">第 3 章：codex-core 公共 API</a></td></tr><tr><td><strong>codex-core</strong></td><td>整个项目的大脑，真正"想一步做一步"、管会话和工具的逻辑都在这一层。</td><td><a href="content/03-core-api.md">第 3 章：codex-core 公共 API</a></td></tr><tr><td><strong>app-server</strong></td><td>把 codex-core 包成一个能跨进程/跨网络连的服务，IDE 和远程控制都靠它当"转接头"。</td><td><a href="content/08-protocol.md">第 8 章：协议与 app-server</a></td></tr><tr><td><strong>exec-server</strong></td><td>真正动手执行命令、改文件的那个进程，和大脑分开跑，崩了也不带回核心一起死。</td><td><a href="content/10-runtime.md">第 10 章：执行与运行时</a></td></tr><tr><td><strong>sandbox（沙箱）</strong></td><td>给命令划的一块"隔离牢笼"，限制它能碰哪些文件、走不走网络，防止跑飞了搞坏你的机器。</td><td><a href="content/06-sandbox.md">第 6 章：沙箱与安全</a></td></tr><tr><td><strong>MCP</strong></td><td>一套标准插座，让 Codex 能接上外部工具和数据源，像挂 U 盘一样扩展能力。</td><td><a href="content/11-extensions.md">第 11 章：扩展生态</a></td></tr><tr><td><strong>skill</strong></td><td>一段可复用的提示词/操作模板，你 <code>@</code> 一下就能把某类任务的经验塞进上下文。</td><td><a href="content/11-extensions.md">第 11 章：扩展生态</a></td></tr><tr><td><strong>hook</strong></td><td>在回合关键节点自动插一脚的外部脚本，比如回合前自动检查、结束后自动发通知。</td><td><a href="content/11-extensions.md">第 11 章：扩展生态</a></td></tr><tr><td><strong>rollout</strong></td><td>把一次完整会话原样录下来、事后能逐帧回放和审查的那套机制。</td><td><a href="content/12-model-ctx.md">第 12 章：模型与上下文</a></td></tr><tr><td><strong>TurnAborted</strong></td><td>"这一轮被中途打断"的信号，和"硬失败"不同，它让进程留着状态等你下一条输入，而不是直接崩。</td><td><a href="content/04-turn-loop.md">第 4 章：主循环 run_turn</a></td></tr><tr><td><strong>CodexErr</strong></td><td>全仓库统一的错误类型，把各种底层报错归好类、区分"能不能重试"，再翻译成界面看得懂的事件。</td><td><a href="content/13-engineering.md">第 13 章：工程化</a></td></tr></tbody></table>
+<table><thead><tr><th>术语</th><th>大白话解释</th><th>主要出现在</th></tr></thead><tbody><tr><td><strong>Op</strong></td><td>你（或 IDE、桌面 app）发给 Codex 的"指令信封"，比如"开始一轮对话""同意跑这条命令"都装在这里面。</td><td><a href="#08-protocol">第 8 章：协议与 app-server</a></td></tr><tr><td><strong>EventMsg</strong></td><td>Codex 回给你的"事件信封"，模型说了啥、命令跑出啥、出啥错，全靠它一路往外流。界面层就是它的"显示器"。</td><td><a href="#03-core-api">第 3 章：codex-core 公共 API</a></td></tr><tr><td><strong>codex-core</strong></td><td>整个项目的大脑，真正"想一步做一步"、管会话和工具的逻辑都在这一层。</td><td><a href="#03-core-api">第 3 章：codex-core 公共 API</a></td></tr><tr><td><strong>app-server</strong></td><td>把 codex-core 包成一个能跨进程/跨网络连的服务，IDE 和远程控制都靠它当"转接头"。</td><td><a href="#08-protocol">第 8 章：协议与 app-server</a></td></tr><tr><td><strong>exec-server</strong></td><td>真正动手执行命令、改文件的那个进程，和大脑分开跑，崩了也不带回核心一起死。</td><td><a href="#10-runtime">第 10 章：执行与运行时</a></td></tr><tr><td><strong>sandbox（沙箱）</strong></td><td>给命令划的一块"隔离牢笼"，限制它能碰哪些文件、走不走网络，防止跑飞了搞坏你的机器。</td><td><a href="#06-sandbox">第 6 章：沙箱与安全</a></td></tr><tr><td><strong>MCP</strong></td><td>一套标准插座，让 Codex 能接上外部工具和数据源，像挂 U 盘一样扩展能力。</td><td><a href="#11-extensions">第 11 章：扩展生态</a></td></tr><tr><td><strong>skill</strong></td><td>一段可复用的提示词/操作模板，你 <code>@</code> 一下就能把某类任务的经验塞进上下文。</td><td><a href="#11-extensions">第 11 章：扩展生态</a></td></tr><tr><td><strong>hook</strong></td><td>在回合关键节点自动插一脚的外部脚本，比如回合前自动检查、结束后自动发通知。</td><td><a href="#11-extensions">第 11 章：扩展生态</a></td></tr><tr><td><strong>rollout</strong></td><td>把一次完整会话原样录下来、事后能逐帧回放和审查的那套机制。</td><td><a href="#12-model-ctx">第 12 章：模型与上下文</a></td></tr><tr><td><strong>TurnAborted</strong></td><td>"这一轮被中途打断"的信号，和"硬失败"不同，它让进程留着状态等你下一条输入，而不是直接崩。</td><td><a href="#04-turn-loop">第 4 章：主循环 run_turn</a></td></tr><tr><td><strong>CodexErr</strong></td><td>全仓库统一的错误类型，把各种底层报错归好类、区分"能不能重试"，再翻译成界面看得懂的事件。</td><td><a href="#13-engineering">第 13 章：工程化</a></td></tr></tbody></table>
 <h2 id="14-glossary-架构全景-一张图看懂-Codex-怎么转">架构全景：一张图看懂 Codex 怎么转</h2>
 <p>前面十三章把 Codex 拆成了仓库地形、进程模型、core 公共 API、主循环、工具、沙箱、终端界面（TUI）、协议、配置、运行时、扩展、模型与上下文、工程化……最后拼回一张图：你敲的每一个字从 <code>cli</code>/<code>tui</code> 出发，先进到常驻的 <code>app-server</code>（它把 <code>codex-core</code> 包成一个服务），<code>codex-core</code> 负责会话、跑采样循环、调度工具，真正要"动手跑命令"时再委托给沙箱里的 <code>exec-server</code>。而让这几个进程能互相听懂、又能各自独立演化的是 <code>codex-protocol</code>——一套谁也不依赖谁大脑的公共语言；<code>config</code> 则像一根线，从入口到内核一路贯穿。</p>
 <div class="mermaid"><pre><code>graph TD
@@ -2288,15 +2343,15 @@ if let Err(err) = run_pre_sampling_compact(
         exec
     end</code></pre><p style="margin:8px 0 0;color:var(--text-faint);font-size:12px">⚠ 离线版不渲染 Mermaid 图，仅保留源码文本。</p></div>
 <h3 id="14-glossary-大脑-谁在-想">大脑：谁在"想"</h3>
-<p><code>codex-core</code> 的会话、采样循环、工具调度——也就是真正"动脑"的部分——集中在 <a href="content/03-core-api.md">第 3 章：codex-core 公共 API</a> 与 <a href="content/04-turn-loop.md">第 4 章：主循环 run_turn</a>。</p>
+<p><code>codex-core</code> 的会话、采样循环、工具调度——也就是真正"动脑"的部分——集中在 <a href="#03-core-api">第 3 章：codex-core 公共 API</a> 与 <a href="#04-turn-loop">第 4 章：主循环 run_turn</a>。</p>
 <h3 id="14-glossary-进程边界-谁和谁住在哪个进程里">进程边界：谁和谁住在哪个进程里</h3>
-<p><code>cli</code>/<code>tui</code>、<code>app-server</code>、<code>exec-server</code> 各自独立的进程与边界划分，详见 <a href="content/02-process-model.md">第 2 章：进程模型</a>、<a href="content/08-protocol.md">第 8 章：协议与 app-server</a> 与 <a href="content/10-runtime.md">第 10 章：执行与运行时</a>。</p>
+<p><code>cli</code>/<code>tui</code>、<code>app-server</code>、<code>exec-server</code> 各自独立的进程与边界划分，详见 <a href="#02-process-model">第 2 章：进程模型</a>、<a href="#08-protocol">第 8 章：协议与 app-server</a> 与 <a href="#10-runtime">第 10 章：执行与运行时</a>。</p>
 <h3 id="14-glossary-工具-core-怎么-动手">工具：core 怎么"动手"</h3>
-<p>工具系统如何被注册、调度并被采样循环调用，见 <a href="content/05-tools.md">第 5 章：工具系统</a>。</p>
+<p>工具系统如何被注册、调度并被采样循环调用，见 <a href="#05-tools">第 5 章：工具系统</a>。</p>
 <h3 id="14-glossary-协议-组件之间说什么语言">协议：组件之间说什么语言</h3>
-<p><code>codex-protocol</code> 作为各进程共享的无依赖类型层，以及它的类型生成机制，见 <a href="content/08-protocol.md">第 8 章：协议与 app-server</a>。</p>
+<p><code>codex-protocol</code> 作为各进程共享的无依赖类型层，以及它的类型生成机制，见 <a href="#08-protocol">第 8 章：协议与 app-server</a>。</p>
 <h3 id="14-glossary-配置-那根贯穿的线">配置：那根贯穿的线</h3>
-<p><code>config</code> 从入口一路贯穿到内核的体系与分层加载，见 <a href="content/09-config.md">第 9 章：配置系统</a>。</p>
+<p><code>config</code> 从入口一路贯穿到内核的体系与分层加载，见 <a href="#09-config">第 9 章：配置系统</a>。</p>
 </section>
 <section id="15-roadmap" class="chapter">
 <h1>收尾：阅读路线与关于本站点</h1>

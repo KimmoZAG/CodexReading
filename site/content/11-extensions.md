@@ -50,7 +50,7 @@ fi
 
 Skill 的 `SKILL.md` frontmatter 由 `parse_skill_frontmatter_metadata` 解析校验（`skills/src/parser.rs:44`），产出 `ParsedSkillFrontmatter`（`skills/src/parser.rs:24`）；非法 YAML 还会尝试逐行修复。
 
-加载与主循环注入发生在 `build_skills_and_plugins`（`core/src/session/turn.rs:758`，呼应第 4 章的 turn 主循环）。该函数先取出 `skills_snapshot`，再用 `collect_explicit_skill_mentions`（`core/src/session/turn.rs:809`）收集用户 `@` 提到的 skill，随后调用 `skills_snapshot.load_skill_prompts(&mentioned_skills)`（`core/src/session/turn.rs:826`）把这些 skill 正文渲染成 `ContextualUserFragment` 片段。最终这些片段作为 `injection_items` 在 turn 开头被 `record_conversation_items` 写进会话（`core/src/session/turn.rs:278`），从而进入模型看到的上下文。Codex 还会用 `InjectedHostSkillPrompts` 做去重（`core/src/session/turn.rs:879` 起），避免同一个 host skill 既经扩展机制又经本次逻辑被重复注入。隐式调用则由 `detect_implicit_skill_invocation_for_command`（`skills/src/invocation.rs:26`）识别命令里对 skill 脚本/文档的访问来完成。
+加载与主循环注入发生在 `build_skills_and_plugins`（`core/src/session/turn.rs:758`，呼应第 4 章的 turn 主循环）。该函数先取出 `skills_snapshot`，再用 `collect_explicit_skill_mentions`（`skills/src/selection.rs:42`）收集用户 `@` 提到的 skill，随后调用 `skills_snapshot.load_skill_prompts(&mentioned_skills)`（`core/src/session/turn.rs:826`）把这些 skill 正文渲染成 `ContextualUserFragment` 片段。最终这些片段作为 `injection_items` 在 turn 开头被 `record_conversation_items` 写进会话（`core/src/session/mod.rs:3061`），从而进入模型看到的上下文。Codex 还会用 `InjectedHostSkillPrompts` 做去重（`core/src/session/turn.rs:879` 起），避免同一个 host skill 既经扩展机制又经本次逻辑被重复注入。隐式调用则由 `detect_implicit_skill_invocation_for_command`（`skills/src/invocation.rs:26`）识别命令里对 skill 脚本/文档的访问来完成。
 
 最小 `SKILL.md`：
 
@@ -79,7 +79,7 @@ metadata:
 
 外部工具汇入注册表的路径是这样的。所有已连 server 的工具在 `codex-mcp/src/connection_manager/tool_catalog.rs:89` 的 `McpConnectionSet::list_all_tools` 里被聚合并规范化名称（默认加 `mcp__` 前缀，见 `codex-mcp/src/mcp/mod.rs:79` 的 `qualified_mcp_tool_name_prefix`）。聚合结果封装成 `McpBinding`，其 `tools`（模型可见声明）与 `calls`（按 server+tool 名字索引的 `PreparedMcpCall`）一起交给 core。
 
-最终，在 `core/src/tools/spec_plan.rs:285` 的 `append_source_tools` 中，每个 MCP 工具通过 `registry.register_external_with_exposure(tool.runtime, tool.exposure)` 被注册进统一的 `ToolRegistry`（`core/src/tools/registry.rs:271`、`register_external` 见 `:336`）。一旦进表，模型的一次 `tool_use` 就会落到第 5 章讲过的 `ToolRegistry::dispatch_any_with_terminal_outcome`（`core/src/tools/registry.rs:479`）里：按名字查表、跑 PreToolUse 钩子（见 11.1）、执行、再跑 PostToolUse 钩子——MCP 工具和内置工具走的是同一套分发与审批链路。
+最终，在 `core/src/tools/spec_plan.rs:274` 的 `append_source_tools` 中，每个 MCP 工具通过 `registry.register_external_with_exposure(tool.runtime, tool.exposure)` 被注册进统一的 `ToolRegistry`（`core/src/tools/registry.rs:341`、`register_external` 见 `:336`）。一旦进表，模型的一次 `tool_use` 就会落到第 5 章讲过的 `ToolRegistry::dispatch_any_with_terminal_outcome`（`core/src/tools/registry.rs:479`）里：按名字查表、跑 PreToolUse 钩子（见 11.1）、执行、再跑 PostToolUse 钩子——MCP 工具和内置工具走的是同一套分发与审批链路。
 
 ## 11.4 插件：把 Skill/MCP/Hooks 打包分发
 
@@ -107,7 +107,7 @@ pub struct PluginManifestPaths<Resource> {
 
 `Resource` 在宿主侧是绝对路径，在远程解析后换成带 authority 的 locator。manifest 里写的是 paths/objects，加载器负责把它们映射成实际资源。`interface` 字段（`plugin/src/manifest.rs:42`）则承载展示用的名称、描述、图标等元信息——这是"可分发"必须的门面。
 
-加载的入口在 `core-plugins` 的 `PluginManager::plugins_for_config`，它内部调用 `load_plugins_from_layer_stack` 把配置层栈上的插件全部读进来（`core-plugins/src/manager.rs:610`、`:675`）：
+加载的入口在 `core-plugins` 的 `PluginManager::plugins_for_config`，它内部调用 `load_plugins_from_layer_stack` 把配置层栈上的插件全部读进来（`core-plugins/src/manager.rs:610`、`core-plugins/src/loader.rs:129`）：
 
 ```rust
 let plugins = load_plugins_from_layer_stack(

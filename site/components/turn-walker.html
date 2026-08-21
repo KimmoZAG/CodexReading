@@ -1,0 +1,357 @@
+<!--
+  Turn 循环步进器 · 可嵌入 HTML 片段
+  纯静态、零依赖。可直接双击在浏览器打开，也可 <iframe>/fetch 嵌入页面。
+  无 <html>/<head>，仅根容器 + 内联 <style> + 内联 <svg> + <script>。
+  演示 Codex Core run_turn 主循环：问模型 → 分支(FunctionCall / AssistantMsg) → 执行工具 → 循环。
+-->
+<style>
+  .turn-walker {
+    --brand: #4F46E5;        /* 主色：问模型 / Function Call 路径 */
+    --brand-soft: #EEF2FF;
+    --accent: #10B981;       /* 辅色：Assistant Message 路径 */
+    --accent-soft: #ECFDF5;
+    --ink: #111827;
+    --muted: #6B7280;
+    --line: #cbd5e1;
+    --line-soft: #f3f4f6;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, "PingFang SC", "Microsoft YaHei", sans-serif;
+    color: var(--ink);
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 16px;
+    box-sizing: border-box;
+  }
+  .turn-walker * { box-sizing: border-box; }
+
+  .tw-title { font-size: 18px; font-weight: 700; margin: 0 0 2px; }
+  .tw-sub   { font-size: 13px; color: var(--muted); margin: 0 0 14px; }
+
+  /* ---------- 工具栏 ---------- */
+  .tw-toolbar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 14px; }
+  .tw-btn {
+    appearance: none; border: 1.5px solid var(--brand); background: var(--brand); color: #fff;
+    font-size: 14px; font-weight: 600; padding: 8px 14px; border-radius: 999px; cursor: pointer;
+    transition: background .15s, transform .1s;
+  }
+  .tw-btn:hover { background: #4338CA; }
+  .tw-btn:active { transform: scale(.97); }
+  .tw-btn.ghost { background: transparent; color: var(--brand); }
+  .tw-btn.ghost:hover { background: var(--brand-soft); }
+  .tw-btn:disabled { opacity: .4; cursor: not-allowed; }
+  .tw-counter {
+    margin-left: auto; font-size: 14px; font-weight: 700; color: var(--brand);
+    background: var(--brand-soft); padding: 6px 12px; border-radius: 999px; white-space: nowrap;
+  }
+
+  /* ---------- 流程图 ---------- */
+  .tw-stage { background: #fff; border: 1px solid var(--line-soft); border-radius: 16px; padding: 8px; }
+  .tw-svg { width: 100%; height: auto; display: block; }
+
+  .node rect {
+    fill: var(--line-soft); stroke: #d1d5db; stroke-width: 1.5;
+    transition: fill .4s ease, stroke .4s ease;
+  }
+  .node text { fill: #374151; font-size: 15px; font-weight: 600; transition: fill .4s ease; }
+  .node.sub text { font-size: 12px; font-weight: 500; }
+  .node { transition: transform .4s ease; transform-box: fill-box; transform-origin: center; cursor: default; }
+  .node.active { transform: scale(1.1); filter: drop-shadow(0 6px 14px rgba(79,70,229,.35)); }
+  .node.active rect { fill: var(--brand); stroke: var(--brand); }
+  .node.active text { fill: #fff; }
+  .node.dim rect { fill: #fafafa; stroke: #e5e7eb; }
+  .node.dim text { fill: #9ca3af; }
+
+  /* 分支两色：Function Call 蓝，Assistant Message 绿 */
+  [data-key="fc"].active rect { fill: var(--brand);  stroke: var(--brand); }
+  [data-key="am"].active rect { fill: var(--accent); stroke: var(--accent); }
+
+  .arrow { fill: none; stroke: var(--line); stroke-width: 2; transition: stroke .4s ease, stroke-width .4s ease; }
+  .arrow.lit { stroke: var(--brand); stroke-width: 3.5; }
+  .arrow.lit[data-key="a-am"],
+  .arrow.lit[data-key="a-am-tool"] { stroke: var(--accent); }
+
+  /* ---------- 说明 + 代码锚点 ---------- */
+  .tw-panel { margin-top: 14px; display: grid; grid-template-columns: 1fr; gap: 10px; }
+  .tw-desc { font-size: 14px; line-height: 1.6; color: #374151; background: var(--brand-soft);
+    border-left: 4px solid var(--brand); padding: 10px 14px; border-radius: 8px; }
+  .tw-desc.branch { background: linear-gradient(90deg, var(--brand-soft) 0 50%, var(--accent-soft) 50% 100%); }
+  .tw-desc .fc { color: var(--brand); font-weight: 700; }
+  .tw-desc .am { color: var(--accent); font-weight: 700; }
+
+  .tw-code {
+    display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 13px; background: #0f172a; color: #e2e8f0; padding: 10px 12px; border-radius: 8px;
+  }
+  .tw-code .lbl { color: #94a3b8; }
+  .tw-code code { color: #a5b4fc; flex: 1; min-width: 200px; word-break: break-all; }
+  .tw-copy {
+    appearance: none; border: 1px solid #334155; background: #1e293b; color: #cbd5e1;
+    font-size: 12px; padding: 4px 10px; border-radius: 6px; cursor: pointer; transition: background .15s;
+  }
+  .tw-copy:hover { background: #334155; }
+  .tw-copy.ok { color: var(--accent); border-color: var(--accent); }
+
+  .tw-legend { display: flex; gap: 16px; flex-wrap: wrap; font-size: 12px; color: var(--muted); margin-top: 10px; }
+  .tw-legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .tw-dot { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
+
+  /* ---------- 移动端：流程图纵向排列 ---------- */
+  #tw-svg-mobile { display: none; }
+  @media (max-width: 480px) {
+    #tw-svg-desktop { display: none; }
+    #tw-svg-mobile  { display: block; }
+    .tw-counter { margin-left: 0; width: 100%; text-align: center; }
+    .tw-toolbar { justify-content: center; }
+  }
+</style>
+
+<div class="turn-walker">
+  <h3 class="tw-title">Turn 循环步进器</h3>
+  <p class="tw-sub">Codex Core <code>run_turn</code> 主循环：问模型 → 分支 → 执行工具 → 回到问模型</p>
+
+  <div class="tw-toolbar">
+    <button class="tw-btn" id="tw-auto">▶ 自动演示</button>
+    <button class="tw-btn ghost" id="tw-prev">← 上一步</button>
+    <button class="tw-btn ghost" id="tw-next">→ 下一步</button>
+    <button class="tw-btn ghost" id="tw-reset">↺ 重置</button>
+    <span class="tw-counter" id="tw-counter">步骤 1/4: 问模型</span>
+  </div>
+
+  <div class="tw-stage">
+    <!-- ============ 桌面：横向流程图 ============ -->
+    <svg id="tw-svg-desktop" class="tw-svg" viewBox="0 0 760 540" role="img" aria-label="run_turn 流程图">
+      <defs>
+        <marker id="arrowGray" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+          <path d="M0,0 L8,3 L0,6 Z" fill="#cbd5e1"/>
+        </marker>
+        <marker id="arrowInd" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+          <path d="M0,0 L8,3 L0,6 Z" fill="#4F46E5"/>
+        </marker>
+        <marker id="arrowGrn" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+          <path d="M0,0 L8,3 L0,6 Z" fill="#10B981"/>
+        </marker>
+      </defs>
+
+      <!-- 箭头 -->
+      <path class="arrow" data-key="a-fc"      marker-end="url(#arrowGray)" d="M380,80  C 380,150 165,140 165,200"/>
+      <path class="arrow" data-key="a-am"      marker-end="url(#arrowGray)" d="M380,80  C 380,150 595,140 595,200"/>
+      <path class="arrow" data-key="a-fc-tool"  marker-end="url(#arrowGray)" d="M165,256 C 165,330 320,320 358,380"/>
+      <path class="arrow" data-key="a-am-tool"  marker-end="url(#arrowGray)" d="M595,256 C 595,330 440,320 402,380"/>
+      <path class="arrow" data-key="a-loop"     marker-end="url(#arrowGray)" d="M310,408 C 120,408 60,330 60,230 C 60,120 120,52 305,52"/>
+
+      <!-- 节点 -->
+      <g class="node" data-key="ask">
+        <rect x="310" y="24" width="140" height="56" rx="12"/>
+        <text x="380" y="57" text-anchor="middle">问模型</text>
+      </g>
+      <g class="node sub" data-key="fc">
+        <rect x="90" y="200" width="150" height="56" rx="12"/>
+        <text x="165" y="225" text-anchor="middle">Func Call</text>
+        <text x="165" y="243" text-anchor="middle">（工具请求）</text>
+      </g>
+      <g class="node sub" data-key="am">
+        <rect x="520" y="200" width="150" height="56" rx="12"/>
+        <text x="595" y="225" text-anchor="middle">Assistant Msg</text>
+        <text x="595" y="243" text-anchor="middle">（直接回复）</text>
+      </g>
+      <g class="node" data-key="tool">
+        <rect x="310" y="380" width="140" height="56" rx="12"/>
+        <text x="380" y="413" text-anchor="middle">执行工具</text>
+      </g>
+
+      <text x="36" y="232" font-size="12" fill="#94a3b8">循环</text>
+    </svg>
+
+    <!-- ============ 移动端：纵向流程图 ============ -->
+    <svg id="tw-svg-mobile" class="tw-svg" viewBox="0 0 360 660" role="img" aria-label="run_turn 流程图（纵向）">
+      <defs>
+        <marker id="arrowGrayM" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+          <path d="M0,0 L8,3 L0,6 Z" fill="#cbd5e1"/>
+        </marker>
+        <marker id="arrowIndM" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+          <path d="M0,0 L8,3 L0,6 Z" fill="#4F46E5"/>
+        </marker>
+        <marker id="arrowGrnM" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+          <path d="M0,0 L8,3 L0,6 Z" fill="#10B981"/>
+        </marker>
+      </defs>
+
+      <path class="arrow" data-key="a-fc"      marker-end="url(#arrowGrayM)" d="M180,76  L180,170"/>
+      <path class="arrow" data-key="a-am"      marker-end="url(#arrowGrayM)" d="M180,226 L180,320"/>
+      <path class="arrow" data-key="a-fc-tool" marker-end="url(#arrowGrayM)" d="M180,376 L180,470"/>
+      <path class="arrow" data-key="a-am-tool" marker-end="url(#arrowGrayM)" d="M180,376 L180,470"/>
+      <path class="arrow" data-key="a-loop"     marker-end="url(#arrowGrayM)" d="M250,498 C 340,498 340,260 340,120 C 340,40 260,20 205,20"/>
+
+      <g class="node" data-key="ask">
+        <rect x="110" y="20" width="140" height="56" rx="12"/>
+        <text x="180" y="53" text-anchor="middle">问模型</text>
+      </g>
+      <g class="node sub" data-key="fc">
+        <rect x="110" y="170" width="140" height="56" rx="12"/>
+        <text x="180" y="195" text-anchor="middle">Func Call</text>
+        <text x="180" y="213" text-anchor="middle">（工具请求）</text>
+      </g>
+      <g class="node sub" data-key="am">
+        <rect x="110" y="320" width="140" height="56" rx="12"/>
+        <text x="180" y="345" text-anchor="middle">Assistant Msg</text>
+        <text x="180" y="363" text-anchor="middle">（直接回复）</text>
+      </g>
+      <g class="node" data-key="tool">
+        <rect x="110" y="470" width="140" height="56" rx="12"/>
+        <text x="180" y="503" text-anchor="middle">执行工具</text>
+      </g>
+    </svg>
+  </div>
+
+  <div class="tw-legend">
+    <span><i class="tw-dot" style="background:#4F46E5"></i>Function Call 路径</span>
+    <span><i class="tw-dot" style="background:#10B981"></i>Assistant Message 路径</span>
+    <span><i class="tw-dot" style="background:#cbd5e1"></i>未激活</span>
+  </div>
+
+  <div class="tw-panel">
+    <div class="tw-desc" id="tw-desc"></div>
+    <div class="tw-code">
+      <span class="lbl">源码锚点</span>
+      <code id="tw-code"></code>
+      <button class="tw-copy" id="tw-copy">复制</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  // 4 步硬编码，无需 fetch
+  var STEPS = [
+    {
+      name: "问模型",
+      nodes: ["ask"],
+      arrows: [],
+      desc: '调用 LLM：把当前上下文（含历史工具结果）发送给模型，等待响应。这是 <code>run_turn</code> 的入口。',
+      code: "core/src/session/turn.rs:153 — run_turn()"
+    },
+    {
+      name: "模型返回（分支）",
+      nodes: ["fc", "am"],
+      arrows: ["a-fc", "a-am"],
+      branch: true,
+      desc: '模型可能返回 <span class="fc">function call</span>（需要执行工具）或 <span class="am">assistant message</span>（直接回复），两者最终都汇入下一轮循环。',
+      code: "core/src/session/turn.rs — match ResponseEvent"
+    },
+    {
+      name: "执行工具",
+      nodes: ["tool"],
+      arrows: ["a-fc-tool", "a-am-tool"],
+      desc: '若收到 function call，在沙箱中运行对应工具（dispatch），将结果回传给模型，进入下一轮。',
+      code: "core/src/tool_router.rs — dispatch()"
+    },
+    {
+      name: "回到问模型",
+      nodes: ["ask"],
+      arrows: ["a-loop"],
+      desc: '工具结果或 assistant message 汇入新一轮循环，重复「问模型 → 分支 → 执行工具」。',
+      code: "core/src/session/turn.rs — loop"
+    }
+  ];
+
+  var AUTO_MS = 2000; // 自动演示每步间隔
+
+  var current = 0;
+  var timer = null;
+
+  var $counter = document.getElementById("tw-counter");
+  var $desc    = document.getElementById("tw-desc");
+  var $code    = document.getElementById("tw-code");
+  var $auto    = document.getElementById("tw-auto");
+  var $prev    = document.getElementById("tw-prev");
+  var $next    = document.getElementById("tw-next");
+  var $reset   = document.getElementById("tw-reset");
+  var $copy    = document.getElementById("tw-copy");
+
+  function render() {
+    var s = STEPS[current];
+
+    // 节点高亮
+    var nodes = document.querySelectorAll(".turn-walker .node");
+    for (var i = 0; i < nodes.length; i++) {
+      var k = nodes[i].getAttribute("data-key");
+      var on = s.nodes.indexOf(k) !== -1;
+      nodes[i].classList.toggle("active", on);
+      nodes[i].classList.toggle("dim", !on);
+    }
+
+    // 箭头点亮
+    var arrows = document.querySelectorAll(".turn-walker .arrow");
+    for (var j = 0; j < arrows.length; j++) {
+      var ak = arrows[j].getAttribute("data-key");
+      arrows[j].classList.toggle("lit", s.arrows.indexOf(ak) !== -1);
+    }
+
+    $counter.textContent = "步骤 " + (current + 1) + "/" + STEPS.length + ": " + s.name;
+    $desc.innerHTML = s.desc;
+    $desc.classList.toggle("branch", !!s.branch);
+    $code.textContent = s.code;
+  }
+
+  function go(step) {
+    current = (step + STEPS.length) % STEPS.length; // 循环
+    render();
+  }
+
+  function next() { go(current + 1); }
+  function prev() { go(current - 1); }
+
+  function stopAuto() {
+    if (timer) { clearInterval(timer); timer = null; }
+    $auto.textContent = "▶ 自动演示";
+    $auto.classList.remove("ghost");
+  }
+
+  function startAuto() {
+    stopAuto();
+    render();
+    timer = setInterval(next, AUTO_MS);
+    $auto.textContent = "⏸ 暂停";
+    $auto.classList.add("ghost");
+  }
+
+  function reset() {
+    stopAuto();
+    go(0);
+  }
+
+  // 复制源码锚点
+  $copy.addEventListener("click", function () {
+    var text = $code.textContent;
+    var done = function () {
+      $copy.textContent = "已复制";
+      $copy.classList.add("ok");
+      setTimeout(function () { $copy.textContent = "复制"; $copy.classList.remove("ok"); }, 1200);
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(done, function () { fallbackCopy(text); done(); });
+    } else {
+      fallbackCopy(text); done();
+    }
+  });
+
+  function fallbackCopy(text) {
+    var ta = document.createElement("textarea");
+    ta.value = text; ta.style.position = "fixed"; ta.style.opacity = "0";
+    document.body.appendChild(ta); ta.select();
+    try { document.execCommand("copy"); } catch (e) {}
+    document.body.removeChild(ta);
+  }
+
+  $auto.addEventListener("click", function () {
+    if (timer) { stopAuto(); } else { startAuto(); }
+  });
+  $next.addEventListener("click", function () { stopAuto(); next(); });
+  $prev.addEventListener("click", function () { stopAuto(); prev(); });
+  $reset.addEventListener("click", reset);
+
+  render();
+})();
+</script>

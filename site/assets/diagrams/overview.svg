@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 480" font-family="system-ui, sans-serif">
   <defs>
-    <marker id="a" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+    <marker id="a" markerWidth="10" markerHeight="10" refX="10" refY="3" orient="auto" markerUnits="strokeWidth">
       <path d="M0,0 L9,3 L0,6 Z" fill="#4F46E5"/>
     </marker>
   </defs>
@@ -15,8 +15,8 @@
 
   <!-- App Server container -->
   <rect x="190" y="220" width="420" height="210" rx="16" fill="#F9FAFB" stroke="#4F46E5" stroke-width="2"/>
-  <text x="212" y="248" font-size="16" font-weight="600" fill="#312E81">App Server</text>
-  <text x="324" y="248" font-size="12" fill="#4F46E5">常驻 · Always-on</text>
+  <text x="400" y="245" text-anchor="middle" font-size="16" font-weight="600" fill="#312E81">App Server</text>
+  <text x="400" y="263" text-anchor="middle" font-size="12" fill="#4F46E5">常驻 · Always-on</text>
 
   <!-- Codex Core inside -->
   <rect x="250" y="290" width="300" height="110" rx="12" fill="#EEF2FF" stroke="#6366F1" stroke-width="2"/>
