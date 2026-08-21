@@ -8,6 +8,38 @@ const state = {
   crates: null,
 };
 
+// ---------- 无障碍辅助 ----------
+// ① announce()：把动态变化（切章 / 搜索结果数 / 过滤结果数）写入 #sr-live
+//    （role=status + aria-live=polite），屏幕阅读器会在空闲时朗读。
+//    120ms 合并连续写入，避免逐次按键造成播报刷屏。
+// ② prefersReducedMotion()：统一判定「减弱动效」，所有 smooth 滚动都要先问它。
+// ③ 跳转到正文链接：拦截默认跳转（不写 hash，避免 router 误把 #content 当路由）后
+//    把焦点移到 <main tabindex="-1">，后续 Tab 从正文开始。
+const srLive = document.getElementById("sr-live");
+let srTimer = null;
+
+function announce(msg) {
+  if (!srLive || !msg) return;
+  clearTimeout(srTimer);
+  srTimer = setTimeout(() => { srLive.textContent = msg; }, 120);
+}
+
+function prefersReducedMotion() {
+  try { return window.matchMedia("(prefers-reduced-motion: reduce)").matches; }
+  catch (e) { return false; }
+}
+
+(function initSkipLink() {
+  const link = document.querySelector(".skip-link");
+  const main = document.getElementById("content");
+  if (!link || !main) return;
+  link.addEventListener("click", (e) => {
+    e.preventDefault();
+    main.focus();
+    main.scrollIntoView({ behavior: prefersReducedMotion() ? "auto" : "smooth", block: "start" });
+  });
+})();
+
 // ---------- 主题 ----------
 // 主题键：codex-guide-theme（当前主题 light/dark）
 // 手动标记：codex-guide-theme-manual（用户点过切换按钮则置 "1"）。
@@ -95,6 +127,13 @@ function computeIntraChapterProgress() {
   return Math.min(1, Math.max(0, intra));
 }
 
+// 同步进度条视觉宽度与 role=progressbar 的 aria-valuenow（取整，避免无谓属性抖动）
+function setProgressValue(pct) {
+  const v = Math.min(100, Math.max(0, pct));
+  progressBar.style.width = v + "%";
+  progressBar.setAttribute("aria-valuenow", String(Math.round(v)));
+}
+
 function updateProgress() {
   if (!progressBar) return;
   // 仓库地图 / 无当前章节时，退回“整窗滚动百分比”（等同旧行为）
@@ -103,7 +142,7 @@ function updateProgress() {
     const scrollTop = window.scrollY || doc.scrollTop || 0;
     const scrollable = (doc.scrollHeight - doc.clientHeight) || 0;
     const pct = scrollable > 0 ? (scrollTop / scrollable) * 100 : 0;
-    progressBar.style.width = Math.min(100, Math.max(0, pct)) + "%";
+    setProgressValue(pct);
     return;
   }
   const total = state.manifest.length;
@@ -112,7 +151,7 @@ function updateProgress() {
   const weight = 1 / total;                        // 单章权重
   const intra = computeIntraChapterProgress();
   const pct = (base + (intra == null ? 0 : intra) * weight) * 100;
-  progressBar.style.width = Math.min(100, Math.max(0, pct)) + "%";
+  setProgressValue(pct);
 }
 
 function onProgressScroll() {
@@ -152,8 +191,7 @@ window.addEventListener("scroll", updateBackToTop, { passive: true });
 window.addEventListener("resize", updateBackToTop);
 if (toTop) {
   toTop.addEventListener("click", () => {
-    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    window.scrollTo({ top: 0, behavior: prefersReducedMotion ? "auto" : "smooth" });
+    window.scrollTo({ top: 0, behavior: prefersReducedMotion() ? "auto" : "smooth" });
   });
   toTop.classList.add("hidden");              // 初始隐藏
 }
