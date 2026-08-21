@@ -1,6 +1,6 @@
 # 第 7 章：终端界面——你眼睛看到的那一层
 
-界面层只是 `EventMsg` 的一个视图——这句话前面几章出现过，这章用 `codex-tui` 把它坐实，也顺手解释为什么终端里那个花花绿绿的界面，代码量能到 487 个文件。
+终端里那个花花绿绿的界面有 487 个文件，干的事只有一件：把 core 回流的 `EventMsg` 画成屏幕上的东西。前面几章反复说的"界面层只是 `EventMsg` 的一个视图"，在 `codex-tui` 里能看到具体代码。
 
 ## 7.1 它是什么、不是什么
 
@@ -9,7 +9,7 @@
 1. 把你的键盘输入，变成 `Op::TurnInput` 提交给 core；
 2. 把 core 回流的 `EventMsg`，渲染成屏幕上的文字、进度条、补丁预览。
 
-它**不**持有任何会话逻辑、不跑模型、不执行命令。那些都在 core 和 exec-server 里。TUI 是个"尽职的传声筒"。
+它**不**持有任何会话逻辑、不跑模型、不执行命令，那些都在 core 和 exec-server 里。
 
 `cli/src/main.rs` 里直接 import 了它的几个对外类型，能看出它的对外形状：
 
@@ -42,24 +42,22 @@ pub enum EventMsg {
 }
 ```
 
-"TUI 是事件的视图"可以画成下面这张图：
-
 ![](assets/diagrams/tui.svg)
 
-TUI 每一帧画面，就是把目前为止收到的所有 `EventMsg` 按顺序 fold 出来的当前状态。这正是 Redux/Elm 那套 `state = reduce(events)`——只不过事件源不是用户点击，而是 core 的智能体活动。
+TUI 每一帧画面，就是把目前为止收到的所有 `EventMsg` 按顺序 fold 出来的当前状态——Redux/Elm 的 `state = reduce(events)`，只不过事件源不是用户点击，而是 core 的智能体活动。
 
-这个设计的妙处：
+两个直接后果：
 
-- **界面可替换**。IDE 插件、桌面 app 拿到的也是同一份 `EventMsg`，只是换成在编辑器里画进度条。第 2 章说"界面层能被随意替换"，根子就在这。
-- **可回放**。因为状态完全由事件序列决定，`codex-rollout-trace` 把事件存下来，就能原样重演一次会话（debug、评测都靠它）。
+- **界面可替换**。IDE 插件、桌面 app 拿到的是同一份 `EventMsg`，只是改成在编辑器里画进度条。第 2 章说的"界面层能被随意替换"，指的就是这件事。
+- **可回放**。状态完全由事件序列决定，`codex-rollout-trace` 把事件存下来，就能原样重演一次会话（debug、评测都靠它）。
 
 ## 7.3 钻进去看：App 状态怎么组织
 
-把 TUI 当黑盒看完了，再钻进 `tui` 源码。这个看似"实时动画"的界面，内部是个朴素的状态机：`App` 持有一大坨可变状态，事件（终端按键、来自 core 的 `ServerNotification`、app-server 通知）不断流入，每个事件都被某个 `handle_*` 方法就地改写状态，再由渲染函数把状态画成帧。
+`tui` 内部是个朴素的状态机：`App` 持有一大坨可变状态，事件（终端按键、来自 core 的 `ServerNotification`、app-server 通知）不断流入，每个事件都被某个 `handle_*` 方法就地改写状态，再由渲染函数把状态画成帧。
 
-顶层入口 `run_ratatui_app`（`tui/src/lib.rs:955`）做完鉴权、onboarding、配置加载后，调用 `App::run`（`tui/src/lib.rs:1697`）。`App` 本身是一个巨大的"状态容器"，定义在 `tui/src/app.rs:523`：里面既装着 UI 状态（`chat_widget`、`ChatWidget`、滚动位置、overlay、keymap），也装着线程路由状态（`thread_event_channels`、`active_thread_rx`、`active_thread_id`）。
+顶层入口 `run_ratatui_app`（`tui/src/lib.rs:955`）做完鉴权、onboarding、配置加载后，调用 `App::run`（`tui/src/lib.rs:1697`）。`App` 定义在 `tui/src/app.rs:523`，是一个巨大的状态容器：既装着 UI 状态（`chat_widget`、`ChatWidget`、滚动位置、overlay、keymap），也装着线程路由状态（`thread_event_channels`、`active_thread_rx`、`active_thread_id`）。
 
-所有字段都是"被事件改写的记忆"。`App` 没有一层 getter 堆叠出来的业务方法，而是把"当前状态 + 一个事件"化简为"下一个状态"——就是第 7.2 节说的 `state = reduce(events)`。无论是按键还是一条 `AgentMessageDelta`，都通过对应的 `handle_*` 直接 mutation 这些字段，不存在独立的状态拷贝。
+字段全是"被事件改写的记忆"。`App` 没有一层 getter 堆叠出来的业务方法；按键也好、一条 `AgentMessageDelta` 也好，都通过对应的 `handle_*` 直接 mutation 这些字段，不存在独立的状态拷贝。
 
 ## 7.4 主事件循环：四类事件如何合并
 
@@ -70,7 +68,7 @@ TUI 每一帧画面，就是把目前为止收到的所有 `EventMsg` 按顺序 
 3. `tui_events.next()`（`tui/src/app/startup.rs:706`）——crossterm 的终端事件（按键、粘贴、resize），交给 `handle_tui_event`（`tui/src/app.rs:737`）；
 4. `app_server.next_event()`（`tui/src/app/startup.rs:736`）——来自 app-server 的 `ServerNotification`。
 
-第二类和第四类，是同一股数据流的两个通道：app-server 把 core 产生的 `EventMsg` 包装成 `ServerNotification`，一份经线程 channel 进 `active_thread_rx`，一份经 `app_server.next_event()` 进全局处理。两条路最终都汇入 `ChatWidget::handle_server_notification`，保证渲染逻辑只有一份。
+第二类和第四类是同一股数据流的两个通道：app-server 把 core 产生的 `EventMsg` 包装成 `ServerNotification`，一份经线程 channel 进 `active_thread_rx`，一份经 `app_server.next_event()` 进全局处理。两条路最终都汇入 `ChatWidget::handle_server_notification`，渲染逻辑只有一份。
 
 ## 7.5 一个组件怎么渲染某类 EventMsg
 
@@ -85,7 +83,7 @@ TUI 每一帧画面，就是把目前为止收到的所有 `EventMsg` 按顺序 
 
 ## 7.6 为什么有 487 个文件
 
-既然"只是渲染 EventMsg"，代码量怎么还这么大？因为终端 UI 的脏活都在细节里：
+"只是渲染 EventMsg"却写出这么多代码，因为终端 UI 的脏活都在细节里：
 
 - 流式文本要增量重绘，不能每来一个字符整屏闪；
 - 补丁预览要语法高亮、要 diff 配色；
@@ -93,6 +91,6 @@ TUI 每一帧画面，就是把目前为止收到的所有 `EventMsg` 按顺序 
 
 这些都被拆进了 `codex-tui` 以及一堆 `codex-tui-*` 组件 crate。读 TUI 源码时，建议**按组件而不是按文件**去找：先定你要看哪块界面（输入栏？输出区？审批框？），再顺着对应组件进去，别从 `main` 硬读。
 
-一个小技巧：想确认"屏幕上某块对应哪个 Event"，最省事的办法是——在 `EventMsg` 的变体里挑你关心的那个，全局搜它被 `match` 的地方，基本都能定位到 TUI 里负责渲染它的那几行。反过来，想知道"模型在干什么时屏幕会怎样变"，也是顺着 `EventMsg` 走。
+想确认"屏幕上某块对应哪个 Event"，最省事的办法是在 `EventMsg` 的变体里挑你关心的那个，全局搜它被 `match` 的地方，基本都能定位到 TUI 里负责渲染它的那几行。
 
-下一章我们把视野抬到组件之间：app-server 怎么把 core 变成 IDE 能连的服务，线协议到底是什么。
+下一章讲 app-server：core 怎么被包成 IDE 能连的服务，线协议到底是什么。

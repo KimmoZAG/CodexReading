@@ -345,6 +345,26 @@ body {
   overflow-x: auto; box-shadow: var(--shadow);
 }
 .markdown .mermaid svg { max-width: 100%; height: auto; }
+
+/* 正文内的图片（目前均为扁平风 diagram SVG：浅底深字）：
+   通用给一点圆角 + 阴影，浅色模式也好看；块级居中避免与文字挤在一起。 */
+.markdown img {
+  display: block;
+  margin: 18px auto;
+  max-width: 100%;
+  height: auto;
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+}
+/* 深色模式下，diagram 多为浅底深色字，直接丢在深背景上会突兀/看不清。
+   先铺一层柔和浅底 + 圆角 + 内边距，再 invert(1)+hue-rotate(180deg)
+   把浅底深字翻成深底浅字、同时尽量保住品牌色相。 */
+html[data-theme="dark"] .markdown img {
+  background: #f4f4f6;
+  border-radius: 12px;
+  padding: 10px;
+  filter: invert(1) hue-rotate(180deg);
+}
 .markdown table {
   width: 100%; border-collapse: collapse; margin: 22px 0; font-size: 14px;
 }

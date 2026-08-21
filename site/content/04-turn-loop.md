@@ -1,10 +1,10 @@
 # 第 4 章：主循环——`run_turn` 是怎么"想一步、做一步"的
 
-第 3 章我们站在一个舒服的距离看了 `submit` / `next_event`。这一章往里走一步，看 `next_event` 背后到底在循环什么。这段逻辑是 `codex-core` 真正的心跳。
+`next_event` 背后在循环什么？答案在 `run_turn`，`codex-core` 真正的心跳。
 
-## 4.1 一句话定义
+## 4.1 run_turn 干的事
 
-`run_turn` 在 `core/src/session/turn.rs:153`。它的文档注释几乎是最好的说明书，原文是这样的：
+`run_turn` 在 `core/src/session/turn.rs:153`。它的文档注释本身就写得很清楚：
 
 ```rust
 // core/src/session/turn.rs:139
@@ -30,7 +30,7 @@ pub(crate) async fn run_turn(
 ) -> CodexResult<Option<String>> {
 ```
 
-把这段翻译成人话：**一个回合就是反复"问模型 → 看它回了什么"的循环**。模型每次回的东西只有两种可能——要么"我要调个工具"（function call），要么"我说完了"（assistant message）。前者就执行工具、把结果塞回去再问；后者就记进历史、回合结束。
+一个回合就是反复"问模型 → 看它回了什么"。模型每次回的东西只有两种可能：要么"我要调个工具"（function call），要么"我说完了"（assistant message）。前者就执行工具、把结果塞回去再问；后者就记进历史、回合结束。
 
 ## 4.2 循环骨架
 
@@ -38,20 +38,20 @@ pub(crate) async fn run_turn(
 
 ![](assets/diagrams/turn-loop.svg)
 
-一圈就四件事：问模型、看它回的是 function call 还是 assistant message、要调工具就执行、到终态就收工。箭头从"执行工具"绕回"问模型"，就是下一轮循环。
+一圈四件事：问模型、看它回的是 function call 还是 assistant message、要调工具就执行、到终态就收工。箭头从"执行工具"绕回"问模型"，就是下一轮循环。
 
-`run_turn` 的返回类型是 `CodexResult<Option<String>>`，那个 `Option<String>` 是"最终给用户的文本结论"。但**过程中所有的实时变化**（命令输出、补丁进度、思考内容）不走返回值，而是经 `sess` 上的事件发射器，变成第 3 章讲过的 `EventMsg` 流出去——这再次印证"界面层只是 Event 的视图"。
+返回类型 `CodexResult<Option<String>>` 里那个 `Option<String>` 是"最终给用户的文本结论"。过程中所有的实时变化（命令输出、补丁进度、思考内容）不走返回值，而是经 `sess` 上的事件发射器，变成第 3 章那些 `EventMsg` 流出去。
 
 ## 4.3 为什么"进循环前"比循环本身还长
 
-新手读 `run_turn` 最容易懵的一点：真正 `loop` 的体量，还不如它前面那一大坨准备工作。原因很实在——一个能用的 agent 回合，难点从来不在"调 API"，而在：
+读 `run_turn` 最容易懵的一点：真正 `loop` 的体量，还不如它前面那一大坨准备工作。一个能用的 agent 回合，难点从来不在"调 API"，而在这几件事：
 
 - **上下文压缩**：历史太长会爆 token，得先 `run_pre_sampling_compact` 把旧内容压缩掉（`:169`）。
 - **环境捕获**：这次要在哪个目录、哪个沙箱环境里跑？`capture_step_context_with_required_mcp_servers`（`:207`）。
 - **技能/插件注入**：用户 `@` 了某个 skill 或插件，得先把它们的提示词拼进上下文（`build_skills_and_plugins`，`:250`）。
 - **Hook 编排**：`run_pending_session_start_hooks`、`run_hooks_and_record_inputs`……外部插件能在回合关键节点插一脚。
 
-这些恰恰是一个"玩具 agent"和"生产级 agent"的分水岭。Codex 把大量工程投在这里，而不是在循环本身。
+"玩具 agent"和"生产级 agent"的差距就落在这几项上。Codex 的工程量大头也在这里，不在循环本身。
 
 ## 4.4 怎么停下
 
@@ -62,6 +62,6 @@ pub(crate) async fn run_turn(
 - 被 `CancellationToken` 取消（`Interrupt` Op 会触发它）。
 - 上下文压缩失败、`TurnAborted` 等错误路径。
 
-为啥 `codex exec` 跑完一轮能干净退出，交互会话还能接着接你的下一句？关键就在"终态"——它只是"这一轮"的结束，不是进程结束。
+终态只是"这一轮"的结束，不是进程结束。所以 `codex exec` 跑完一轮能干净退出，交互会话还能接着接你的下一句。
 
-下一章看循环里那个 `FunctionCall` 分支：工具到底是咋被调起来的，`apply_patch` 又是怎么一边改文件一边把进度推给你的。
+下一章看循环里那个 `FunctionCall` 分支：工具怎么被调起来，`apply_patch` 又怎么一边改文件一边把进度推给你。

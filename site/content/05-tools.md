@@ -1,6 +1,6 @@
 # 第 5 章：工具系统——模型说"我要调个函数"之后发生了什么
 
-第 4 章的主循环里，`FunctionCall` 这个分支是整台机器"动手干活"的入口。模型本身不会读写文件、不会跑命令，它只会**产出一段结构化的"我想调这个工具，参数是这些"**。真正把这句话变成磁盘上的改动、终端里的输出，是 `codex-core` 的工具系统在干。
+模型自己不读写文件、不跑命令，它只产出一段结构化的"我想调这个工具，参数是这些"。把这句话变成磁盘上的改动和终端里的输出，是 `codex-core` 工具系统的活儿，入口就是第 4 章主循环里的 `FunctionCall` 分支。
 
 ## 5.1 一个工具调用长什么样
 
@@ -28,7 +28,7 @@ self.registry
     .await
 ```
 
-`dispatch_any_with_terminal_outcome` 这个名字信息量很大：
+`dispatch_any_with_terminal_outcome` 这名字里两截各对应一件事：
 
 - **`dispatch_any`**：按 `tool_name` 找到对应的 handler（可能是内置的，也可能是 MCP/插件提供的）。
 - **`terminal_outcome`**：标记这次调用是否构成了回合的"终态"（比如 `exec` 跑完一条命令、或 `apply_patch` 落地），主循环据此判断要不要结束。
@@ -41,7 +41,7 @@ self.registry
 - **执行中**：把流式进度通过 `ToolEmitter` 往外发（`EventMsg` 里的 `ExecCommandOutputDelta`、`PatchApplyUpdated` 都来自这里）。
 - **执行后（PostToolUse）**：把结果转成协议里的 `ToolCallOutput`，并决定要不要记入会话历史。
 
-一个工具从"被模型点名"到"结果回到模型"，中间要过三道关卡。这跟第 6 章的沙箱是一体两面的设计。
+执行前那道权限检查用的就是第 6 章的沙箱策略。
 
 ## 5.3 例子：`apply_patch`——它是怎么一边改文件一边直播的
 
@@ -69,12 +69,12 @@ impl ToolArgumentDiffConsumer for ApplyPatchArgumentDiffConsumer {
 }
 ```
 
-这里有两个值得记住的工程细节：
+两处工程细节：
 
 1. **流式解析**：模型不是一次性给完整补丁，而是一点一点吐。`StreamingPatchParser` 边收边解析成 `Hunk`，界面就能实时显示"正在改第 3 个文件"。
-2. **节流**：`APPLY_PATCH_ARGUMENT_DIFF_BUFFER_INTERVAL = 500ms`（`:58`），避免高频 delta 把事件总线冲爆。这种"该省就省"的克制，是这个仓库成熟度的一个小注脚。
+2. **节流**：`APPLY_PATCH_ARGUMENT_DIFF_BUFFER_INTERVAL = 500ms`（`:58`），避免高频 delta 把事件总线冲爆。
 
-补丁最终通过 `ApplyPatchRuntime`（`core/src/tools/runtimes/apply_patch.rs`）落到文件系统——而**落盘的权限，仍由第 6 章的沙箱策略把关**。
+补丁最终通过 `ApplyPatchRuntime`（`core/src/tools/runtimes/apply_patch.rs`）落到文件系统，而落盘的权限仍由第 6 章的沙箱策略把关。
 
 ## 5.4 命令类工具：审批从哪来
 
@@ -82,4 +82,4 @@ impl ToolArgumentDiffConsumer for ApplyPatchArgumentDiffConsumer {
 
 ![](assets/diagrams/tool-dispatch.svg)
 
-从 `ToolCall` 进 `ToolRouter`、`ToolRegistry` 找到 handler，到"审批"那道虚线闸门（命中白名单才放行，否则拦下等你确认），最后落到 `Exec-Server`/沙箱。这一道"审批闸门 + 沙箱执行"，就是 Codex 敢让模型跑命令的底气。下一章我们专门拆沙箱。
+`ToolCall` 进 `ToolRouter`，`ToolRegistry` 找到 handler，再过"审批"那道虚线闸门（命中白名单直接放行，否则拦下等你确认），最后落到 `Exec-Server`/沙箱。闸门和沙箱各自怎么实现，下一章拆开讲。
