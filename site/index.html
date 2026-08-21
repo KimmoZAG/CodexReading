@@ -89,39 +89,42 @@
 
   <div class="layout">
     <aside class="sidebar" id="sidebar">
-      <div class="brand">
-        <div class="brand-mark">Cx</div>
+      <header class="brand">
+        <div class="brand-mark" aria-hidden="true">Cx</div>
         <div class="brand-text">
           <strong>Codex 阅读指南</strong>
           <span>codex-rs 源码导读</span>
         </div>
-      </div>
+      </header>
 
-      <div class="search">
-        <input id="search" type="search" placeholder="搜索章节…" autocomplete="off" aria-label="搜索章节" />
+      <div class="search" role="search">
+        <input id="search" type="search" placeholder="搜索章节…" autocomplete="off" aria-label="按标题过滤章节" />
         <button id="full-search-btn" class="full-search-btn" type="button"
-                title="全文搜索（Ctrl / ⌘ + K）" aria-label="全文搜索">全文</button>
+                title="全文搜索（Ctrl / ⌘ + K）" aria-label="打开全文搜索">全文</button>
       </div>
 
-      <nav class="toc" id="toc" role="navigation" aria-label="章节导航"><!-- chapters injected by app.js -->
-        <hr style="border:none; border-top:1px solid #e5e7eb; margin:12px 0;">
-        <a href="#/interactive" id="nav-interactive" class="nav-item" style="color:#4F46E5; font-weight:600;">🎮 互动演示</a>
+      <!-- 章节列表由 app.js 注入为 <ul class="toc-list"><li><a>…；
+           「互动演示」入口为静态项，buildToc 重渲后会被挂回列表末尾。 -->
+      <nav class="toc" id="toc" aria-label="章节导航">
+        <a href="#/interactive" id="nav-interactive" class="nav-item">🎮 互动演示</a>
       </nav>
 
       <div class="sidebar-foot">
-        <button id="theme-toggle" class="theme-toggle" title="切换深/浅色" aria-label="切换深/浅色主题">◐ 主题</button>
-        <a class="ext-link" href="https://github.com/openai/codex" target="_blank" rel="noopener">GitHub 仓库 ↗</a>
+        <button id="theme-toggle" class="theme-toggle" title="切换深/浅色" aria-label="切换深色/浅色主题">◐ 主题</button>
+        <a class="ext-link" href="https://github.com/openai/codex" target="_blank" rel="noopener">GitHub 仓库 <span aria-hidden="true">↗</span><span class="sr-only">（在新标签页打开）</span></a>
       </div>
     </aside>
 
-    <main class="content" id="content">
-      <div id="progress-bar"></div>
-      <aside class="inpage-toc" id="inpage-toc" hidden>
-        <button class="inpage-toc-toggle" id="inpage-toc-toggle" type="button" aria-expanded="true">
-          目录 <span class="inpage-toc-chev">∨</span>
+    <main class="content" id="content" tabindex="-1">
+      <div id="progress-bar" role="progressbar" aria-label="阅读进度"
+           aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"></div>
+      <nav class="inpage-toc" id="inpage-toc" aria-label="本页目录" hidden>
+        <button class="inpage-toc-toggle" id="inpage-toc-toggle" type="button"
+                aria-expanded="true" aria-controls="inpage-toc-list">
+          目录 <span class="inpage-toc-chev" aria-hidden="true">∨</span>
         </button>
         <ul class="inpage-toc-list" id="inpage-toc-list"></ul>
-      </aside>
+      </nav>
       <article class="markdown" id="article">
         <p class="loading">正在加载…</p>
       </article>
