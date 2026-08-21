@@ -1,0 +1,514 @@
+<!--
+  Op / Event 数据流可视化器 · 可嵌入 HTML 片段
+  纯静态、零依赖。可直接双击在浏览器打开，也可 <iframe>/fetch 嵌入页面。
+  无 <html>/<head>，仅根容器 + 内联 <style> + 内联 <svg> + <script>。
+  基于 assets/diagrams/dataflow.svg 改造：四角布局，中心为 codex-protocol 协议层，
+  CLI / App Server / Codex Core / Exec Server 围绕它通信。
+-->
+<style>
+  .dataflow {
+    --brand: #4F46E5;
+    --brand-soft: #EEF2FF;
+    --accent: #10B981;       /* 成功 / 数据流 */
+    --accent-soft: #ECFDF5;
+    --danger: #EF4444;       /* 错误流 */
+    --danger-soft: #FEF2F2;
+    --ink: #111827;
+    --muted: #6B7280;
+    --line: #cbd5e1;
+    --line-soft: #e5e7eb;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, "PingFang SC", "Microsoft YaHei", sans-serif;
+    color: var(--ink);
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 16px;
+    box-sizing: border-box;
+  }
+  .dataflow * { box-sizing: border-box; }
+
+  .df-title { font-size: 18px; font-weight: 700; margin: 0 0 2px; }
+  .df-sub   { font-size: 13px; color: var(--muted); margin: 0 0 14px; line-height: 1.5; }
+
+  /* ---------- 工具栏 ---------- */
+  .df-toolbar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 14px; }
+  .df-btn {
+    appearance: none; border: 1.5px solid var(--brand); background: var(--brand); color: #fff;
+    font-size: 14px; font-weight: 600; padding: 8px 14px; border-radius: 999px; cursor: pointer;
+    transition: background .15s, transform .1s;
+  }
+  .df-btn:hover { background: #4338CA; }
+  .df-btn:active { transform: scale(.97); }
+  .df-btn.ghost { background: transparent; color: var(--brand); }
+  .df-btn.ghost:hover { background: var(--brand-soft); }
+  .df-status {
+    margin-left: auto; font-size: 13px; font-weight: 600; color: var(--accent);
+    background: var(--accent-soft); padding: 6px 12px; border-radius: 999px;
+    white-space: nowrap; max-width: 100%; overflow: hidden; text-overflow: ellipsis;
+  }
+  .df-status.idle { color: var(--muted); background: #f3f4f6; }
+
+  /* ---------- 流程图 ---------- */
+  .df-stage { background: #fff; border: 1px solid var(--line-soft); border-radius: 16px; padding: 8px; }
+  .df-svg { width: 100%; height: auto; display: block; }
+
+  .node { cursor: pointer; transition: transform .35s ease; transform-box: fill-box; transform-origin: center; }
+  .node rect {
+    fill: #F8FAFC; stroke: var(--line); stroke-width: 2;
+    transition: fill .35s ease, stroke .35s ease;
+  }
+  .node text { fill: #334155; transition: fill .35s ease; }
+  .node .n-main { font-size: 16px; font-weight: 700; }
+  .node .n-sub  { font-size: 11px; fill: var(--muted); }
+  .node:hover rect { stroke: var(--brand); }
+  .node.active { transform: scale(1.06); filter: drop-shadow(0 6px 14px rgba(79,70,229,.35)); }
+  .node.active rect { fill: var(--brand); stroke: var(--brand); }
+  .node.active .n-main { fill: #fff; }
+  .node.active .n-sub  { fill: #EEF2FF; }
+  .node.dim rect { fill: #FAFAFA; stroke: #E5E7EB; }
+  .node.dim text { fill: #CBD5E1; }
+  .node.dim .n-sub { fill: #CBD5E1; }
+
+  /* 中心协议层（非交互） */
+  .hub rect { fill: var(--brand); stroke: var(--brand); stroke-width: 2; }
+  .hub text { fill: #fff; }
+  .hub .h-sub { fill: #EEF2FF; font-size: 11px; }
+
+  .link { fill: none; stroke: var(--line); stroke-width: 2; transition: stroke .35s ease, stroke-width .35s ease; }
+  .link.lit { stroke: var(--accent); stroke-width: 3.5; }
+
+  .df-dot { filter: drop-shadow(0 0 6px rgba(16,185,129,.8)); transition: opacity .2s; }
+
+  /* ---------- 信息面板 ---------- */
+  .df-panel { margin-top: 14px; }
+  .df-empty {
+    font-size: 13px; color: var(--muted); background: #F8FAFC; border: 1px dashed var(--line-soft);
+    border-radius: 12px; padding: 16px; text-align: center;
+  }
+  .df-detail {
+    border: 1px solid var(--line-soft); border-left: 4px solid var(--brand);
+    border-radius: 12px; padding: 14px 16px; background: #fff;
+  }
+  .df-detail-head { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .df-detail-head h4 { margin: 0; font-size: 18px; color: var(--brand); }
+  .df-tag {
+    font-size: 11px; font-weight: 700; letter-spacing: .05em; color: #fff; background: var(--brand);
+    padding: 3px 8px; border-radius: 999px; text-transform: uppercase;
+  }
+  .df-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .df-col-title { font-size: 12px; font-weight: 700; margin-bottom: 6px; }
+  .df-col-title.send { color: var(--brand); }
+  .df-col-title.recv { color: var(--accent); }
+  .df-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+  .df-chip {
+    width: 100%; text-align: left; appearance: none; cursor: pointer;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 13px;
+    background: var(--brand-soft); color: #312E81; border: 1px solid #C7D2FE;
+    padding: 7px 10px; border-radius: 8px; transition: background .15s, transform .1s;
+  }
+  .df-chip:hover { background: #E0E7FF; }
+  .df-chip:active { transform: scale(.98); }
+  .df-col-recv .df-chip { background: var(--accent-soft); color: #065F46; border-color: #A7F3D0; }
+  .df-col-recv .df-chip:hover { background: #D1FAE5; }
+  .df-chip.err { background: var(--danger-soft); color: #991B1B; border-color: #FECACA; }
+  .df-chip.err:hover { background: #FEE2E2; }
+
+  .df-legend { display: flex; gap: 16px; flex-wrap: wrap; font-size: 12px; color: var(--muted); margin-top: 12px; }
+  .df-legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .df-dot-sm { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
+
+  /* ---------- 详情弹窗 ---------- */
+  .df-modal {
+    position: fixed; inset: 0; background: rgba(15,23,42,.55); display: flex;
+    align-items: center; justify-content: center; padding: 20px; z-index: 50;
+  }
+  .df-modal[hidden] { display: none; }
+  .df-modal-card {
+    position: relative; background: #fff; border-radius: 16px; padding: 22px 22px 20px;
+    max-width: 360px; width: 100%; box-shadow: 0 24px 60px rgba(0,0,0,.3);
+    animation: df-pop .18s ease;
+  }
+  @keyframes df-pop { from { opacity: 0; transform: translateY(10px) scale(.97); } to { opacity: 1; transform: none; } }
+  .df-modal-close {
+    position: absolute; top: 10px; right: 12px; appearance: none; border: none; background: transparent;
+    font-size: 22px; line-height: 1; color: var(--muted); cursor: pointer;
+  }
+  .df-modal-close:hover { color: var(--ink); }
+  .df-modal-type {
+    display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: .04em;
+    color: var(--brand); background: var(--brand-soft); padding: 3px 9px; border-radius: 999px; margin-bottom: 8px;
+  }
+  .df-modal-card h3 {
+    margin: 0 0 10px; font-size: 19px; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    color: var(--ink); word-break: break-all;
+  }
+  .df-modal-card p { margin: 0; font-size: 14px; line-height: 1.7; color: #374151; }
+
+  /* ---------- 移动端：上下两行 ---------- */
+  #df-svg-mobile { display: none; }
+  @media (max-width: 480px) {
+    #df-svg-desktop { display: none; }
+    #df-svg-mobile  { display: block; }
+    .df-status { margin-left: 0; width: 100%; text-align: center; }
+    .df-toolbar { justify-content: center; }
+    .df-cols { grid-template-columns: 1fr; }
+  }
+</style>
+
+<div class="dataflow">
+  <h3 class="df-title">Op / Event 数据流可视化器</h3>
+  <p class="df-sub">点击任意节点查看其「发送 / 接收」的 Op 与 EventMsg；或进入「追踪一个请求」模式，看一次 Chat 请求如何穿越四个组件。</p>
+
+  <div class="df-toolbar">
+    <button class="df-btn" id="df-trace">▶ 追踪一个请求</button>
+    <button class="df-btn ghost" id="df-reset">↺ 重置</button>
+    <span class="df-status idle" id="df-status">点击任意节点开始</span>
+  </div>
+
+  <div class="df-stage">
+    <!-- ============ 桌面：四角布局 ============ -->
+    <svg id="df-svg-desktop" class="df-svg" viewBox="0 0 800 560" role="img" aria-label="Op/Event 数据流图">
+      <defs>
+        <marker id="dfArrowD" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+          <path d="M0,0 L8,3 L0,6 Z" fill="#94a3b8"/>
+        </marker>
+        <radialGradient id="dfGradD" cx="35%" cy="35%" r="65%">
+          <stop offset="0%" stop-color="#A7F3D0"/>
+          <stop offset="55%" stop-color="#10B981"/>
+          <stop offset="100%" stop-color="#047857"/>
+        </radialGradient>
+      </defs>
+
+      <!-- 周长链接（数据流动环） -->
+      <path class="link" data-link="link-top"    marker-end="url(#dfArrowD)" d="M320,130 L480,130"/>
+      <path class="link" data-link="link-right"  marker-end="url(#dfArrowD)" d="M580,170 L580,390"/>
+      <path class="link" data-link="link-bottom" marker-end="url(#dfArrowD)" d="M480,430 L320,430"/>
+      <path class="link" data-link="link-left"   marker-end="url(#dfArrowD)" d="M220,390 L220,170"/>
+
+      <!-- 中心协议层 -->
+      <g class="hub">
+        <rect x="320" y="220" width="160" height="120" rx="14"/>
+        <text x="400" y="262" text-anchor="middle" font-size="15" font-weight="700">codex-protocol</text>
+        <text x="400" y="286" text-anchor="middle" class="h-sub">通用语言</text>
+        <text x="400" y="308" text-anchor="middle" class="h-sub">Op / Event</text>
+      </g>
+
+      <!-- 节点 -->
+      <g class="node" data-node="cli">
+        <rect x="120" y="90" width="200" height="80" rx="12"/>
+        <text x="220" y="130" text-anchor="middle" class="n-main">CLI / TUI</text>
+        <text x="220" y="152" text-anchor="middle" class="n-sub">用户输入</text>
+      </g>
+      <g class="node" data-node="appserver">
+        <rect x="480" y="90" width="200" height="80" rx="12"/>
+        <text x="580" y="130" text-anchor="middle" class="n-main">App Server</text>
+        <text x="580" y="152" text-anchor="middle" class="n-sub">编排 / 转发</text>
+      </g>
+      <g class="node" data-node="core">
+        <rect x="480" y="390" width="200" height="80" rx="12"/>
+        <text x="580" y="430" text-anchor="middle" class="n-main">Codex Core</text>
+        <text x="580" y="452" text-anchor="middle" class="n-sub">推理循环</text>
+      </g>
+      <g class="node" data-node="execserver">
+        <rect x="120" y="390" width="200" height="80" rx="12"/>
+        <text x="220" y="430" text-anchor="middle" class="n-main">Exec Server</text>
+        <text x="220" y="452" text-anchor="middle" class="n-sub">沙箱执行</text>
+      </g>
+
+      <circle class="df-dot" r="9" fill="url(#dfGradD)" style="opacity:0"/>
+    </svg>
+
+    <!-- ============ 移动端：上下两行（CLI/AppServer 上，Core/ExecServer 下） ============ -->
+    <svg id="df-svg-mobile" class="df-svg" viewBox="0 0 360 500" role="img" aria-label="Op/Event 数据流图（移动端）">
+      <defs>
+        <marker id="dfArrowM" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+          <path d="M0,0 L8,3 L0,6 Z" fill="#94a3b8"/>
+        </marker>
+        <radialGradient id="dfGradM" cx="35%" cy="35%" r="65%">
+          <stop offset="0%" stop-color="#A7F3D0"/>
+          <stop offset="55%" stop-color="#10B981"/>
+          <stop offset="100%" stop-color="#047857"/>
+        </radialGradient>
+      </defs>
+
+      <path class="link" data-link="link-top"    marker-end="url(#dfArrowM)" d="M170,56 L190,56"/>
+      <path class="link" data-link="link-right"  marker-end="url(#dfArrowM)" d="M265,88 L265,400"/>
+      <path class="link" data-link="link-bottom" marker-end="url(#dfArrowM)" d="M190,432 L170,432"/>
+      <path class="link" data-link="link-left"   marker-end="url(#dfArrowM)" d="M95,400 L95,88"/>
+
+      <g class="hub">
+        <rect x="120" y="200" width="120" height="80" rx="14"/>
+        <text x="180" y="234" text-anchor="middle" font-size="13" font-weight="700">codex-protocol</text>
+        <text x="180" y="254" text-anchor="middle" class="h-sub">Op / Event</text>
+      </g>
+
+      <g class="node" data-node="cli">
+        <rect x="20" y="24" width="150" height="64" rx="11"/>
+        <text x="95" y="56" text-anchor="middle" class="n-main" style="font-size:15px">CLI</text>
+        <text x="95" y="74" text-anchor="middle" class="n-sub">用户输入</text>
+      </g>
+      <g class="node" data-node="appserver">
+        <rect x="190" y="24" width="150" height="64" rx="11"/>
+        <text x="265" y="56" text-anchor="middle" class="n-main" style="font-size:15px">App Server</text>
+        <text x="265" y="74" text-anchor="middle" class="n-sub">编排</text>
+      </g>
+      <g class="node" data-node="core">
+        <rect x="190" y="400" width="150" height="64" rx="11"/>
+        <text x="265" y="432" text-anchor="middle" class="n-main" style="font-size:15px">Core</text>
+        <text x="265" y="450" text-anchor="middle" class="n-sub">推理</text>
+      </g>
+      <g class="node" data-node="execserver">
+        <rect x="20" y="400" width="150" height="64" rx="11"/>
+        <text x="95" y="432" text-anchor="middle" class="n-main" style="font-size:15px">Exec Server</text>
+        <text x="95" y="450" text-anchor="middle" class="n-sub">沙箱</text>
+      </g>
+
+      <circle class="df-dot" r="9" fill="url(#dfGradM)" style="opacity:0"/>
+    </svg>
+  </div>
+
+  <div class="df-legend">
+    <span><i class="df-dot-sm" style="background:#4F46E5"></i>选中 / 发送</span>
+    <span><i class="df-dot-sm" style="background:#10B981"></i>接收 / 数据流</span>
+    <span><i class="df-dot-sm" style="background:#EF4444"></i>错误流</span>
+  </div>
+
+  <div class="df-panel">
+    <div class="df-empty" id="df-empty">尚无选中节点。点击上方示意图中的 CLI / App Server / Codex Core / Exec Server。</div>
+    <div class="df-detail" id="df-detail" hidden>
+      <div class="df-detail-head">
+        <h4 id="df-node-name"></h4>
+        <span class="df-tag" id="df-node-tag"></span>
+      </div>
+      <div class="df-cols">
+        <div class="df-col df-col-send">
+          <div class="df-col-title send">发送 ▸</div>
+          <ul id="df-sends" class="df-list"></ul>
+        </div>
+        <div class="df-col df-col-recv">
+          <div class="df-col-title recv">接收 ◂</div>
+          <ul id="df-receives" class="df-list"></ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Op / Event 详情弹窗 -->
+<div class="df-modal" id="df-modal" hidden>
+  <div class="df-modal-card">
+    <button class="df-modal-close" id="df-modal-close" aria-label="关闭">×</button>
+    <span class="df-modal-type" id="df-modal-type"></span>
+    <h3 id="df-modal-name"></h3>
+    <p id="df-modal-desc"></p>
+  </div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  // ---------- 硬编码数据 ----------
+  var NODES = {
+    cli:        { name: "CLI",          sends: ["Op::Chat","Op::ApproveToolUse","Op::Exit"],                          receives: ["EventMsg::TurnComplete","EventMsg::Error"] },
+    appserver:  { name: "App Server",   sends: ["EventMsg::TurnStarted","EventMsg::TurnComplete","EventMsg::Error"],  receives: ["Op::Chat","Op::ApproveToolUse"] },
+    core:       { name: "Codex Core",   sends: ["Op::Bash","Op::Read","Op::Write","Op::Edit"],                       receives: ["EventMsg::TurnStarted"] },
+    execserver: { name: "Exec Server",  sends: ["EventMsg::Output","EventMsg::Result"],                              receives: ["Op::Bash","Op::Read","Op::Write","Op::Edit"] }
+  };
+
+  var DETAILS = {
+    "Op::Chat":            { type: "Op（操作请求）", desc: "用户通过 CLI 发起的一轮对话 / 任务请求，是整个数据流的起点。" },
+    "Op::ApproveToolUse":  { type: "Op（操作请求）", desc: "用户对某个工具调用（如 Bash / Write）的批准信号。App Server 收到后放行 Core 在沙箱中的工具执行。" },
+    "Op::Exit":            { type: "Op（操作请求）", desc: "用户请求退出会话，CLI 广播给 App Server 以结束当前 Turn。" },
+    "EventMsg::TurnStarted":   { type: "EventMsg（事件消息）", desc: "一个 Turn 开始，由 App Server 下发到 Core，标志着模型推理循环启动。" },
+    "EventMsg::TurnComplete": { type: "EventMsg（事件消息）", desc: "一个 Turn 正常结束，App Server 将其回传给 CLI 用于渲染完成情况。" },
+    "EventMsg::Error":         { type: "EventMsg（事件消息）", desc: "执行或通信过程中发生错误，沿链路向上冒泡到 CLI 进行展示（错误流）。" },
+    "Op::Bash":  { type: "Op（操作请求）", desc: "Core 请求在沙箱中执行一条 shell 命令，发往 Exec Server。" },
+    "Op::Read":  { type: "Op（操作请求）", desc: "Core 请求读取文件内容，由 Exec Server 在沙箱内完成。" },
+    "Op::Write": { type: "Op（操作请求）", desc: "Core 请求写入 / 创建文件，由 Exec Server 在沙箱内完成。" },
+    "Op::Edit":  { type: "Op（操作请求）", desc: "Core 请求对文件做局部编辑（diff 式），由 Exec Server 在沙箱内完成。" },
+    "EventMsg::Output": { type: "EventMsg（事件消息）", desc: "Exec Server 流式回传的工具执行输出（stdout / stderr 片段）。" },
+    "EventMsg::Result": { type: "EventMsg（事件消息）", desc: "Exec Server 返回某次工具调用的完整结果，回到 Core 进入下一轮推理。" }
+  };
+
+  // 追踪路径：CLI→AppServer→Core→ExecServer→Core→AppServer→CLI（一次完整请求-响应生命周期）
+  var LEGS = [
+    { from: "cli",       to: "appserver",  link: "link-top",    dir: "fwd",  stage: "阶段 1/6 · CLI 发送 Op::Chat → App Server" },
+    { from: "appserver", to: "core",       link: "link-right",  dir: "fwd",  stage: "阶段 2/6 · App Server 将请求交给 Codex Core" },
+    { from: "core",      to: "execserver", link: "link-bottom", dir: "fwd",  stage: "阶段 3/6 · Core 发出 Op::Bash/Read/Write/Edit → Exec Server" },
+    { from: "execserver",to: "core",       link: "link-bottom", dir: "rev",  stage: "阶段 4/6 · Exec Server 返回 EventMsg::Result → Core" },
+    { from: "core",      to: "appserver",  link: "link-right",  dir: "rev",  stage: "阶段 5/6 · Core 产出 EventMsg::TurnComplete → App Server" },
+    { from: "appserver", to: "cli",        link: "link-top",    dir: "rev",  stage: "阶段 6/6 · App Server 把最终结果回传 CLI" }
+  ];
+
+  // ---------- 工具函数 ----------
+  function $(sel) { return document.querySelector(sel); }
+  function $all(sel) { return Array.prototype.slice.call(document.querySelectorAll(sel)); }
+
+  function activeSvg() {
+    var m = $("#df-svg-mobile");
+    if (m.getBoundingClientRect().width > 0) return m;
+    return $("#df-svg-desktop");
+  }
+
+  // ---------- 节点选择 ----------
+  function selectNode(key) {
+    if (tracing) stopTrace();
+    var node = NODES[key];
+    if (!node) return;
+    $all(".dataflow .node").forEach(function (n) {
+      var k = n.getAttribute("data-node");
+      n.classList.toggle("active", k === key);
+      n.classList.toggle("dim", k !== key);
+    });
+    $all(".dataflow [data-link]").forEach(function (l) { l.classList.remove("lit"); });
+
+    $("#df-empty").hidden = true;
+    $("#df-detail").hidden = false;
+    $("#df-node-name").textContent = node.name;
+    $("#df-node-tag").textContent = key;
+    renderList("#df-sends", node.sends);
+    renderList("#df-receives", node.receives);
+    setStatus("已选中：" + node.name, false);
+  }
+
+  function renderList(sel, items) {
+    var ul = $(sel);
+    ul.innerHTML = "";
+    var isRecv = sel.indexOf("receives") !== -1;
+    items.forEach(function (name) {
+      var li = document.createElement("li");
+      var b = document.createElement("button");
+      b.className = "df-chip";
+      if (!isRecv && /::Error$/.test(name)) b.classList.add("err");
+      b.textContent = name;
+      b.setAttribute("data-op", name);
+      b.addEventListener("click", function () { openModal(name); });
+      li.appendChild(b);
+      ul.appendChild(li);
+    });
+  }
+
+  // ---------- 弹窗 ----------
+  function openModal(name) {
+    var d = DETAILS[name] || { type: "未知类型", desc: "暂无说明。" };
+    $("#df-modal-type").textContent = d.type;
+    $("#df-modal-name").textContent = name;
+    $("#df-modal-desc").textContent = d.desc;
+    $("#df-modal").hidden = false;
+  }
+  function closeModal() { $("#df-modal").hidden = true; }
+
+  // ---------- 状态条 ----------
+  function setStatus(text, idle) {
+    var s = $("#df-status");
+    s.textContent = text;
+    s.classList.toggle("idle", !!idle);
+  }
+
+  // ---------- 追踪模式 ----------
+  var tracing = false, rafId = null, traceTimer = null;
+
+  function startTrace() {
+    if (tracing) { stopTrace(); return; }
+    tracing = true;
+    $("#df-trace").textContent = "⏸ 停止追踪";
+    $("#df-trace").classList.add("ghost");
+    clearSelection();
+    runLeg(0);
+  }
+
+  function stopTrace() {
+    tracing = false;
+    if (rafId) cancelAnimationFrame(rafId);
+    if (traceTimer) clearTimeout(traceTimer);
+    rafId = traceTimer = null;
+    $("#df-trace").textContent = "▶ 追踪一个请求";
+    $("#df-trace").classList.remove("ghost");
+    resetVisual();
+    setStatus("追踪结束 · 点击节点查看细节", true);
+  }
+
+  function runLeg(i) {
+    if (!tracing) return;
+    if (i >= LEGS.length) {
+      traceTimer = setTimeout(function () { runLeg(0); }, 800); // 循环演示
+      return;
+    }
+    var leg = LEGS[i];
+    var svg = activeSvg();
+    var path = svg.querySelector('[data-link="' + leg.link + '"]');
+    var dot = svg.querySelector(".df-dot");
+    if (!path || !dot) { traceTimer = setTimeout(function () { runLeg(i + 1); }, 100); return; }
+
+    highlight(svg, leg);
+    setStatus(leg.stage, false);
+    dot.style.opacity = 1;
+
+    var L = path.getTotalLength();
+    var dur = 1100, start = null;
+    function frame(ts) {
+      if (!tracing) return;
+      if (start === null) start = ts;
+      var t = (ts - start) / dur;
+      if (t > 1) t = 1;
+      var len = leg.dir === "fwd" ? t * L : L - t * L;
+      var pt = path.getPointAtLength(len);
+      dot.setAttribute("cx", pt.x);
+      dot.setAttribute("cy", pt.y);
+      if (t < 1) {
+        rafId = requestAnimationFrame(frame);
+      } else {
+        traceTimer = setTimeout(function () { runLeg(i + 1); }, 350);
+      }
+    }
+    rafId = requestAnimationFrame(frame);
+  }
+
+  function highlight(svg, leg) {
+    $all(".dataflow .node").forEach(function (n) { n.classList.remove("active", "dim"); });
+    var fn = svg.querySelector('[data-node="' + leg.from + '"]');
+    var tn = svg.querySelector('[data-node="' + leg.to + '"]');
+    if (fn) fn.classList.add("active");
+    if (tn) tn.classList.add("active");
+    $all(".dataflow [data-link]").forEach(function (l) { l.classList.remove("lit"); });
+    var link = svg.querySelector('[data-link="' + leg.link + '"]');
+    if (link) link.classList.add("lit");
+  }
+
+  function resetVisual() {
+    $all(".dataflow .node").forEach(function (n) { n.classList.remove("active", "dim"); });
+    $all(".dataflow [data-link]").forEach(function (l) { l.classList.remove("lit"); });
+    $all(".dataflow .df-dot").forEach(function (d) { d.style.opacity = 0; });
+  }
+
+  function clearSelection() {
+    $("#df-empty").hidden = false;
+    $("#df-detail").hidden = true;
+    resetVisual();
+  }
+
+  // ---------- 事件绑定 ----------
+  $all(".dataflow .node").forEach(function (n) {
+    n.addEventListener("click", function () {
+      selectNode(n.getAttribute("data-node"));
+    });
+  });
+
+  $("#df-trace").addEventListener("click", startTrace);
+  $("#df-reset").addEventListener("click", function () {
+    if (tracing) stopTrace();
+    clearSelection();
+    setStatus("点击任意节点开始", true);
+  });
+
+  $("#df-modal-close").addEventListener("click", closeModal);
+  $("#df-modal").addEventListener("click", function (e) {
+    if (e.target === this) closeModal();
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape") closeModal();
+  });
+
+  setStatus("点击任意节点开始", true);
+})();
+</script>
