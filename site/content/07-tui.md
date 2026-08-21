@@ -22,7 +22,7 @@ use codex_tui::UpdateAction;
 ```
 
 - `TuiCli`：TUI 这一侧的 CLI 参数（颜色、是否交互等）。
-- `UpdateAction`：界面内部一次"状态更新"的动作——可以想象成 TUI 自己的 reducer action。
+- `UpdateAction`：界面内部一次"状态更新"的动作——相当于 TUI 自己的 reducer action。
 - `AppExitInfo` / `ExitReason`：退出时带回的信息（正常退出？被中断？错误？）。
 
 ## 7.2 "纯函数视图"意味着什么

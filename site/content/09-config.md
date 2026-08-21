@@ -19,8 +19,6 @@ use codex_core::config::load_config_toml_with_layer_stack;
 use codex_core::config::resolve_profile_v2_config_path;
 ```
 
-挑几个说说它们是干嘛的：
-
 - `find_codex_home`：定位 Codex 的配置主目录（`~/.codex` 之类）。
 - `load_config_toml_with_layer_stack`：**分层加载**——系统默认、用户全局、项目级、命令行覆盖，一层层叠上去。
 - `resolve_profile_v2_config_path`：Codex 支持"profile"（不同场景用不同配置），这个函数把当前 profile 解析成具体文件路径。

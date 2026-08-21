@@ -1,6 +1,6 @@
 # 第 3 章：codex-core 的公共 API
 
-`codex-core` 对外的公共面小得出奇：两个方法、两个类型。先握住它，再去看 `run_turn` 那种几百行的主循环才不至于劝退。
+`codex-core` 对外的公共面小得出奇：只有两个方法、两个类型。先抓住这两个，再看 `run_turn` 那种几百行的主循环，脉络就清楚。
 
 核心类型是 `CodexThread`，定义在 `core/src/codex_thread.rs`，它把"和智能体对话"抽象成一对极简操作：
 
@@ -63,7 +63,7 @@ pub struct Event {
 }
 ```
 
-`EventMsg` 是整本 guide 里最重要的枚举之一，它几乎刻画了"用 Codex 时你眼睛看到的所有变化"：
+`EventMsg` 几乎刻画了你用 Codex 时眼睛能看到的所有界面变化：
 
 ```rust
 // protocol/src/protocol.rs:1288（节选）

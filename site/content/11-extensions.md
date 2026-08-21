@@ -46,7 +46,7 @@ fi
 
 - **prompt（系统提示词）**是写死的、通用的背景说明；Skill 是按需、可点名加载的一段专门指令。
 - **tool** 是模型可调用的确定性函数（有输入输出 schema）；Skill 不是函数，而是一段被拼进上下文的提示词，用来改变模型的意图与做法，本身不执行副作用。
-- 简单说：tool 给模型"手"，skill 给模型"心法"。两者可以配合——skill 的 `SkillToolDependency` 还能声明它要靠哪个 MCP 工具完成工作。
+- tool 给模型"手"，skill 给模型"心法"。两者可以配合——skill 的 `SkillToolDependency` 还能声明它要靠哪个 MCP 工具完成工作。
 
 Skill 的 `SKILL.md` frontmatter 由 `parse_skill_frontmatter_metadata` 解析校验（`skills/src/parser.rs:44`），产出 `ParsedSkillFrontmatter`（`skills/src/parser.rs:24`）；非法 YAML 还会尝试逐行修复。
 
@@ -92,7 +92,7 @@ metadata:
 - **apps**：插件的 slash 命令 / 应用入口（即用户 `@` 提到的 connector）；
 - **hooks**：插件的事件钩子。
 
-加载完成后，会话对每个插件生成一个能力摘要 `PluginCapabilitySummary`，字段直接列出了 `has_skills` 与 `mcp_server_names`，见 `plugin/src/lib.rs:49`。注意它把 skill、MCP、app 统一收进一个摘要——这正是"打包分发"在数据上的体现。
+加载完成后，会话对每个插件生成一个能力摘要 `PluginCapabilitySummary`，字段直接列出了 `has_skills` 与 `mcp_server_names`，见 `plugin/src/lib.rs:49`。它把 skill、MCP、app 统一收进一个摘要——这正是"打包分发"在数据上的体现。
 
 插件内容由一份 manifest 描述。解析结果是泛型模型 `PluginManifest<Resource>`，其中真正决定"装了什么"的是 `PluginManifestPaths`（`plugin/src/manifest.rs:18`）：
 

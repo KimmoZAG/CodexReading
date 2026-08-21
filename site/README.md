@@ -1,6 +1,6 @@
 # Codex 阅读指南（静态站点）
 
-这是一个**无构建步骤**的静态阅读站，用于导读 OpenAI 的 `codex-rs` 仓库。内容是一份由浅入深的源码导读（11 篇），并附带一个可交互的 crate 地图。
+这是一个**无构建步骤**的静态阅读站，用于导读 OpenAI 的 `codex-rs` 仓库。内容是一份源码导读，并附带一个可交互的 crate 地图。
 
 ## 本地预览
 
@@ -10,21 +10,17 @@ python3 -m http.server 8080
 # 浏览器打开 http://localhost:8080
 ```
 
-> 必须通过 HTTP 访问（GitHub Pages / 本地静态服务器），不能直接 `file://` 双击打开——章节和 crate 索引是通过 `fetch` 加载的。
+站点通过 `fetch` 加载章节和 crate 索引，所以必须经 HTTP 访问，不能直接 `file://` 双击打开。
+
+如果你只是想离线看，仓库里另提供了 `dist/` 目录，里面是打包好的单文件版，直接双击即可打开，无需起服务器。
 
 ## 部署到 GitHub Pages
 
-两种方式任选其一：
+仓库已配好 Actions 工作流：push 到 `main` 分支就会自动构建并部署。
 
-**方式 A：把 `site/` 作为 Pages 根目录**
-1. 把 `site/` 目录下的所有文件推到某个分支（例如 `gh-pages`）；
-2. 仓库 Settings → Pages → Source 选该分支、根目录（`/`）；
-3. 等待构建，访问 `https://<user>.github.io/<repo>/`。
+线上地址：`https://kimmozag.github.io/CodexReading/`
 
-**方式 B：作为仓库子目录**
-如果你希望站点放在主仓库里，可以在 Pages 设置里选择 "Deploy from a folder" 并指定 `site/` 文件夹。
-
-`.nojekyll` 已包含，避免 GitHub 把 `css/`、`js/` 当成 Jekyll 特殊处理。
+不需要手动操作 Pages 设置。`.nojekyll` 已包含，避免 GitHub 把 `css/`、`js/` 当成 Jekyll 特殊处理。
 
 ## 目录结构
 
@@ -67,5 +63,3 @@ site/
 - **仓库地图**：可搜索的 crate 地图（141 个 crate，核心 crate 高亮）。
 - **无障碍（a11y）**：合理使用 `aria-*` 属性，并提供 `focus-visible` 焦点样式。
 - **性能优化**：对 CDN 设置 `preconnect` 预连接，第三方脚本与 `app.js` 均 `defer` 加载。
-
-> 本地预览与 GitHub Pages 部署方式见上文「本地预览」「部署到 GitHub Pages」两节，无需构建步骤。

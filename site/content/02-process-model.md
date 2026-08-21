@@ -27,7 +27,7 @@ enum Subcommand {
 }
 ```
 
-关键点：**不写子命令时，参数会直接转交给交互式 CLI**（看 `subcommand_negates_reqs` 和 `override_usage` 里的说明注释）。`codex "帮我改下登录页"` 和 `codex exec "..."` 走的是两条不同的路，底层最终都汇聚到 `codex-core`。
+不写子命令时，参数会直接转交给交互式 CLI（见 `subcommand_negates_reqs` 和 `override_usage` 里的说明注释）。`codex "帮我改下登录页"` 和 `codex exec "..."` 走的是两条不同的路，底层最终都汇聚到 `codex-core`。
 
 ## 2.2 三进程协作：cli / app-server / exec-server
 

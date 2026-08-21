@@ -1,8 +1,8 @@
 # 第 13 章：工程化——鉴权、错误处理、测试、构建与分发
 
-这章换工程视角：最高危的密钥怎么管、出错怎么优雅降级、这么大的仓库怎么保证不崩、又怎么构建和装到你机器上。这几件事撑起了"能放心交付"的底线。
+这章换工程视角：最高危的密钥怎么管、出错怎么优雅降级、这么大的仓库怎么保证不崩、又怎么构建和装到你机器上。
 
-先放一张全局架构图，方便把鉴权、错误处理、测试、构建这些工程子系统对准到各自的进程与 crate 上：
+先放一张全局架构图，把鉴权、错误处理、测试、构建这些工程子系统对准到各自的进程与 crate 上：
 
 ![](assets/diagrams/overview.svg)
 
@@ -16,7 +16,7 @@ Codex 同时存在两条登录路径。交互式登录走 OAuth device code 流�
 
 拿到 token 后，`persist_tokens_async` 写入 `CODEX_HOME/auth.json`（`login/src/server.rs:886`）；其结构由 `AuthDotJson` 定义，包含 `openai_api_key`、`tokens`、`personal_access_token` 等字段（`login/src/auth/storage.rs:40`）。`CODEX_HOME` 本身由 `find_codex_home` 决定，默认 `~/.codex`，可被同名环境变量覆盖（`core/src/config/mod.rs:4625`）。启用 secret storage 时还会尝试写入系统 keyring，落盘 `auth.json` 只是兜底（`login/src/auth/storage.rs:151`）。登出时则走 `logout_with_revoke`：先吊销服务端 refresh token，再删除本地 `auth.json`，避免"服务端还有效、本地已删"的悬空状态（`login/src/lib.rs:59`）。
 
-在完整 `Config` 就绪前，cli 通过 `bootstrap_auth_config` 用本地 bootstrap 配置先拼出 `AuthConfig`（`core/src/config/auth_keyring.rs:39`）。这套配置呼应第 9 章的配置解析：鉴权是配置最早被消费的部分之一。`AuthManager` 是 `auth.json` 派生的唯一真相源（`login/src/auth/manager.rs:1991`），它对外提供当前有效的 token/key。第 12 章的模型客户端正是从这里取凭证，把它塞进通往模型网关的 HTTP 头——也就是说，鉴权不是"模型客户端自己想办法"，而是上游统一签发、下游只消费。
+在完整 `Config` 就绪前，cli 通过 `bootstrap_auth_config` 用本地 bootstrap 配置先拼出 `AuthConfig`（`core/src/config/auth_keyring.rs:39`）。这套配置呼应第 9 章的配置解析：鉴权是配置最早被消费的部分之一。`AuthManager` 是 `auth.json` 派生的唯一真相源（`login/src/auth/manager.rs:1991`），它对外提供当前有效的 token/key。第 12 章的模型客户端正是从这里取凭证，塞进通往模型网关的 HTTP 头——鉴权不是"模型客户端自己想办法"，而是上游统一签发、下游只消费。
 
 鉴权链可概括为四步：**登录签发**（`request_device_code`/`login_with_api_key`）→ **本地落盘**（`auth.json`）→ **启动组装**（`bootstrap_auth_config`）→ **注入客户端**（`AuthManager` 供模型客户端取用）。把最高危的密钥交给单一可信模块管理，正是 Codex 守住信任边界的方式。
 
@@ -72,7 +72,7 @@ Codex 的测试不是"越多越好"，而是"分层对位"：单元测试守住�
 
 ## 13.4 构建系统：cargo 之外为什么还有 bazel
 
-Codex 的 Rust 代码同时活在两套构建系统里。日常你跑 `cargo build`，而 CI 与发布却走 `bazel`。这不是重复劳动，而是同一个 cargo workspace 被两双眼睛看着：一套给开发者，一套给流水线。
+Codex 的 Rust 代码同时活在两套构建系统里。日常你跑 `cargo build`，CI 与发布却走 `bazel`。Cargo 与 bazel 看的是同一份 cargo workspace：一套给开发者，一套给流水线。
 
 cargo 是事实上的入口：`codex-rs/Cargo.toml` 的 `[workspace]` 段以 `members = [` 列出上百个 crate（`Cargo.toml:2`），`resolver = "2"`（`Cargo.toml:138`）开启新版特性解析。所有 crate 统一继承 `[workspace.package]` 里的 `edition = "2024"`（`Cargo.toml:146`）。bazel 并不另写一份构建描述，而是复用这份 Cargo.toml：`MODULE.bazel:269` 的 `crate.from_cargo(cargo_lock = "//codex-rs:Cargo.lock", cargo_toml = "//codex-rs:Cargo.toml", ...)` 直接读取同一份 manifest 与 lockfile，生成 bazel 侧的 crate 目标。
 
@@ -94,4 +94,4 @@ bazel 解决的是可重现构建：用 hermetic action 与内容寻址缓存，
 
 ## 13.6 小结
 
-工程化这几块看着散，但都围着"可信、可测、可交付"：鉴权把最高危的密钥收进单一模块（13.1），错误处理把跨 crate 的失败统一成可重试/终态的 `CodexErr` 并降级为 `EventMsg::Error`（13.2），分层测试守住"这次改动凭什么不崩"（13.3），cargo/bazel 双构建系统兼顾写代码爽和造得稳（13.4），而脚本+元数据模型让安装与自更新保持幂等（13.5）。读到这，你对 Codex 从源码到用户机器的全链路就有谱了。
+工程化这几块看着散，但都围着"可信、可测、可交付"：鉴权把最高危的密钥收进单一模块（13.1），错误处理把跨 crate 的失败统一成可重试/终态的 `CodexErr` 并降级为 `EventMsg::Error`（13.2），分层测试守住"这次改动凭什么不崩"（13.3），cargo/bazel 双构建系统兼顾写代码爽和造得稳（13.4），而脚本+元数据模型让安装与自更新保持幂等（13.5）。

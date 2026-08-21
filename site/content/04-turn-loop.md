@@ -34,7 +34,7 @@ pub(crate) async fn run_turn(
 
 ## 4.2 循环骨架
 
-真实代码里这一圈被拆成了 `run_sampling_request`（同文件 `:1340` 附近）之类的内部函数。先看图建立直觉：
+真实代码里这一圈被拆成了 `run_sampling_request`（同文件 `:1340` 附近）之类的内部函数。先看图：
 
 ![](assets/diagrams/turn-loop.svg)
 

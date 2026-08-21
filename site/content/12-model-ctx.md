@@ -1,12 +1,12 @@
 # 第 12 章：模型与上下文——怎么跟模型对话、怎么不爆 token、怎么重演
 
-这章把"模型吐字"这个黑盒拆开：客户端怎么把 HTTP 流变成内部 item、会话太长时怎么压缩、一次会话怎么被存下来重演。这三件事都围着同一个主题——**上下文怎么进、怎么被压、怎么被留痕**。
+这章把"模型吐字"这个黑盒拆开：客户端怎么把 HTTP 流变成内部 item、会话太长时怎么压缩、一次会话怎么被存下来重演。
 
 ## 12.1 模型客户端：流式响应怎么变成内部 item
 
 Codex 走的是 OpenAI 的 **Responses API**，并且默认开启 **SSE 流式**（`stream: true`，见 `core/src/client.rs:933`）。一次"turn"不是等模型整段生成完再返回，而是服务端通过 HTTP 长连接按事件一块块地把 `ResponseEvent` 推过来。更底层 `codex-client` 把字节流转成 UTF-8 的 SSE `data:` 帧：`codex-client/src/sse.rs:12` 的 `sse_stream` 用 `eventsource()` 把 `ByteStream` 逐帧解析，并通过 `mpsc` 把每帧文本或 `StreamError` 发出来（`sse.rs:23` 的 `timeout(idle_timeout, …)` 还顺带做了空闲超时）。`codex-client/src/lib.rs:12` 则把 `CodexHttpClient` 重新导出，作为统一的底层 HTTP 封装。
 
-客户端入口在 `core/src/client.rs`。`ModelClientSession::stream`（`client.rs:1861`）是"turn 作用域"的流式入口：它先看 wire_api，若 provider 支持且 WebSocket 健康就走 `stream_responses_websocket`，否则回退到 `stream_responses_api`（`client.rs:1899`）。注意它有明确的降级路径——WS 失败会 `try_switch_fallback_transport` 强制切到 HTTP（`client.rs:1894`）。
+客户端入口在 `core/src/client.rs`。`ModelClientSession::stream`（`client.rs:1861`）是"turn 作用域"的流式入口：它先看 wire_api，若 provider 支持且 WebSocket 健康就走 `stream_responses_websocket`，否则回退到 `stream_responses_api`（`client.rs:1899`）。它有明确的降级路径——WS 失败会 `try_switch_fallback_transport` 强制切到 HTTP（`client.rs:1894`）。
 
 真正的 HTTP 流式请求在 `stream_responses_api`（`client.rs:1440`）：它构造 transport、组装 request，再调用 `ApiResponsesClient::stream_request`（`client.rs:1513`），拿到 `codex_api::ResponseStream` 后包一层 `map_response_stream` 返回。
 
@@ -24,8 +24,6 @@ Codex 走的是 OpenAI 的 **Responses API**，并且默认开启 **SSE 流式**
 
 整条链路是 **channel + spawn** 的异步流水线：底层 `sse_stream` 把字节帧塞进 channel → `ApiResponsesClient` 把 SSE 文本反序列化成 `ResponseEvent` → `map_response_events` 再转发到自己的 `tx_event`（`client.rs:2056`）→ `run_turn` 在 `while let Some(event) = stream.next()` 里逐个 `emit` 成 UI / 协议事件（如 `turn.rs:2653` 的 `ReasoningContentDeltaEvent`）。每一块 delta 都是"收到即 emit"，所以界面上文字是边生成边刷新的。
 
-上面这条链路画成图更直观：模型响应从 SSE 字节帧一路被翻译成 world_state 里的 item，再回流给 UI 与协议层。
-
 ![](assets/diagrams/dataflow.svg)
 
 图：模型响应回流链路（dataflow）——从 SSE 帧到内部 item。
@@ -37,7 +35,7 @@ Codex 走的是 OpenAI 的 **Responses API**，并且默认开启 **SSE 流式**
 
 ## 12.2 上下文压缩：长会话怎么不爆 token
 
-第 4 章里我们看了 `run_turn` 是怎么"想一步、做一步"的。它每一次采样都把整段对话历史塞进 prompt；但历史不是无限的——模型有上下文窗口，token 越多越贵，也越容易把前面的指令稀释掉。
+第 4 章里 `run_turn` 是怎么"想一步、做一步"的。它每一次采样都把整段对话历史塞进 prompt；但历史不是无限的——模型有上下文窗口，token 越多越贵，也越容易把前面的指令稀释掉。
 
 压缩不在回合结束后，而在 `run_turn` 进主循环**之前**。第 4 章讲过，`run_turn` 开头先 drain 上一轮的 hook 结果，紧接着就调用 `run_pre_sampling_compact`（`core/src/session/turn.rs:169`）：
 
@@ -60,7 +58,7 @@ if let Err(err) = run_pre_sampling_compact(
 
 压缩本身也是一个会失败的异步任务。`run_compact_task_inner`（`compact.rs:169`）里：若 pre-compact hook 返回 `Stopped`，或 post-compact hook 中止，都直接 `return Err(CodexErr::TurnAborted)`（`compact.rs:193`、`:226`）。这个 `TurnAborted` 正是第 4 章讲过的终态之一——它会一路冒泡回 `run_turn:177`，让整个 turn 以 `TurnAborted` 收尾，而不是带着损坏的历史继续采样。
 
-压缩就是 `run_turn` 进循环前的"瘦身"步骤：它保证后面那套"想一步、做一步"的循环始终跑在预算之内。
+压缩是 `run_turn` 进循环前的"瘦身"步骤，保证后续循环始终跑在预算之内。
 
 ## 12.3 Rollout 与回放：一次会话怎么被存下来重演
 
@@ -76,6 +74,6 @@ Codex 的每一次交互就是一条"事件流"：模型吐出的 token、工具
 
 ## 12.4 小结
 
-模型与上下文这三条线，最后都汇到同一个 `EventMsg` 上：客户端把它从 SSE 流里翻译出来（12.1），压缩保证它始终跑在预算内（12.2），rollout 把它原样存下、又能重放（12.3）。理解了这章，再看第 4 章的 `run_turn` 如何消费 item、第 7 章的 TUI 如何渲染事件，就完整串起来了。
+模型与上下文这三条线，都汇到同一个 `EventMsg` 上：客户端把它从 SSE 流里翻译出来（12.1），压缩保证它始终跑在预算内（12.2），rollout 把它原样存下、又能重放（12.3）。
 
 下一章看工程化：测试、构建、安装、鉴权、错误处理。

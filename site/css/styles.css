@@ -298,21 +298,23 @@ body {
   background: linear-gradient(90deg, var(--accent-soft), color-mix(in srgb, var(--accent-soft) 45%, transparent) 60%, transparent);
   border-radius: 0 12px 12px 0; color: var(--text-soft);
 }
-/* ② 代码块质感：行内 code 微调圆角与 accent 淡边框；
-   pre 用 accent 淡染细边框 + 更舒展的内边距/行高，保留阴影与定位（复制按钮参照）。 */
+/* ② 代码块质感：行内 code 用极淡的 accent 染底（圆角、无边框，像一枚小药丸），
+   与下方"带边框的块级代码框"在观感上明显区分开；pre 用 accent 淡染细边框 +
+   约 16px 内边距 + 圆角，保留阴影与定位（复制按钮参照），长行横向滚动。 */
 .markdown code {
   font-family: var(--mono); font-size: .9em;
-  background: var(--code-bg); padding: .18em 6px; border-radius: 6px;
-  border: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
+  background: color-mix(in srgb, var(--accent) 9%, var(--code-bg));
+  padding: .2em 6px; border-radius: 6px;
 }
 .markdown pre {
   position: relative;                       /* 作为复制按钮的绝对定位参照 */
   background: var(--code-bg);
   border: 1px solid color-mix(in srgb, var(--border) 75%, var(--accent) 25%);
-  border-radius: 12px; padding: 18px 20px; overflow-x: auto; margin: 18px 0;
+  border-radius: 12px; padding: 16px; overflow-x: auto; margin: 18px 0;
   box-shadow: var(--shadow);
 }
 .markdown pre code {
+  font-family: var(--mono);
   background: none; border: none; padding: 0; font-size: 13px;
   line-height: 1.65; letter-spacing: .1px; tab-size: 2;
 }
@@ -473,8 +475,14 @@ html[data-theme="dark"] .markdown img {
 }
 .page-toc-chev { transition: transform .2s; }
 .page-toc.collapsed .page-toc-chev { transform: rotate(-90deg); }
-.page-toc.collapsed .page-toc-list { display: none; }
-.page-toc-list { display: flex; flex-direction: column; gap: 1px; }
+/* 折叠态：列表高度收为 0（而非 display:none），从而可平滑过渡展开/收起 */
+.page-toc.collapsed .page-toc-list { max-height: 0; opacity: 0; overflow: hidden; }
+.page-toc-list {
+  display: flex; flex-direction: column; gap: 1px;
+  overflow-y: auto;                 /* 长目录内部滚动，不撑破卡片 */
+  max-height: 42vh;                 /* 展开态高度上限，配合 .collapsed 做过渡 */
+  transition: max-height .25s ease, opacity .2s ease;
+}
 .page-toc-link {
   display: block; text-decoration: none; color: var(--text-soft);
   padding: 5px 8px; border-radius: 8px; border-left: 2px solid transparent;
@@ -546,7 +554,8 @@ html[data-theme="dark"] .markdown img {
     padding: 14px;
   }
   .page-toc-toggle { display: none; }     /* 大屏常开，隐藏折叠按钮 */
-  .page-toc.collapsed .page-toc-list { display: flex; }
+  .page-toc-list { max-height: none; }    /* 大屏目录随卡片滚动，不限高 */
+  .page-toc.collapsed .page-toc-list { max-height: none; opacity: 1; overflow: visible; }
 }
 
 /* 窄屏：侧边栏变成从左滑出的抽屉。默认整体移出视口（translateX(-100%)），
@@ -565,7 +574,7 @@ html[data-theme="dark"] .markdown img {
     overflow-y: auto;
     border-right: 1px solid var(--border);
     transform: translateX(-100%);
-    transition: transform .26s ease;
+    transition: transform .25s ease;
   }
   .sidebar.open { transform: translateX(0); box-shadow: var(--shadow); }
 
@@ -595,8 +604,9 @@ html[data-theme="dark"] .markdown img {
     max-height: 60vh;
   }
   .page-toc-toggle { display: flex; }
+  /* 折叠态：仅留紧凑的「本页目录」小条（右下角），不挡正文；
+     展开/收起由 .page-toc-list 的 max-height 过渡完成，见上方基础规则 */
   .page-toc.collapsed { max-height: none; }
-  .page-toc.collapsed .page-toc-list { display: none; }
 
   /* 移动端改到左下角，避免与本页目录浮层（右下角）重叠挡住内容 */
   #back-to-top { bottom: 16px; left: 16px; right: auto; }
@@ -835,8 +845,8 @@ html[data-theme="dark"] .core-badge {
   .page-toc-toggle { font-size: 12.5px; padding-bottom: 6px; }
   /* 回到顶部：略缩小、固定在左下角，不与右下目录重叠 */
   #back-to-top { bottom: 12px; left: 12px; width: 40px; height: 40px; font-size: 18px; }
-  /* 宽表格在窄屏可横向滚动，避免撑破页面 */
-  .markdown table { display: block; overflow-x: auto; white-space: nowrap; }
+  /* 宽表格在窄屏可横向滚动，避免撑破页面；小圆角让滚动容器更柔和 */
+  .markdown table { display: block; overflow-x: auto; white-space: nowrap; border-radius: 8px; }
   .markdown th, .markdown td { padding: 8px 10px; }
   /* 搜索 / 帮助浮层在超窄屏更贴边、输入字号 16px（避免 iOS 自动放大） */
   .full-search-card { width: 96vw; }
@@ -847,6 +857,86 @@ html[data-theme="dark"] .core-badge {
   .crate-card { padding: 14px; }
   .repo-grid { grid-template-columns: 1fr; }   /* 单列，避免卡片过窄 */
 }
+
+/* ---------- 触屏优化（hover: none 设备） ----------
+   仅在「无法悬停」的触屏上生效，桌面端 hover 体验完全不变。
+   ① 中和易在触屏上「粘住」的 hover 位移/底色/描边，改由 :active 提供按压反馈；
+   ② 给可点元素补 ~40px 最小点按高度，拇指好按；
+   ③ :active 轻微收缩，给出明确的触控确认。 */
+@media (hover: none) {
+  /* 关闭触屏上会残留的 hover 视觉（位移 / 底色 / 描边） */
+  .toc a:hover { background: transparent; color: var(--text-soft); }
+  .crate-card:hover {
+    transform: none; box-shadow: none;
+    background: var(--panel); border-color: var(--border);
+  }
+  .chap-nav-link:hover {
+    transform: none; box-shadow: none;
+    background: var(--panel); border-color: var(--border); color: var(--text-soft);
+  }
+  .copy-btn:hover {
+    opacity: .55; color: var(--text-soft);
+    background: color-mix(in srgb, var(--panel) 82%, transparent);
+    border-color: var(--border); transform: none; box-shadow: none;
+  }
+  .theme-toggle:hover { color: var(--text-soft); }
+  .full-search-btn:hover { color: var(--text-soft); border-color: var(--border); }
+  .menu-toggle:hover { color: var(--text-soft); }
+  .ext-link:hover { color: var(--text-faint); }
+  .markdown a:hover { background: transparent; border-bottom-color: color-mix(in srgb, var(--accent) 35%, transparent); }
+  .markdown a.cite:hover { background: transparent; border-bottom-color: color-mix(in srgb, var(--accent) 40%, transparent); }
+  .page-toc-link:hover { background: transparent; color: var(--text-soft); }
+  #back-to-top:hover { color: var(--text); background: color-mix(in srgb, var(--panel) 80%, transparent); border-color: var(--border); }
+  .fs-item:hover { background: transparent; border-color: transparent; }
+  .copy-link-btn:hover { opacity: .6; color: var(--text-faint); border-color: var(--border); background: transparent; }
+  .fs-close:hover { color: var(--text-soft); }
+
+  /* 点按最小高度 ~40px，拇指友好；去掉 iOS 点击灰块 */
+  .toc a,
+  .page-toc-link,
+  .crate-card a,
+  .theme-toggle,
+  .full-search-btn,
+  .menu-toggle,
+  .page-toc-toggle,
+  .copy-link-btn,
+  .fs-close,
+  #back-to-top {
+    min-height: 40px;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .theme-toggle,
+  .full-search-btn,
+  .menu-toggle,
+  .page-toc-toggle { display: flex; align-items: center; justify-content: center; }
+
+  /* 按压反馈：轻微收缩，替代 hover 给出触控确认 */
+  .toc a:active,
+  .page-toc-link:active,
+  .crate-card:active,
+  .crate-card a:active,
+  .chap-nav-link:active,
+  .copy-btn:active,
+  .theme-toggle:active,
+  .full-search-btn:active,
+  .menu-toggle:active,
+  .page-toc-toggle:active,
+  #back-to-top:active,
+  .fs-item:active,
+  .copy-link-btn:active,
+  .fs-close:active {
+    transform: scale(.96);
+    transition: transform .08s ease;
+  }
+}
+
+/* 选中态 / 已复制态优先级高于上面的触屏 hover 重置（同源同权重，靠后声明胜出） */
+.toc a.active,
+.page-toc-link.active {
+  background: var(--accent-soft); color: var(--accent); border-left-color: var(--accent);
+}
+.copy-btn.copied { color: var(--accent); border-color: var(--accent); background: var(--accent-soft); }
+.copy-link-btn.copied { color: var(--accent); border-color: var(--accent); background: var(--accent-soft); }
 
 /* ---------- 打印 / 导出 PDF ----------
    目标：去掉一切界面装饰，只留正文阅读稿。 */

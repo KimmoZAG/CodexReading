@@ -101,7 +101,7 @@ runtime 并非由 `#[tokio::main]` 宏隐式创建，而是在 arg0 层手工构
 
 ## 10.4 Realtime：用语音/流式对话替代打字
 
-常规的模型交互是请求—响应：`ModelClientSession::stream` 走 HTTP，把一整段 prompt 发出去，再逐 token 读回答案（第 12 章）。Realtime 换了一条通道——基于 WebSocket（或 WebRTC 媒体面 + sideband WebSocket 控制面）的**低延迟双向音频/流式通道**：麦克风采集的音频帧一帧一帧往服务端推，模型边听边想边说，回出来的也直接是音频与文本。可以把它理解成 HTTP 流式能力的双向实时版。
+常规的模型交互是请求—响应：`ModelClientSession::stream` 走 HTTP，把一整段 prompt 发出去，再逐 token 读回答案（第 12 章）。Realtime 换了一条通道——基于 WebSocket（或 WebRTC 媒体面 + sideband WebSocket 控制面）的**低延迟双向音频/流式通道**：麦克风采集的音频帧一帧一帧往服务端推，模型边听边想边说，回出来的也直接是音频与文本。它相当于 HTTP 流式能力的双向实时版。
 
 连接入口在 `ModelClient` 上：`create_realtime_call_with_headers` 先通过 HTTP 在 `/realtime/calls` 端点建一个媒体 call，再保留鉴权让实时 WebSocket 以 sideband 身份挂进同一个 call（`core/src/client.rs:659`，常量 `REALTIME_CALLS_ENDPOINT = "/realtime/calls"` 见 `client.rs:161`）。随后 sideband 任务调用 `client.connect_webrtc_sideband(...)` 建立那条双向通道（`core/src/realtime_conversation/sideband.rs:53`）。
 
@@ -111,4 +111,4 @@ Realtime 并没有另起一套事件系统，用的还是第 3 章那条总线�
 
 ## 10.5 小结
 
-**核心只产生意图（Op/Event），"在哪跑、怎么跑"全部外置**——这条线的每一处都在贯彻它。exec-server 是命令落地的独立进程；Environment 把本地/远程藏进 `ExecBackend` 与 `ExecutorFileSystem` 两个 trait；tokio 的有界 channel 提供背压，`CancellationToken` 提供协作式中断；Realtime 则是在同一条事件总线之上另接了一层低延迟音视频传输面。
+**核心只产生意图（Op/Event），"在哪跑、怎么跑"全部外置**。exec-server 是命令落地的独立进程；Environment 把本地/远程藏进 `ExecBackend` 与 `ExecutorFileSystem` 两个 trait；tokio 的有界 channel 提供背压，`CancellationToken` 提供协作式中断；Realtime 则是在同一条事件总线之上另接了一层低延迟音视频传输面。

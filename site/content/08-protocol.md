@@ -10,7 +10,7 @@ IDE、桌面 app、远程控制都通过两层对外接口驱动 Codex：`codex-
 
 ![](assets/diagrams/dataflow.svg)
 
-把协议抽成一个无依赖 crate，是 codex-rs 最值得抄的设计之一：组件之间只通过协议说话，物理依赖被压成一张干净的 DAG。
+把协议单独抽成无依赖的 crate，组件之间只通过协议说话，物理依赖被压成一张干净的 DAG：
 
 `protocol/README.md:3` 把定位写得很直白：它定义 Codex CLI 协议的"类型"，既包含 `codex-core` 与 `codex-tui` 之间的内部类型，也包含 `codex app-server` 对外暴露的外部类型；要求"依赖尽可能少"（`:5`），且不要在这里放实质业务逻辑，要加行为就用 `Ext` trait 在别的 crate 里加（`:7`）。约束这么严的理由在 8.4 节：协议 crate 一旦混进业务逻辑或重依赖，就当不了 codegen 的输入。
 

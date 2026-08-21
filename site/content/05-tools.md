@@ -1,6 +1,6 @@
 # 第 5 章：工具系统——模型说"我要调个函数"之后发生了什么
 
-模型自己不读写文件、不跑命令，它只产出一段结构化的"我想调这个工具，参数是这些"。把这句话变成磁盘上的改动和终端里的输出，是 `codex-core` 工具系统的活儿，入口就是第 4 章主循环里的 `FunctionCall` 分支。
+模型自己不读写文件、不跑命令，只产出一段结构化的"我想调这个工具，参数是这些"。把它变成磁盘上的改动和终端里的输出，是 `codex-core` 工具系统的职责，入口在第 4 章主循环的 `FunctionCall` 分支。
 
 ## 5.1 一个工具调用长什么样
 
@@ -45,7 +45,7 @@ self.registry
 
 ## 5.3 例子：`apply_patch`——它是怎么一边改文件一边直播的
 
-`apply_patch` 是 Codex 改代码的主工具（而不是让模型直接输出整个文件）。它的 handler 在 `core/src/tools/handlers/apply_patch.rs`。有意思的是它**流式**解析模型给的补丁：
+`apply_patch` 是 Codex 改代码的主工具（而不是让模型直接输出整个文件）。它的 handler 在 `core/src/tools/handlers/apply_patch.rs`。它**流式**解析模型给的补丁：
 
 ```rust
 // core/src/tools/handlers/apply_patch.rs:85
