@@ -37,6 +37,8 @@ Codex 走的是 OpenAI 的 **Responses API**，并且默认开启 **SSE 流式**
 
 第 4 章里 `run_turn` 是怎么"想一步、做一步"的。它每一次采样都把整段对话历史塞进 prompt；但历史不是无限的——模型有上下文窗口，token 越多越贵，也越容易把前面的指令稀释掉。
 
+![](assets/diagrams/context-window.svg)
+
 压缩不在回合结束后，而在 `run_turn` 进主循环**之前**。第 4 章讲过，`run_turn` 开头先 drain 上一轮的 hook 结果，紧接着就调用 `run_pre_sampling_compact`（`core/src/session/turn.rs:169`）：
 
 ```rust

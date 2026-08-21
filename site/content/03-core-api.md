@@ -33,6 +33,8 @@ loop {
 
 `submit` 发指令，`next_event` 收事件。所有复杂度都藏在 `Op` 和 `Event` 这两个枚举背后，而它们定义在 `codex-protocol`——整个仓库的通用语言。
 
+![](assets/diagrams/api-surface.svg)
+
 ## 3.1 你"投递"的东西：`Op`
 
 `Op` 定义在 `protocol/src/protocol.rs:543`，它代表"对这次会话能做的一切操作"：

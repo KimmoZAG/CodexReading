@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 420" font-family="system-ui, sans-serif">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L9,3 L0,6 Z" fill="#4F46E5"/>
+    </marker>
+  </defs>
+
+  <rect width="800" height="420" fill="#FFFFFF"/>
+
+  <text x="400" y="30" text-anchor="middle" font-size="20" font-weight="700" fill="#111827">扩展系统架构</text>
+
+  <!-- Core Host -->
+  <rect x="290" y="50" width="220" height="100" rx="14" fill="#EEF2FF" stroke="#4F46E5" stroke-width="2"/>
+  <text x="400" y="85" text-anchor="middle" font-size="17" font-weight="700" fill="#312E81">Core Host</text>
+  <text x="400" y="106" text-anchor="middle" font-size="12" fill="#4F46E5">codex-core 主进程</text>
+
+  <!-- Registry (inside Core) -->
+  <rect x="345" y="92" width="110" height="42" rx="8" fill="#E0E7FF" stroke="#4F46E5" stroke-width="2"/>
+  <text x="400" y="112" text-anchor="middle" font-size="13" font-weight="600" fill="#312E81">Registry</text>
+  <text x="400" y="127" text-anchor="middle" font-size="10" fill="#4F46E5">工具注册表</text>
+
+  <!-- load arrows -->
+  <line x1="400" y1="136" x2="195" y2="248" stroke="#4F46E5" stroke-width="2.5" marker-end="url(#arrow)"/>
+  <line x1="400" y1="136" x2="400" y2="248" stroke="#4F46E5" stroke-width="2.5" marker-end="url(#arrow)"/>
+  <line x1="400" y1="136" x2="605" y2="248" stroke="#4F46E5" stroke-width="2.5" marker-end="url(#arrow)"/>
+  <text x="290" y="200" font-size="11" fill="#6B7280">load</text>
+  <text x="408" y="200" font-size="11" fill="#6B7280">load</text>
+  <text x="520" y="200" font-size="11" fill="#6B7280">load</text>
+
+  <!-- Core Plugin -->
+  <rect x="110" y="250" width="170" height="100" rx="12" fill="#EEF2FF" stroke="#4F46E5" stroke-width="2"/>
+  <text x="195" y="292" text-anchor="middle" font-size="15" font-weight="700" fill="#312E81">Core Plugin</text>
+  <text x="195" y="316" text-anchor="middle" font-size="12" fill="#4F46E5">内置 built-in</text>
+
+  <!-- Custom Tool -->
+  <rect x="315" y="250" width="170" height="100" rx="12" fill="#ECFDF5" stroke="#4F46E5" stroke-width="2"/>
+  <text x="400" y="292" text-anchor="middle" font-size="15" font-weight="700" fill="#312E81">Custom Tool</text>
+  <text x="400" y="316" text-anchor="middle" font-size="12" fill="#4F46E5">用户自定义</text>
+
+  <!-- MCP / External Server -->
+  <rect x="520" y="250" width="170" height="100" rx="12" fill="#FEF3C7" stroke="#4F46E5" stroke-width="2"/>
+  <text x="605" y="292" text-anchor="middle" font-size="15" font-weight="700" fill="#312E81">MCP / External</text>
+  <text x="605" y="316" text-anchor="middle" font-size="12" fill="#4F46E5">外部服务 Server</text>
+</svg>

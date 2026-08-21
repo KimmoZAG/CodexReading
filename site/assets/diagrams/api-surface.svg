@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 820 520" font-family="system-ui, sans-serif">
+  <defs>
+    <marker id="a" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L9,3 L0,6 Z" fill="#4F46E5"/>
+    </marker>
+  </defs>
+  <rect width="820" height="520" fill="#FFFFFF"/>
+  <text x="40" y="40" font-size="22" font-weight="700" fill="#111827">Core 公共 API 面</text>
+  <text x="40" y="64" font-size="13" fill="#6B7280">CodexThread 只暴露 submit / next_event 两个核心方法：调用方投 Op、收 Event</text>
+
+  <!-- Caller -->
+  <rect x="70" y="150" width="190" height="130" rx="12" fill="#EEF2FF" stroke="#4F46E5" stroke-width="2"/>
+  <text x="165" y="200" text-anchor="middle" font-size="18" font-weight="600" fill="#312E81">调用方 Caller</text>
+  <text x="165" y="224" text-anchor="middle" font-size="12" fill="#4F46E5">TUI / IDE / exec</text>
+  <text x="165" y="246" text-anchor="middle" font-size="12" fill="#4F46E5">生产者 / 消费者</text>
+
+  <!-- CodexThread -->
+  <rect x="340" y="90" width="240" height="300" rx="12" fill="#EEF2FF" stroke="#4F46E5" stroke-width="2"/>
+  <text x="460" y="125" text-anchor="middle" font-size="18" font-weight="700" fill="#312E81">CodexThread</text>
+  <text x="460" y="147" text-anchor="middle" font-size="12" fill="#4F46E5">Core 公共 API</text>
+
+  <!-- method chips -->
+  <rect x="360" y="165" width="200" height="58" rx="10" fill="#FFFFFF" stroke="#6366F1" stroke-width="2"/>
+  <text x="460" y="190" text-anchor="middle" font-size="16" font-weight="600" fill="#312E81">submit(Op)</text>
+  <text x="460" y="211" text-anchor="middle" font-size="12" fill="#4F46E5">投递操作 → OpSent</text>
+
+  <rect x="360" y="235" width="200" height="58" rx="10" fill="#FFFFFF" stroke="#6366F1" stroke-width="2"/>
+  <text x="460" y="260" text-anchor="middle" font-size="16" font-weight="600" fill="#312E81">next_event()</text>
+  <text x="460" y="281" text-anchor="middle" font-size="12" fill="#4F46E5">→ Event（回流）</text>
+
+  <rect x="360" y="305" width="200" height="58" rx="10" fill="#FFFFFF" stroke="#6366F1" stroke-width="2"/>
+  <text x="460" y="330" text-anchor="middle" font-size="16" font-weight="600" fill="#312E81">start_or_steer_turn()</text>
+  <text x="460" y="351" text-anchor="middle" font-size="12" fill="#4F46E5">主动推进回合</text>
+
+  <!-- arrows Caller <-> CodexThread -->
+  <line x1="260" y1="195" x2="358" y2="190" stroke="#4F46E5" stroke-width="2.5" marker-end="url(#a)"/>
+  <text x="278" y="182" font-size="12" fill="#6B7280">submit(Op)</text>
+
+  <line x1="358" y1="265" x2="262" y2="258" stroke="#4F46E5" stroke-width="2.5" marker-end="url(#a)"/>
+  <text x="278" y="290" font-size="12" fill="#6B7280">next_event(Event)</text>
+
+  <!-- type boxes -->
+  <rect x="70" y="360" width="330" height="110" rx="12" fill="#F9FAFB" stroke="#9CA3AF" stroke-width="2"/>
+  <text x="90" y="392" font-size="16" font-weight="600" fill="#374151">Op 枚举（输入）</text>
+  <text x="90" y="416" font-size="12" fill="#4F46E5">TurnInput · Interrupt · ExecApproval</text>
+  <text x="90" y="438" font-size="12" fill="#4F46E5">RecoverTurn · ThreadSettings</text>
+
+  <rect x="430" y="360" width="330" height="110" rx="12" fill="#F9FAFB" stroke="#9CA3AF" stroke-width="2"/>
+  <text x="450" y="392" font-size="16" font-weight="600" fill="#374151">Event / EventMsg（输出）</text>
+  <text x="450" y="416" font-size="12" fill="#4F46E5">TurnStarted · AgentMessage</text>
+  <text x="450" y="438" font-size="12" fill="#4F46E5">ExecCommandEnd · Error · …</text>
+</svg>

@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 500" font-family="system-ui, sans-serif">
+  <defs>
+    <marker id="a" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L9,3 L0,6 Z" fill="#4F46E5"/>
+    </marker>
+  </defs>
+  <rect width="900" height="500" fill="#FFFFFF"/>
+  <text x="40" y="40" font-size="22" font-weight="700" fill="#111827">运行时生命周期</text>
+  <text x="40" y="64" font-size="13" fill="#6B7280">CLI 启动 → 连接 App Server → 会话运行 → 关闭</text>
+
+  <!-- stage 1 -->
+  <rect x="40" y="150" width="180" height="120" rx="12" fill="#EEF2FF" stroke="#4F46E5" stroke-width="2"/>
+  <text x="130" y="190" text-anchor="middle" font-size="17" font-weight="700" fill="#312E81">① CLI 启动</text>
+  <text x="130" y="216" text-anchor="middle" font-size="12" fill="#4F46E5">解析参数</text>
+  <text x="130" y="236" text-anchor="middle" font-size="12" fill="#4F46E5">加载配置 · 鉴权</text>
+  <text x="130" y="256" text-anchor="middle" font-size="12" fill="#4F46E5">（薄壳）</text>
+
+  <!-- stage 2 -->
+  <rect x="260" y="150" width="200" height="120" rx="12" fill="#EEF2FF" stroke="#4F46E5" stroke-width="2"/>
+  <text x="360" y="190" text-anchor="middle" font-size="16" font-weight="700" fill="#312E81">② 连接 App Server</text>
+  <text x="360" y="216" text-anchor="middle" font-size="12" fill="#4F46E5">常驻 Core</text>
+  <text x="360" y="236" text-anchor="middle" font-size="12" fill="#4F46E5">建立会话</text>
+  <text x="360" y="256" text-anchor="middle" font-size="12" fill="#4F46E5">（常驻进程）</text>
+
+  <!-- stage 3 -->
+  <rect x="500" y="150" width="180" height="120" rx="12" fill="#EEF2FF" stroke="#4F46E5" stroke-width="2"/>
+  <text x="590" y="190" text-anchor="middle" font-size="17" font-weight="700" fill="#312E81">③ 会话运行</text>
+  <text x="590" y="216" text-anchor="middle" font-size="12" fill="#4F46E5">submit / next_event</text>
+  <text x="590" y="236" text-anchor="middle" font-size="12" fill="#4F46E5">工具 · 执行</text>
+  <text x="590" y="256" text-anchor="middle" font-size="12" fill="#4F46E5">（主循环）</text>
+
+  <!-- stage 4 -->
+  <rect x="720" y="150" width="140" height="120" rx="12" fill="#F3F4F6" stroke="#9CA3AF" stroke-width="2"/>
+  <text x="790" y="195" text-anchor="middle" font-size="17" font-weight="700" fill="#374151">④ 关闭</text>
+  <text x="790" y="221" text-anchor="middle" font-size="12" fill="#6B7280">优雅退出</text>
+  <text x="790" y="241" text-anchor="middle" font-size="12" fill="#6B7280">清理资源</text>
+
+  <!-- arrows -->
+  <line x1="220" y1="210" x2="258" y2="210" stroke="#4F46E5" stroke-width="2.5" marker-end="url(#a)"/>
+  <line x1="460" y1="210" x2="498" y2="210" stroke="#4F46E5" stroke-width="2.5" marker-end="url(#a)"/>
+  <line x1="680" y1="210" x2="718" y2="210" stroke="#4F46E5" stroke-width="2.5" marker-end="url(#a)"/>
+  <text x="688" y="200" font-size="11" fill="#6B7280">shutdown</text>
+
+  <!-- loop under stage 3 -->
+  <rect x="500" y="320" width="180" height="90" rx="12" fill="#F9FAFB" stroke="#9CA3AF" stroke-width="2" stroke-dasharray="8 6"/>
+  <text x="590" y="352" text-anchor="middle" font-size="14" font-weight="600" fill="#374151">回合循环 turn loop</text>
+  <text x="590" y="374" text-anchor="middle" font-size="11" fill="#6B7280">采样 → 工具 → 执行 → 事件</text>
+  <path d="M572,392 A20,16 0 1 1 568,378" fill="none" stroke="#4F46E5" stroke-width="2" marker-end="url(#a)"/>
+
+  <!-- dashed arrows s3 <-> loop -->
+  <line x1="590" y1="270" x2="590" y2="318" stroke="#4F46E5" stroke-width="2" stroke-dasharray="6 4" marker-end="url(#a)"/>
+  <text x="600" y="300" font-size="11" fill="#6B7280">进入回合</text>
+
+  <!-- bottom note -->
+  <text x="40" y="470" font-size="12" fill="#6B7280">命令在 Exec-Server 沙箱内执行；本地 / 远程由 Environment 抽象（见 10.1 / 10.2）</text>
+</svg>

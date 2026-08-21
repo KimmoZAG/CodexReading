@@ -56,6 +56,10 @@ use codex_sandboxing::policy_transforms::normalize_additional_permissions;     /
 
 再往上一层是**语义化审批**：模型可以提议一条 `ExecPolicyAmendment`，把"以 `cargo test` 开头的命令都允许"这样的规则写进白名单，而不是记住某个具体命令行；配合 `ReviewDecision::ApprovedExecpolicyAmendment`，你批准的是一类行为。三种机制的差别就是信任粒度：`ApprovedForSession` 只管这次会话，追加的 `allow` 前缀规则记住这条命令，`ExecPolicyAmendment` 放行的是一类命令。
 
+上述四道防线从外到内层层套叠，整体长这样：
+
+![Codex 安全模型四层防御](assets/diagrams/security-model.svg)
+
 ## 6.6 整条链路
 
 > 模型产出指令 → 工具系统接住 → 沙箱策略判定能碰哪 → 要紧的先问你（审批）→ exec-server 在受限进程里真跑 → 输出回流。

@@ -94,6 +94,10 @@ metadata:
 
 加载完成后，会话对每个插件生成一个能力摘要 `PluginCapabilitySummary`，字段直接列出了 `has_skills` 与 `mcp_server_names`，见 `plugin/src/lib.rs:49`。它把 skill、MCP、app 统一收进一个摘要——这正是"打包分发"在数据上的体现。
 
+这些能力都经 Core 的 Registry 统一加载进工具系统，整体架构如下：
+
+![扩展系统架构](assets/diagrams/extension-arch.svg)
+
 插件内容由一份 manifest 描述。解析结果是泛型模型 `PluginManifest<Resource>`，其中真正决定"装了什么"的是 `PluginManifestPaths`（`plugin/src/manifest.rs:18`）：
 
 ```rust

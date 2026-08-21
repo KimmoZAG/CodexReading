@@ -1174,33 +1174,33 @@ html[data-theme="dark"] .core-badge {
   <text x="40" y="64" font-size="13" fill="#6B7280">CLI / App-Server / Codex-Core / Exec-Server 四者关系</text>
 
   <!-- CLI -->
-  <rect x="300" y="100" width="200" height="70" rx="12" fill="#EEF2FF" stroke="#4F46E5" stroke-width="2"/>
-  <text x="400" y="132" text-anchor="middle" font-size="18" font-weight="600" fill="#312E81">CLI 命令行</text>
-  <text x="400" y="154" text-anchor="middle" font-size="13" fill="#4F46E5">薄壳 · Thin Shell</text>
+  <rect x="240" y="100" width="240" height="70" rx="12" fill="#EEF2FF" stroke="#4F46E5" stroke-width="2"/>
+  <text x="360" y="132" text-anchor="middle" font-size="18" font-weight="600" fill="#312E81">CLI 命令行</text>
+  <text x="360" y="154" text-anchor="middle" font-size="13" fill="#4F46E5">薄壳 · Thin Shell</text>
 
   <!-- App Server container -->
-  <rect x="190" y="220" width="420" height="210" rx="16" fill="#F9FAFB" stroke="#4F46E5" stroke-width="2"/>
-  <text x="400" y="245" text-anchor="middle" font-size="16" font-weight="600" fill="#312E81">App Server</text>
-  <text x="400" y="263" text-anchor="middle" font-size="12" fill="#4F46E5">常驻 · Always-on</text>
+  <rect x="150" y="220" width="420" height="210" rx="16" fill="#F9FAFB" stroke="#4F46E5" stroke-width="2"/>
+  <text x="360" y="245" text-anchor="middle" font-size="16" font-weight="600" fill="#312E81">App Server</text>
+  <text x="360" y="263" text-anchor="middle" font-size="12" fill="#4F46E5">常驻 · Always-on</text>
 
   <!-- Codex Core inside -->
-  <rect x="250" y="290" width="300" height="110" rx="12" fill="#EEF2FF" stroke="#6366F1" stroke-width="2"/>
-  <text x="400" y="335" text-anchor="middle" font-size="18" font-weight="600" fill="#312E81">Codex Core</text>
-  <text x="400" y="360" text-anchor="middle" font-size="13" fill="#4F46E5">大脑 · Brain</text>
+  <rect x="210" y="290" width="300" height="110" rx="12" fill="#EEF2FF" stroke="#6366F1" stroke-width="2"/>
+  <text x="360" y="335" text-anchor="middle" font-size="18" font-weight="600" fill="#312E81">Codex Core</text>
+  <text x="360" y="360" text-anchor="middle" font-size="13" fill="#4F46E5">大脑 · Brain</text>
 
   <!-- Trust boundary around exec -->
-  <rect x="640" y="220" width="160" height="210" rx="16" fill="#F9FAFB" stroke="#9CA3AF" stroke-width="2" stroke-dasharray="8 6"/>
-  <text x="720" y="246" text-anchor="middle" font-size="12" fill="#6B7280">信任边界</text>
+  <rect x="590" y="220" width="150" height="210" rx="16" fill="#F9FAFB" stroke="#9CA3AF" stroke-width="2" stroke-dasharray="8 6"/>
+  <text x="665" y="246" text-anchor="middle" font-size="12" fill="#6B7280">信任边界</text>
 
   <!-- Exec Server inside -->
-  <rect x="660" y="290" width="120" height="110" rx="12" fill="#EEF2FF" stroke="#4F46E5" stroke-width="2"/>
-  <text x="720" y="335" text-anchor="middle" font-size="16" font-weight="600" fill="#312E81">Exec Server</text>
-  <text x="720" y="358" text-anchor="middle" font-size="12" fill="#4F46E5">沙箱 · Sandbox</text>
+  <rect x="610" y="290" width="110" height="110" rx="12" fill="#EEF2FF" stroke="#4F46E5" stroke-width="2"/>
+  <text x="665" y="335" text-anchor="middle" font-size="16" font-weight="600" fill="#312E81">Exec Server</text>
+  <text x="665" y="358" text-anchor="middle" font-size="12" fill="#4F46E5">沙箱 · Sandbox</text>
 
   <!-- Arrows -->
-  <line x1="400" y1="170" x2="400" y2="218" stroke="#4F46E5" stroke-width="2.5" marker-end="url(#blk_a)"/>
-  <line x1="610" y1="345" x2="658" y2="345" stroke="#4F46E5" stroke-width="2.5" marker-end="url(#blk_a)"/>
-  <text x="624" y="335" text-anchor="middle" font-size="11" fill="#6B7280">RPC</text>
+  <line x1="360" y1="170" x2="360" y2="218" stroke="#4F46E5" stroke-width="2.5" marker-end="url(#blk_a)"/>
+  <line x1="510" y1="345" x2="608" y2="345" stroke="#4F46E5" stroke-width="2.5" marker-end="url(#blk_a)"/>
+  <text x="560" y="335" text-anchor="middle" font-size="11" fill="#6B7280">RPC</text>
 </svg>
 <p>分成三个进程的意图是<strong>隔离信任边界</strong>。模型生成的"我要执行 <code>rm -rf</code>"这类指令，永远不会在你本机的进程里直接 <code>system()</code> 掉，而是被序列化、送检，再交给一个被沙箱约束的执行器。第 6 章专讲这条边界。</p>
 <h2 id="00-overview-一个最小可运行的例子">一个最小可运行的例子</h2>
@@ -1243,33 +1243,33 @@ codex exec "给 src/utils.rs 的 debounce 补一个测试并跑 npm test"</code>
   <text x="40" y="64" font-size="13" fill="#6B7280">CLI / App-Server / Codex-Core / Exec-Server 四者关系</text>
 
   <!-- CLI -->
-  <rect x="300" y="100" width="200" height="70" rx="12" fill="#EEF2FF" stroke="#4F46E5" stroke-width="2"/>
-  <text x="400" y="132" text-anchor="middle" font-size="18" font-weight="600" fill="#312E81">CLI 命令行</text>
-  <text x="400" y="154" text-anchor="middle" font-size="13" fill="#4F46E5">薄壳 · Thin Shell</text>
+  <rect x="240" y="100" width="240" height="70" rx="12" fill="#EEF2FF" stroke="#4F46E5" stroke-width="2"/>
+  <text x="360" y="132" text-anchor="middle" font-size="18" font-weight="600" fill="#312E81">CLI 命令行</text>
+  <text x="360" y="154" text-anchor="middle" font-size="13" fill="#4F46E5">薄壳 · Thin Shell</text>
 
   <!-- App Server container -->
-  <rect x="190" y="220" width="420" height="210" rx="16" fill="#F9FAFB" stroke="#4F46E5" stroke-width="2"/>
-  <text x="400" y="245" text-anchor="middle" font-size="16" font-weight="600" fill="#312E81">App Server</text>
-  <text x="400" y="263" text-anchor="middle" font-size="12" fill="#4F46E5">常驻 · Always-on</text>
+  <rect x="150" y="220" width="420" height="210" rx="16" fill="#F9FAFB" stroke="#4F46E5" stroke-width="2"/>
+  <text x="360" y="245" text-anchor="middle" font-size="16" font-weight="600" fill="#312E81">App Server</text>
+  <text x="360" y="263" text-anchor="middle" font-size="12" fill="#4F46E5">常驻 · Always-on</text>
 
   <!-- Codex Core inside -->
-  <rect x="250" y="290" width="300" height="110" rx="12" fill="#EEF2FF" stroke="#6366F1" stroke-width="2"/>
-  <text x="400" y="335" text-anchor="middle" font-size="18" font-weight="600" fill="#312E81">Codex Core</text>
-  <text x="400" y="360" text-anchor="middle" font-size="13" fill="#4F46E5">大脑 · Brain</text>
+  <rect x="210" y="290" width="300" height="110" rx="12" fill="#EEF2FF" stroke="#6366F1" stroke-width="2"/>
+  <text x="360" y="335" text-anchor="middle" font-size="18" font-weight="600" fill="#312E81">Codex Core</text>
+  <text x="360" y="360" text-anchor="middle" font-size="13" fill="#4F46E5">大脑 · Brain</text>
 
   <!-- Trust boundary around exec -->
-  <rect x="640" y="220" width="160" height="210" rx="16" fill="#F9FAFB" stroke="#9CA3AF" stroke-width="2" stroke-dasharray="8 6"/>
-  <text x="720" y="246" text-anchor="middle" font-size="12" fill="#6B7280">信任边界</text>
+  <rect x="590" y="220" width="150" height="210" rx="16" fill="#F9FAFB" stroke="#9CA3AF" stroke-width="2" stroke-dasharray="8 6"/>
+  <text x="665" y="246" text-anchor="middle" font-size="12" fill="#6B7280">信任边界</text>
 
   <!-- Exec Server inside -->
-  <rect x="660" y="290" width="120" height="110" rx="12" fill="#EEF2FF" stroke="#4F46E5" stroke-width="2"/>
-  <text x="720" y="335" text-anchor="middle" font-size="16" font-weight="600" fill="#312E81">Exec Server</text>
-  <text x="720" y="358" text-anchor="middle" font-size="12" fill="#4F46E5">沙箱 · Sandbox</text>
+  <rect x="610" y="290" width="110" height="110" rx="12" fill="#EEF2FF" stroke="#4F46E5" stroke-width="2"/>
+  <text x="665" y="335" text-anchor="middle" font-size="16" font-weight="600" fill="#312E81">Exec Server</text>
+  <text x="665" y="358" text-anchor="middle" font-size="12" fill="#4F46E5">沙箱 · Sandbox</text>
 
   <!-- Arrows -->
-  <line x1="400" y1="170" x2="400" y2="218" stroke="#4F46E5" stroke-width="2.5" marker-end="url(#blk_a)"/>
-  <line x1="610" y1="345" x2="658" y2="345" stroke="#4F46E5" stroke-width="2.5" marker-end="url(#blk_a)"/>
-  <text x="624" y="335" text-anchor="middle" font-size="11" fill="#6B7280">RPC</text>
+  <line x1="360" y1="170" x2="360" y2="218" stroke="#4F46E5" stroke-width="2.5" marker-end="url(#blk_a)"/>
+  <line x1="510" y1="345" x2="608" y2="345" stroke="#4F46E5" stroke-width="2.5" marker-end="url(#blk_a)"/>
+  <text x="560" y="335" text-anchor="middle" font-size="11" fill="#6B7280">RPC</text>
 </svg>
 <p>图里四块的关系：CLI 是薄壳，大脑 Codex-Core 常驻在 App-Server 内，真正落地命令的 Exec-Server 处在独立的信任边界里。下面的分类基本是沿着这几条边界切的。</p>
 <h2 id="01-repo-map-1-1-第一梯队-你真正要读懂的那几个">1.1 第一梯队：你真正要读懂的那几个</h2>
@@ -1319,43 +1319,43 @@ enum Subcommand {
 <p>不写子命令时，参数会直接转交给交互式 CLI（见 <code>subcommand_negates_reqs</code> 和 <code>override_usage</code> 里的说明注释）。<code>codex "帮我改下登录页"</code> 和 <code>codex exec "..."</code> 走的是两条不同的路，底层最终都汇聚到 <code>codex-core</code>。</p>
 <h2 id="02-process-model-2-2-三进程协作-cli-app-server-exec-server">2.2 三进程协作：cli / app-server / exec-server</h2>
 <p>运行时大致是这样：cli 拉起 app-server 并常驻 codex-core，真要跑命令时，才跨过信任边界交给沙箱里的 exec-server。</p>
-<svg viewBox="0 0 800 540" font-family="system-ui, sans-serif">
+<svg viewBox="0 0 820 540" font-family="system-ui, sans-serif">
   <defs>
     <marker id="blk_a" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
       <path d="M0,0 L9,3 L0,6 Z" fill="#4F46E5"/>
     </marker>
   </defs>
-  <rect width="800" height="540" fill="#FFFFFF"/>
+  <rect width="820" height="540" fill="#FFFFFF"/>
   <text x="40" y="40" font-size="22" font-weight="700" fill="#111827">三进程模型与信任边界</text>
   <text x="40" y="64" font-size="13" fill="#6B7280">CLI / App-Server / Exec-Server 为三个进程，Codex-Core 常驻于 App-Server 内</text>
 
   <!-- CLI -->
-  <rect x="300" y="90" width="200" height="70" rx="12" fill="#EEF2FF" stroke="#4F46E5" stroke-width="2"/>
-  <text x="400" y="122" text-anchor="middle" font-size="18" font-weight="600" fill="#312E81">CLI 命令行</text>
-  <text x="400" y="144" text-anchor="middle" font-size="13" fill="#4F46E5">薄壳 · Thin Shell</text>
+  <rect x="310" y="90" width="200" height="70" rx="12" fill="#EEF2FF" stroke="#4F46E5" stroke-width="2"/>
+  <text x="410" y="122" text-anchor="middle" font-size="18" font-weight="600" fill="#312E81">CLI 命令行</text>
+  <text x="410" y="144" text-anchor="middle" font-size="13" fill="#4F46E5">薄壳 · Thin Shell</text>
 
   <!-- App Server -->
-  <rect x="300" y="220" width="200" height="90" rx="12" fill="#EEF2FF" stroke="#4F46E5" stroke-width="2"/>
-  <text x="400" y="258" text-anchor="middle" font-size="18" font-weight="600" fill="#312E81">App Server</text>
-  <text x="400" y="282" text-anchor="middle" font-size="13" fill="#4F46E5">常驻 · Always-on</text>
+  <rect x="310" y="220" width="200" height="90" rx="12" fill="#EEF2FF" stroke="#4F46E5" stroke-width="2"/>
+  <text x="410" y="258" text-anchor="middle" font-size="18" font-weight="600" fill="#312E81">App Server</text>
+  <text x="410" y="282" text-anchor="middle" font-size="13" fill="#4F46E5">常驻 · Always-on</text>
 
   <!-- Codex Core -->
-  <rect x="120" y="380" width="240" height="90" rx="12" fill="#EEF2FF" stroke="#6366F1" stroke-width="2"/>
-  <text x="240" y="418" text-anchor="middle" font-size="18" font-weight="600" fill="#312E81">Codex Core</text>
-  <text x="240" y="442" text-anchor="middle" font-size="13" fill="#4F46E5">大脑 · Brain</text>
+  <rect x="140" y="380" width="260" height="90" rx="12" fill="#EEF2FF" stroke="#6366F1" stroke-width="2"/>
+  <text x="270" y="418" text-anchor="middle" font-size="18" font-weight="600" fill="#312E81">Codex Core</text>
+  <text x="270" y="442" text-anchor="middle" font-size="13" fill="#4F46E5">大脑 · Brain</text>
 
   <!-- Trust boundary + Exec Server -->
-  <rect x="520" y="360" width="260" height="190" rx="16" fill="#F9FAFB" stroke="#9CA3AF" stroke-width="2" stroke-dasharray="8 6"/>
-  <text x="650" y="386" text-anchor="middle" font-size="12" fill="#6B7280">沙箱 · 信任边界</text>
-  <rect x="560" y="410" width="180" height="100" rx="12" fill="#EEF2FF" stroke="#4F46E5" stroke-width="2"/>
-  <text x="650" y="452" text-anchor="middle" font-size="16" font-weight="600" fill="#312E81">Exec Server</text>
-  <text x="650" y="476" text-anchor="middle" font-size="12" fill="#4F46E5">沙箱 · Sandbox</text>
+  <rect x="500" y="360" width="240" height="170" rx="16" fill="#F9FAFB" stroke="#9CA3AF" stroke-width="2" stroke-dasharray="8 6"/>
+  <text x="620" y="386" text-anchor="middle" font-size="12" fill="#6B7280">沙箱 · 信任边界</text>
+  <rect x="530" y="410" width="180" height="100" rx="12" fill="#EEF2FF" stroke="#4F46E5" stroke-width="2"/>
+  <text x="620" y="452" text-anchor="middle" font-size="16" font-weight="600" fill="#312E81">Exec Server</text>
+  <text x="620" y="476" text-anchor="middle" font-size="12" fill="#4F46E5">沙箱 · Sandbox</text>
 
   <!-- Arrows -->
-  <line x1="400" y1="160" x2="400" y2="218" stroke="#4F46E5" stroke-width="2.5" marker-end="url(#blk_a)"/>
-  <line x1="370" y1="310" x2="265" y2="378" stroke="#4F46E5" stroke-width="2.5" marker-end="url(#blk_a)"/>
-  <line x1="455" y1="310" x2="620" y2="370" stroke="#4F46E5" stroke-width="2.5" marker-end="url(#blk_a)"/>
-  <text x="690" y="345" font-size="11" fill="#6B7280">RPC</text>
+  <line x1="410" y1="160" x2="410" y2="218" stroke="#4F46E5" stroke-width="2.5" marker-end="url(#blk_a)"/>
+  <line x1="370" y1="310" x2="270" y2="378" stroke="#4F46E5" stroke-width="2.5" marker-end="url(#blk_a)"/>
+  <line x1="450" y1="310" x2="620" y2="358" stroke="#4F46E5" stroke-width="2.5" marker-end="url(#blk_a)"/>
+  <text x="540" y="330" font-size="11" fill="#6B7280">RPC</text>
 </svg>
 <ul><li><strong>进程 A：`cli`</strong>。负责登录态、参数、以及"用哪种界面和你交互"。交互模式它会拉起 TUI（<code>codex-tui</code>）；非交互模式（<code>exec</code>）它就直接拿到结果输出后退出。</li><li><strong>进程 B：`app-server`</strong>。这是 <code>codex-core</code> 的"宿主进程"。把它单独拆出来，是为了让核心逻辑能<strong>常驻</strong>：IDE 插件、桌面 app、远程控制（<code>RemoteControl</code> 子命令）都能连到同一个 app-server，复用同一份会话状态，而不用每次都重新冷启动一个 agent。源码在 <code>app-server/</code>，对外契约在 <code>codex-app-server-protocol</code>。</li><li><strong>进程 C：`exec-server`</strong>。真正去 <code>fork</code>/跑命令的地方，而且被沙箱裹着。模型说"我要跑 <code>git push</code>"，这个请求会被序列化发给 exec-server，exec-server 先过一遍策略检查（能不能跑？碰哪些文件？），再在受限环境里执行，把输出流回来。</li></ul>
 <p>绕这一圈的理由是<strong>模型产出的指令不可信</strong>。让"执行危险操作"的代码跑在一个和"持有你登录令牌、持有会话上下文"的代码不同的进程、甚至不同的沙箱里，能把一次 prompt injection 的爆炸半径压到最小。第 6 章会展开。</p>
@@ -1411,6 +1411,58 @@ loop {
     }
 }</code></pre>
 <p><code>submit</code> 发指令，<code>next_event</code> 收事件。所有复杂度都藏在 <code>Op</code> 和 <code>Event</code> 这两个枚举背后，而它们定义在 <code>codex-protocol</code>——整个仓库的通用语言。</p>
+<svg viewBox="0 0 820 520" font-family="system-ui, sans-serif">
+  <defs>
+    <marker id="blk_a" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L9,3 L0,6 Z" fill="#4F46E5"/>
+    </marker>
+  </defs>
+  <rect width="820" height="520" fill="#FFFFFF"/>
+  <text x="40" y="40" font-size="22" font-weight="700" fill="#111827">Core 公共 API 面</text>
+  <text x="40" y="64" font-size="13" fill="#6B7280">CodexThread 只暴露 submit / next_event 两个核心方法：调用方投 Op、收 Event</text>
+
+  <!-- Caller -->
+  <rect x="70" y="150" width="190" height="130" rx="12" fill="#EEF2FF" stroke="#4F46E5" stroke-width="2"/>
+  <text x="165" y="200" text-anchor="middle" font-size="18" font-weight="600" fill="#312E81">调用方 Caller</text>
+  <text x="165" y="224" text-anchor="middle" font-size="12" fill="#4F46E5">TUI / IDE / exec</text>
+  <text x="165" y="246" text-anchor="middle" font-size="12" fill="#4F46E5">生产者 / 消费者</text>
+
+  <!-- CodexThread -->
+  <rect x="340" y="90" width="240" height="300" rx="12" fill="#EEF2FF" stroke="#4F46E5" stroke-width="2"/>
+  <text x="460" y="125" text-anchor="middle" font-size="18" font-weight="700" fill="#312E81">CodexThread</text>
+  <text x="460" y="147" text-anchor="middle" font-size="12" fill="#4F46E5">Core 公共 API</text>
+
+  <!-- method chips -->
+  <rect x="360" y="165" width="200" height="58" rx="10" fill="#FFFFFF" stroke="#6366F1" stroke-width="2"/>
+  <text x="460" y="190" text-anchor="middle" font-size="16" font-weight="600" fill="#312E81">submit(Op)</text>
+  <text x="460" y="211" text-anchor="middle" font-size="12" fill="#4F46E5">投递操作 → OpSent</text>
+
+  <rect x="360" y="235" width="200" height="58" rx="10" fill="#FFFFFF" stroke="#6366F1" stroke-width="2"/>
+  <text x="460" y="260" text-anchor="middle" font-size="16" font-weight="600" fill="#312E81">next_event()</text>
+  <text x="460" y="281" text-anchor="middle" font-size="12" fill="#4F46E5">→ Event（回流）</text>
+
+  <rect x="360" y="305" width="200" height="58" rx="10" fill="#FFFFFF" stroke="#6366F1" stroke-width="2"/>
+  <text x="460" y="330" text-anchor="middle" font-size="16" font-weight="600" fill="#312E81">start_or_steer_turn()</text>
+  <text x="460" y="351" text-anchor="middle" font-size="12" fill="#4F46E5">主动推进回合</text>
+
+  <!-- arrows Caller <-> CodexThread -->
+  <line x1="260" y1="195" x2="358" y2="190" stroke="#4F46E5" stroke-width="2.5" marker-end="url(#blk_a)"/>
+  <text x="278" y="182" font-size="12" fill="#6B7280">submit(Op)</text>
+
+  <line x1="358" y1="265" x2="262" y2="258" stroke="#4F46E5" stroke-width="2.5" marker-end="url(#blk_a)"/>
+  <text x="278" y="290" font-size="12" fill="#6B7280">next_event(Event)</text>
+
+  <!-- type boxes -->
+  <rect x="70" y="360" width="330" height="110" rx="12" fill="#F9FAFB" stroke="#9CA3AF" stroke-width="2"/>
+  <text x="90" y="392" font-size="16" font-weight="600" fill="#374151">Op 枚举（输入）</text>
+  <text x="90" y="416" font-size="12" fill="#4F46E5">TurnInput · Interrupt · ExecApproval</text>
+  <text x="90" y="438" font-size="12" fill="#4F46E5">RecoverTurn · ThreadSettings</text>
+
+  <rect x="430" y="360" width="330" height="110" rx="12" fill="#F9FAFB" stroke="#9CA3AF" stroke-width="2"/>
+  <text x="450" y="392" font-size="16" font-weight="600" fill="#374151">Event / EventMsg（输出）</text>
+  <text x="450" y="416" font-size="12" fill="#4F46E5">TurnStarted · AgentMessage</text>
+  <text x="450" y="438" font-size="12" fill="#4F46E5">ExecCommandEnd · Error · …</text>
+</svg>
 <h2 id="03-core-api-3-1-你-投递-的东西-Op">3.1 你"投递"的东西：<code>Op</code></h2>
 <p><code>Op</code> 定义在 <code>protocol/src/protocol.rs:543</code>，它代表"对这次会话能做的一切操作"：</p>
 <pre><code>// protocol/src/protocol.rs:543（节选）
@@ -1593,7 +1645,7 @@ impl ToolArgumentDiffConsumer for ApplyPatchArgumentDiffConsumer {
 <p>补丁最终通过 <code>ApplyPatchRuntime</code>（<code>core/src/tools/runtimes/apply_patch.rs</code>）落到文件系统，而落盘的权限仍由第 6 章的沙箱策略把关。</p>
 <h2 id="05-tools-5-4-命令类工具-审批从哪来">5.4 命令类工具：审批从哪来</h2>
 <p>模型想跑 <code>cargo test</code> 这类 shell 命令，走的也是工具系统，但多一道人工关卡。它不会直接在本机 <code>system()</code>，而是先发 <code>ExecApprovalRequest</code> 事件（第 3 章见过），等你用 <code>Op::ExecApproval</code> 表态，点头后才转交给 <code>exec-server</code> 在沙箱里执行，输出经 <code>ExecCommandOutputDelta</code> 流回界面。整条分发链路长这样：</p>
-<svg viewBox="0 0 760 600" font-family="system-ui, sans-serif">
+<svg viewBox="0 0 760 620" font-family="system-ui, sans-serif">
   <defs>
     <marker id="blk_a" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
       <path d="M0,0 L9,3 L0,6 Z" fill="#4F46E5"/>
@@ -1704,6 +1756,54 @@ use codex_sandboxing::policy_transforms::normalize_additional_permissions;     /
 <h2 id="06-sandbox-6-5-批准记录会被记住">6.5 批准记录会被记住</h2>
 <p>会话内，Codex 用 <code>with_cached_approval</code>（<code>core/src/tools/sandboxing.rs:70</code>）维护一张 <code>tool_approvals</code> 缓存：若某 key 已是 <code>ReviewDecision::ApprovedForSession</code>，直接跳过提问。跨会话的"永久记忆"则写在 <code>codex-execpolicy</code>：你选"记住这条命令"时，<code>execpolicy/src/amend.rs:65</code> 的 <code>blocking_append_allow_prefix_rule</code> 把一条 <code>prefix_rule(pattern=..., decision="allow")</code> 追加进策略文件（<code>execpolicy/src/amend.rs:174</code> 用咨询锁去重），下次加载策略直接命中，不再打扰你。</p>
 <p>再往上一层是<strong>语义化审批</strong>：模型可以提议一条 <code>ExecPolicyAmendment</code>，把"以 <code>cargo test</code> 开头的命令都允许"这样的规则写进白名单，而不是记住某个具体命令行；配合 <code>ReviewDecision::ApprovedExecpolicyAmendment</code>，你批准的是一类行为。三种机制的差别就是信任粒度：<code>ApprovedForSession</code> 只管这次会话，追加的 <code>allow</code> 前缀规则记住这条命令，<code>ExecPolicyAmendment</code> 放行的是一类命令。</p>
+<p>上述四道防线从外到内层层套叠，整体长这样：</p>
+<svg viewBox="0 0 800 500" font-family="system-ui, sans-serif">
+  <rect width="800" height="500" fill="#FFFFFF"/>
+
+  <text x="30" y="28" font-size="20" font-weight="700" fill="#111827">Codex 安全模型：四层防御</text>
+
+  <!-- ① 用户审批层 -->
+  <rect x="30" y="40" width="560" height="420" rx="20" fill="#FEF3C7" stroke="#4F46E5" stroke-width="2" stroke-dasharray="10 6"/>
+  <text x="48" y="70" font-size="15" font-weight="700" fill="#312E81">① 用户审批层 User Approval</text>
+  <text x="48" y="452" font-size="12" fill="#92400E">用户确认危险操作</text>
+
+  <!-- ② 协议隔离层 -->
+  <rect x="80" y="90" width="460" height="320" rx="16" fill="#EEF2FF" stroke="#4F46E5" stroke-width="2" stroke-dasharray="8 5"/>
+  <text x="98" y="120" font-size="15" font-weight="700" fill="#312E81">② 协议隔离层 Protocol Boundary</text>
+  <text x="98" y="398" font-size="12" fill="#3730A3">Op / Event 序列化通信</text>
+
+  <!-- ③ 进程沙箱层 -->
+  <rect x="130" y="140" width="360" height="220" rx="14" fill="#ECFDF5" stroke="#4F46E5" stroke-width="2" stroke-dasharray="6 4"/>
+  <text x="148" y="170" font-size="15" font-weight="700" fill="#312E81">③ 进程沙箱层 Process Sandbox</text>
+  <text x="148" y="348" font-size="12" fill="#065F46">exec-server 独立进程</text>
+
+  <!-- ④ 工具权限层 -->
+  <rect x="180" y="190" width="260" height="120" rx="12" fill="#FFFFFF" stroke="#4F46E5" stroke-width="2.5"/>
+  <text x="310" y="234" text-anchor="middle" font-size="15" font-weight="700" fill="#312E81">④ 工具权限层 Tool Policy</text>
+  <text x="310" y="260" text-anchor="middle" font-size="12" fill="#4F46E5">amend / allowlist / denylist</text>
+
+  <!-- 右侧图例 -->
+  <text x="630" y="70" font-size="15" font-weight="700" fill="#111827">图例 Legend</text>
+
+  <rect x="630" y="92" width="18" height="18" rx="3" fill="#FEF3C7" stroke="#4F46E5" stroke-width="1.5" stroke-dasharray="4 2"/>
+  <text x="656" y="100" font-size="12" font-weight="600" fill="#312E81">① 用户审批层</text>
+  <text x="656" y="116" font-size="11" fill="#6B7280">用户确认危险操作</text>
+
+  <rect x="630" y="142" width="18" height="18" rx="3" fill="#EEF2FF" stroke="#4F46E5" stroke-width="1.5" stroke-dasharray="4 2"/>
+  <text x="656" y="150" font-size="12" font-weight="600" fill="#312E81">② 协议隔离层</text>
+  <text x="656" y="166" font-size="11" fill="#6B7280">Op / Event 序列化通信</text>
+
+  <rect x="630" y="192" width="18" height="18" rx="3" fill="#ECFDF5" stroke="#4F46E5" stroke-width="1.5" stroke-dasharray="4 2"/>
+  <text x="656" y="200" font-size="12" font-weight="600" fill="#312E81">③ 进程沙箱层</text>
+  <text x="656" y="216" font-size="11" fill="#6B7280">exec-server 独立进程</text>
+
+  <rect x="630" y="242" width="18" height="18" rx="3" fill="#FFFFFF" stroke="#4F46E5" stroke-width="2"/>
+  <text x="656" y="250" font-size="12" font-weight="600" fill="#312E81">④ 工具权限层</text>
+  <text x="656" y="266" font-size="11" fill="#6B7280">amend / allowlist / denylist</text>
+
+  <text x="630" y="306" font-size="11" fill="#6B7280">虚线框 = 隔离边界</text>
+  <text x="630" y="324" font-size="11" fill="#6B7280">实线框 = 策略内核</text>
+</svg>
 <h2 id="06-sandbox-6-6-整条链路">6.6 整条链路</h2>
 <blockquote>模型产出指令 → 工具系统接住 → 沙箱策略判定能碰哪 → 要紧的先问你（审批）→ exec-server 在受限进程里真跑 → 输出回流。</blockquote>
 <p>Codex 的前提不是模型可信，而是模型不可信、但可以被约束住。</p>
@@ -1832,10 +1932,10 @@ pub enum EventMsg {
   <text x="220" y="435" text-anchor="middle" font-size="16" font-weight="600" fill="#374151">Exec Server</text>
 
   <!-- double-headed links -->
-  <line x1="320" y1="250" x2="122" y2="130" stroke="#4F46E5" stroke-width="2.5" marker-start="url(#blk_both)" marker-end="url(#blk_both)"/>
+  <line x1="320" y1="250" x2="188" y2="170" stroke="#4F46E5" stroke-width="2.5" marker-start="url(#blk_both)" marker-end="url(#blk_both)"/>
   <line x1="480" y1="250" x2="478" y2="130" stroke="#4F46E5" stroke-width="2.5" marker-start="url(#blk_both)" marker-end="url(#blk_both)"/>
   <line x1="480" y1="310" x2="478" y2="430" stroke="#4F46E5" stroke-width="2.5" marker-start="url(#blk_both)" marker-end="url(#blk_both)"/>
-  <line x1="320" y1="310" x2="122" y2="430" stroke="#4F46E5" stroke-width="2.5" marker-start="url(#blk_both)" marker-end="url(#blk_both)"/>
+  <line x1="320" y1="310" x2="188" y2="390" stroke="#4F46E5" stroke-width="2.5" marker-start="url(#blk_both)" marker-end="url(#blk_both)"/>
 </svg>
 <p>把协议单独抽成无依赖的 crate，组件之间只通过协议说话，物理依赖被压成一张干净的 DAG：</p>
 <p><code>protocol/README.md:3</code> 把定位写得很直白：它定义 Codex CLI 协议的"类型"，既包含 <code>codex-core</code> 与 <code>codex-tui</code> 之间的内部类型，也包含 <code>codex app-server</code> 对外暴露的外部类型；要求"依赖尽可能少"（<code>:5</code>），且不要在这里放实质业务逻辑，要加行为就用 <code>Ext</code> trait 在别的 crate 里加（<code>:7</code>）。约束这么严的理由在 8.4 节：协议 crate 一旦混进业务逻辑或重依赖，就当不了 codegen 的输入。</p>
@@ -1941,45 +2041,101 @@ let merged_toml = config_layer_stack.effective_config();</code></pre>
 <div class="chapter-level"><span class="level-badge advanced">深入</span></div>
 <p>命令在哪台机器执行、用什么进程模型跑、并发靠什么撑、语音通道怎么接进来——这四件事都服从同一条原则：<strong>把"在哪里、怎么跑"从核心逻辑里抽出去</strong>。</p>
 <p>执行链路上的进程分工：</p>
-<svg viewBox="0 0 800 540" font-family="system-ui, sans-serif">
+<svg viewBox="0 0 820 540" font-family="system-ui, sans-serif">
   <defs>
     <marker id="blk_a" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
       <path d="M0,0 L9,3 L0,6 Z" fill="#4F46E5"/>
     </marker>
   </defs>
-  <rect width="800" height="540" fill="#FFFFFF"/>
+  <rect width="820" height="540" fill="#FFFFFF"/>
   <text x="40" y="40" font-size="22" font-weight="700" fill="#111827">三进程模型与信任边界</text>
   <text x="40" y="64" font-size="13" fill="#6B7280">CLI / App-Server / Exec-Server 为三个进程，Codex-Core 常驻于 App-Server 内</text>
 
   <!-- CLI -->
-  <rect x="300" y="90" width="200" height="70" rx="12" fill="#EEF2FF" stroke="#4F46E5" stroke-width="2"/>
-  <text x="400" y="122" text-anchor="middle" font-size="18" font-weight="600" fill="#312E81">CLI 命令行</text>
-  <text x="400" y="144" text-anchor="middle" font-size="13" fill="#4F46E5">薄壳 · Thin Shell</text>
+  <rect x="310" y="90" width="200" height="70" rx="12" fill="#EEF2FF" stroke="#4F46E5" stroke-width="2"/>
+  <text x="410" y="122" text-anchor="middle" font-size="18" font-weight="600" fill="#312E81">CLI 命令行</text>
+  <text x="410" y="144" text-anchor="middle" font-size="13" fill="#4F46E5">薄壳 · Thin Shell</text>
 
   <!-- App Server -->
-  <rect x="300" y="220" width="200" height="90" rx="12" fill="#EEF2FF" stroke="#4F46E5" stroke-width="2"/>
-  <text x="400" y="258" text-anchor="middle" font-size="18" font-weight="600" fill="#312E81">App Server</text>
-  <text x="400" y="282" text-anchor="middle" font-size="13" fill="#4F46E5">常驻 · Always-on</text>
+  <rect x="310" y="220" width="200" height="90" rx="12" fill="#EEF2FF" stroke="#4F46E5" stroke-width="2"/>
+  <text x="410" y="258" text-anchor="middle" font-size="18" font-weight="600" fill="#312E81">App Server</text>
+  <text x="410" y="282" text-anchor="middle" font-size="13" fill="#4F46E5">常驻 · Always-on</text>
 
   <!-- Codex Core -->
-  <rect x="120" y="380" width="240" height="90" rx="12" fill="#EEF2FF" stroke="#6366F1" stroke-width="2"/>
-  <text x="240" y="418" text-anchor="middle" font-size="18" font-weight="600" fill="#312E81">Codex Core</text>
-  <text x="240" y="442" text-anchor="middle" font-size="13" fill="#4F46E5">大脑 · Brain</text>
+  <rect x="140" y="380" width="260" height="90" rx="12" fill="#EEF2FF" stroke="#6366F1" stroke-width="2"/>
+  <text x="270" y="418" text-anchor="middle" font-size="18" font-weight="600" fill="#312E81">Codex Core</text>
+  <text x="270" y="442" text-anchor="middle" font-size="13" fill="#4F46E5">大脑 · Brain</text>
 
   <!-- Trust boundary + Exec Server -->
-  <rect x="520" y="360" width="260" height="190" rx="16" fill="#F9FAFB" stroke="#9CA3AF" stroke-width="2" stroke-dasharray="8 6"/>
-  <text x="650" y="386" text-anchor="middle" font-size="12" fill="#6B7280">沙箱 · 信任边界</text>
-  <rect x="560" y="410" width="180" height="100" rx="12" fill="#EEF2FF" stroke="#4F46E5" stroke-width="2"/>
-  <text x="650" y="452" text-anchor="middle" font-size="16" font-weight="600" fill="#312E81">Exec Server</text>
-  <text x="650" y="476" text-anchor="middle" font-size="12" fill="#4F46E5">沙箱 · Sandbox</text>
+  <rect x="500" y="360" width="240" height="170" rx="16" fill="#F9FAFB" stroke="#9CA3AF" stroke-width="2" stroke-dasharray="8 6"/>
+  <text x="620" y="386" text-anchor="middle" font-size="12" fill="#6B7280">沙箱 · 信任边界</text>
+  <rect x="530" y="410" width="180" height="100" rx="12" fill="#EEF2FF" stroke="#4F46E5" stroke-width="2"/>
+  <text x="620" y="452" text-anchor="middle" font-size="16" font-weight="600" fill="#312E81">Exec Server</text>
+  <text x="620" y="476" text-anchor="middle" font-size="12" fill="#4F46E5">沙箱 · Sandbox</text>
 
   <!-- Arrows -->
-  <line x1="400" y1="160" x2="400" y2="218" stroke="#4F46E5" stroke-width="2.5" marker-end="url(#blk_a)"/>
-  <line x1="370" y1="310" x2="265" y2="378" stroke="#4F46E5" stroke-width="2.5" marker-end="url(#blk_a)"/>
-  <line x1="455" y1="310" x2="620" y2="370" stroke="#4F46E5" stroke-width="2.5" marker-end="url(#blk_a)"/>
-  <text x="690" y="345" font-size="11" fill="#6B7280">RPC</text>
+  <line x1="410" y1="160" x2="410" y2="218" stroke="#4F46E5" stroke-width="2.5" marker-end="url(#blk_a)"/>
+  <line x1="370" y1="310" x2="270" y2="378" stroke="#4F46E5" stroke-width="2.5" marker-end="url(#blk_a)"/>
+  <line x1="450" y1="310" x2="620" y2="358" stroke="#4F46E5" stroke-width="2.5" marker-end="url(#blk_a)"/>
+  <text x="540" y="330" font-size="11" fill="#6B7280">RPC</text>
 </svg>
-<p>CLI、App-Server（内嵌 Core）、Exec-Server 是三个独立进程，命令的落地被收口在带信任边界的 Exec-Server 里。</p>
+<p>CLI、App-Server（内嵌 Core）、Exec-Server 是三个独立进程，命令的落地被收口在带信任边界的 Exec-Server 里。一个命令从发起、送检到执行的完整生命周期如下：</p>
+<svg viewBox="0 0 900 500" font-family="system-ui, sans-serif">
+  <defs>
+    <marker id="blk_a" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L9,3 L0,6 Z" fill="#4F46E5"/>
+    </marker>
+  </defs>
+  <rect width="900" height="500" fill="#FFFFFF"/>
+  <text x="40" y="40" font-size="22" font-weight="700" fill="#111827">运行时生命周期</text>
+  <text x="40" y="64" font-size="13" fill="#6B7280">CLI 启动 → 连接 App Server → 会话运行 → 关闭</text>
+
+  <!-- stage 1 -->
+  <rect x="40" y="150" width="180" height="120" rx="12" fill="#EEF2FF" stroke="#4F46E5" stroke-width="2"/>
+  <text x="130" y="190" text-anchor="middle" font-size="17" font-weight="700" fill="#312E81">① CLI 启动</text>
+  <text x="130" y="216" text-anchor="middle" font-size="12" fill="#4F46E5">解析参数</text>
+  <text x="130" y="236" text-anchor="middle" font-size="12" fill="#4F46E5">加载配置 · 鉴权</text>
+  <text x="130" y="256" text-anchor="middle" font-size="12" fill="#4F46E5">（薄壳）</text>
+
+  <!-- stage 2 -->
+  <rect x="260" y="150" width="200" height="120" rx="12" fill="#EEF2FF" stroke="#4F46E5" stroke-width="2"/>
+  <text x="360" y="190" text-anchor="middle" font-size="16" font-weight="700" fill="#312E81">② 连接 App Server</text>
+  <text x="360" y="216" text-anchor="middle" font-size="12" fill="#4F46E5">常驻 Core</text>
+  <text x="360" y="236" text-anchor="middle" font-size="12" fill="#4F46E5">建立会话</text>
+  <text x="360" y="256" text-anchor="middle" font-size="12" fill="#4F46E5">（常驻进程）</text>
+
+  <!-- stage 3 -->
+  <rect x="500" y="150" width="180" height="120" rx="12" fill="#EEF2FF" stroke="#4F46E5" stroke-width="2"/>
+  <text x="590" y="190" text-anchor="middle" font-size="17" font-weight="700" fill="#312E81">③ 会话运行</text>
+  <text x="590" y="216" text-anchor="middle" font-size="12" fill="#4F46E5">submit / next_event</text>
+  <text x="590" y="236" text-anchor="middle" font-size="12" fill="#4F46E5">工具 · 执行</text>
+  <text x="590" y="256" text-anchor="middle" font-size="12" fill="#4F46E5">（主循环）</text>
+
+  <!-- stage 4 -->
+  <rect x="720" y="150" width="140" height="120" rx="12" fill="#F3F4F6" stroke="#9CA3AF" stroke-width="2"/>
+  <text x="790" y="195" text-anchor="middle" font-size="17" font-weight="700" fill="#374151">④ 关闭</text>
+  <text x="790" y="221" text-anchor="middle" font-size="12" fill="#6B7280">优雅退出</text>
+  <text x="790" y="241" text-anchor="middle" font-size="12" fill="#6B7280">清理资源</text>
+
+  <!-- arrows -->
+  <line x1="220" y1="210" x2="258" y2="210" stroke="#4F46E5" stroke-width="2.5" marker-end="url(#blk_a)"/>
+  <line x1="460" y1="210" x2="498" y2="210" stroke="#4F46E5" stroke-width="2.5" marker-end="url(#blk_a)"/>
+  <line x1="680" y1="210" x2="718" y2="210" stroke="#4F46E5" stroke-width="2.5" marker-end="url(#blk_a)"/>
+  <text x="688" y="200" font-size="11" fill="#6B7280">shutdown</text>
+
+  <!-- loop under stage 3 -->
+  <rect x="500" y="320" width="180" height="90" rx="12" fill="#F9FAFB" stroke="#9CA3AF" stroke-width="2" stroke-dasharray="8 6"/>
+  <text x="590" y="352" text-anchor="middle" font-size="14" font-weight="600" fill="#374151">回合循环 turn loop</text>
+  <text x="590" y="374" text-anchor="middle" font-size="11" fill="#6B7280">采样 → 工具 → 执行 → 事件</text>
+  <path d="M572,392 A20,16 0 1 1 568,378" fill="none" stroke="#4F46E5" stroke-width="2" marker-end="url(#blk_a)"/>
+
+  <!-- dashed arrows s3 <-> loop -->
+  <line x1="590" y1="270" x2="590" y2="318" stroke="#4F46E5" stroke-width="2" stroke-dasharray="6 4" marker-end="url(#blk_a)"/>
+  <text x="600" y="300" font-size="11" fill="#6B7280">进入回合</text>
+
+  <!-- bottom note -->
+  <text x="40" y="470" font-size="12" fill="#6B7280">命令在 Exec-Server 沙箱内执行；本地 / 远程由 Environment 抽象（见 10.1 / 10.2）</text>
+</svg>
 <h2 id="10-runtime-10-1-exec-server-命令真正落地的那个进程">10.1 exec-server：命令真正落地的那个进程</h2>
 <p>core 负责跟模型对话、跑工具循环，真正把命令落到操作系统上则要跨一条进程边界——<strong>exec-server</strong>（<code>codex_exec_server</code> crate）。</p>
 <p>拆出来是为了信任边界：模型生成的 shell 指令是不可信输入，文件系统访问、网络出口、进程信号都得统一收口。让 core 在进程内直接 <code>std::process::Command</code> 也能跑，但沙箱策略、能力发现、远程执行环境这些逻辑就会和数据面耦合。放进一个独立的 executor 进程、core 只通过协议与它通信，"执行"才能做成可替换、可审计、可远程化的组件——本地跑在 <code>DEFAULT_LISTEN_URL</code>（<code>exec-server/src/lib.rs:208</code>），远程则连到托管环境。</p>
@@ -2045,7 +2201,7 @@ let msg = EventMsg::ExecCommandOutputDelta(ExecCommandOutputDeltaEvent {
 <h1>第 11 章：扩展生态</h1>
 <div class="chapter-level"><span class="level-badge advanced">深入</span></div>
 <p>Codex 留了四条扩展路径：<strong>Hooks</strong> 在回合的关键节点插一脚，<strong>Skills</strong> 把可复用经验喂进上下文，<strong>MCP</strong> 把外部服务接进工具系统，<strong>插件</strong>把前三者打包分发。四条路径最后都落在同一条工具分发链路上。</p>
-<svg viewBox="0 0 760 600" font-family="system-ui, sans-serif">
+<svg viewBox="0 0 760 620" font-family="system-ui, sans-serif">
   <defs>
     <marker id="blk_a" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
       <path d="M0,0 L9,3 L0,6 Z" fill="#4F46E5"/>
@@ -2128,6 +2284,51 @@ metadata:
 <p>一个插件（Plugin）是一份"能力包"，一次加载就能同时贡献四类东西：</p>
 <ul><li><strong>skills</strong>：插件自带的一组技能根目录；</li><li><strong>mcp_servers</strong>：插件声明要启动的 MCP server；</li><li><strong>apps</strong>：插件的 slash 命令 / 应用入口（即用户 <code>@</code> 提到的 connector）；</li><li><strong>hooks</strong>：插件的事件钩子。</li></ul>
 <p>加载完成后，会话对每个插件生成一个能力摘要 <code>PluginCapabilitySummary</code>，字段直接列出了 <code>has_skills</code> 与 <code>mcp_server_names</code>，见 <code>plugin/src/lib.rs:49</code>。它把 skill、MCP、app 统一收进一个摘要——这正是"打包分发"在数据上的体现。</p>
+<p>这些能力都经 Core 的 Registry 统一加载进工具系统，整体架构如下：</p>
+<svg viewBox="0 0 800 420" font-family="system-ui, sans-serif">
+  <defs>
+    <marker id="blk_arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L9,3 L0,6 Z" fill="#4F46E5"/>
+    </marker>
+  </defs>
+
+  <rect width="800" height="420" fill="#FFFFFF"/>
+
+  <text x="400" y="30" text-anchor="middle" font-size="20" font-weight="700" fill="#111827">扩展系统架构</text>
+
+  <!-- Core Host -->
+  <rect x="290" y="50" width="220" height="100" rx="14" fill="#EEF2FF" stroke="#4F46E5" stroke-width="2"/>
+  <text x="400" y="85" text-anchor="middle" font-size="17" font-weight="700" fill="#312E81">Core Host</text>
+  <text x="400" y="106" text-anchor="middle" font-size="12" fill="#4F46E5">codex-core 主进程</text>
+
+  <!-- Registry (inside Core) -->
+  <rect x="345" y="92" width="110" height="42" rx="8" fill="#E0E7FF" stroke="#4F46E5" stroke-width="2"/>
+  <text x="400" y="112" text-anchor="middle" font-size="13" font-weight="600" fill="#312E81">Registry</text>
+  <text x="400" y="127" text-anchor="middle" font-size="10" fill="#4F46E5">工具注册表</text>
+
+  <!-- load arrows -->
+  <line x1="400" y1="136" x2="195" y2="248" stroke="#4F46E5" stroke-width="2.5" marker-end="url(#blk_arrow)"/>
+  <line x1="400" y1="136" x2="400" y2="248" stroke="#4F46E5" stroke-width="2.5" marker-end="url(#blk_arrow)"/>
+  <line x1="400" y1="136" x2="605" y2="248" stroke="#4F46E5" stroke-width="2.5" marker-end="url(#blk_arrow)"/>
+  <text x="290" y="200" font-size="11" fill="#6B7280">load</text>
+  <text x="408" y="200" font-size="11" fill="#6B7280">load</text>
+  <text x="520" y="200" font-size="11" fill="#6B7280">load</text>
+
+  <!-- Core Plugin -->
+  <rect x="110" y="250" width="170" height="100" rx="12" fill="#EEF2FF" stroke="#4F46E5" stroke-width="2"/>
+  <text x="195" y="292" text-anchor="middle" font-size="15" font-weight="700" fill="#312E81">Core Plugin</text>
+  <text x="195" y="316" text-anchor="middle" font-size="12" fill="#4F46E5">内置 built-in</text>
+
+  <!-- Custom Tool -->
+  <rect x="315" y="250" width="170" height="100" rx="12" fill="#ECFDF5" stroke="#4F46E5" stroke-width="2"/>
+  <text x="400" y="292" text-anchor="middle" font-size="15" font-weight="700" fill="#312E81">Custom Tool</text>
+  <text x="400" y="316" text-anchor="middle" font-size="12" fill="#4F46E5">用户自定义</text>
+
+  <!-- MCP / External Server -->
+  <rect x="520" y="250" width="170" height="100" rx="12" fill="#FEF3C7" stroke="#4F46E5" stroke-width="2"/>
+  <text x="605" y="292" text-anchor="middle" font-size="15" font-weight="700" fill="#312E81">MCP / External</text>
+  <text x="605" y="316" text-anchor="middle" font-size="12" fill="#4F46E5">外部服务 Server</text>
+</svg>
 <p>插件内容由一份 manifest 描述。解析结果是泛型模型 <code>PluginManifest&lt;Resource&gt;</code>，其中真正决定"装了什么"的是 <code>PluginManifestPaths</code>（<code>plugin/src/manifest.rs:18</code>）：</p>
 <pre><code>pub struct PluginManifestPaths&lt;Resource&gt; {
     pub skills: Vec&lt;Resource&gt;,
@@ -2194,16 +2395,53 @@ metadata:
   <text x="220" y="435" text-anchor="middle" font-size="16" font-weight="600" fill="#374151">Exec Server</text>
 
   <!-- double-headed links -->
-  <line x1="320" y1="250" x2="122" y2="130" stroke="#4F46E5" stroke-width="2.5" marker-start="url(#blk_both)" marker-end="url(#blk_both)"/>
+  <line x1="320" y1="250" x2="188" y2="170" stroke="#4F46E5" stroke-width="2.5" marker-start="url(#blk_both)" marker-end="url(#blk_both)"/>
   <line x1="480" y1="250" x2="478" y2="130" stroke="#4F46E5" stroke-width="2.5" marker-start="url(#blk_both)" marker-end="url(#blk_both)"/>
   <line x1="480" y1="310" x2="478" y2="430" stroke="#4F46E5" stroke-width="2.5" marker-start="url(#blk_both)" marker-end="url(#blk_both)"/>
-  <line x1="320" y1="310" x2="122" y2="430" stroke="#4F46E5" stroke-width="2.5" marker-start="url(#blk_both)" marker-end="url(#blk_both)"/>
+  <line x1="320" y1="310" x2="188" y2="390" stroke="#4F46E5" stroke-width="2.5" marker-start="url(#blk_both)" marker-end="url(#blk_both)"/>
 </svg>
 <p>图：模型响应回流链路（dataflow）——从 SSE 帧到内部 item。</p>
 <p>失败重试与限流分两层各自负责：</p>
 <ul><li><strong>客户端层</strong>：<code>stream_responses_api</code> 里对 <code>ApiError::Transport</code> 的可恢复鉴权错误会触发 <code>auth_recovery</code> 重试（<code>core/src/client.rs:1525</code>），WS→HTTP 的 fallback 也在这里兜底。</li><li><strong>底层 HTTP 层</strong>：<code>codex-client/src/retry.rs</code> 提供了通用重试。<code>RetryOn::should_retry</code>（<code>codex-client/src/retry.rs:22</code>）明确对 <strong>429 限流</strong>、<strong>5xx</strong>、以及传输错误（<code>Timeout</code>/<code>Connection</code>/<code>Network</code>）决定是否重试；<code>run_with_retry</code>（<code>codex-client/src/retry.rs:80</code>）按 <code>max_attempts</code> 循环，配合 <code>backoff</code>（<code>codex-client/src/retry.rs:39</code>）做指数退避 + 抖动。</li></ul>
 <h2 id="12-model-ctx-12-2-上下文压缩-长会话怎么不爆-token">12.2 上下文压缩：长会话怎么不爆 token</h2>
 <p>第 4 章里 <code>run_turn</code> 是怎么"想一步、做一步"的。它每一次采样都把整段对话历史塞进 prompt；但历史不是无限的——模型有上下文窗口，token 越多越贵，也越容易把前面的指令稀释掉。</p>
+<svg viewBox="0 0 800 460" font-family="system-ui, sans-serif">
+  <defs>
+    <marker id="blk_a" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L9,3 L0,6 Z" fill="#4F46E5"/>
+    </marker>
+  </defs>
+  <rect width="800" height="460" fill="#FFFFFF"/>
+  <text x="40" y="40" font-size="22" font-weight="700" fill="#111827">上下文窗口的 token 预算</text>
+  <text x="40" y="64" font-size="13" fill="#6B7280">一次采样前，token 在 system / history / tools / output 间的分配（比例示意）</text>
+
+  <!-- window frame -->
+  <rect x="54" y="150" width="732" height="104" rx="14" fill="none" stroke="#9CA3AF" stroke-width="2" stroke-dasharray="8 6"/>
+  <text x="60" y="142" font-size="12" fill="#6B7280">上下文窗口 Context Window</text>
+
+  <!-- segments -->
+  <rect x="60"  y="164" width="127" height="76" rx="8" fill="#4F46E5"/>
+  <rect x="191" y="164" width="333" height="76" rx="8" fill="#6366F1"/>
+  <rect x="528" y="164" width="106" height="76" rx="8" fill="#818CF8"/>
+  <rect x="638" y="164" width="142" height="76" rx="8" fill="#A5B4FC"/>
+
+  <!-- segment labels -->
+  <text x="123" y="206" text-anchor="middle" font-size="14" font-weight="600" fill="#FFFFFF">System</text>
+  <text x="123" y="226" text-anchor="middle" font-size="11" fill="#EEF2FF">~18%</text>
+
+  <text x="357" y="206" text-anchor="middle" font-size="14" font-weight="600" fill="#FFFFFF">History</text>
+  <text x="357" y="226" text-anchor="middle" font-size="11" fill="#EEF2FF">对话历史 ~47%</text>
+
+  <text x="581" y="206" text-anchor="middle" font-size="14" font-weight="600" fill="#FFFFFF">Tools</text>
+  <text x="581" y="226" text-anchor="middle" font-size="11" fill="#EEF2FF">~15%</text>
+
+  <text x="709" y="206" text-anchor="middle" font-size="14" font-weight="600" fill="#312E81">Output</text>
+  <text x="709" y="226" text-anchor="middle" font-size="11" fill="#312E81">~20%</text>
+
+  <!-- caption -->
+  <text x="60" y="320" font-size="14" font-weight="600" fill="#374151">压缩前：对话历史随轮次增长，逼近窗口上限</text>
+  <text x="60" y="348" font-size="13" fill="#6B7280">超限时 run_pre_sampling_compact（12.2）摘要旧历史，把 token 压回预算内；输出预算独立于输入侧。</text>
+</svg>
 <p>压缩不在回合结束后，而在 <code>run_turn</code> 进主循环<strong>之前</strong>。第 4 章讲过，<code>run_turn</code> 开头先 drain 上一轮的 hook 结果，紧接着就调用 <code>run_pre_sampling_compact</code>（<code>core/src/session/turn.rs:169</code>）：</p>
 <pre><code>// core/src/session/turn.rs:169
 if let Err(err) = run_pre_sampling_compact(
@@ -2241,33 +2479,33 @@ if let Err(err) = run_pre_sampling_compact(
   <text x="40" y="64" font-size="13" fill="#6B7280">CLI / App-Server / Codex-Core / Exec-Server 四者关系</text>
 
   <!-- CLI -->
-  <rect x="300" y="100" width="200" height="70" rx="12" fill="#EEF2FF" stroke="#4F46E5" stroke-width="2"/>
-  <text x="400" y="132" text-anchor="middle" font-size="18" font-weight="600" fill="#312E81">CLI 命令行</text>
-  <text x="400" y="154" text-anchor="middle" font-size="13" fill="#4F46E5">薄壳 · Thin Shell</text>
+  <rect x="240" y="100" width="240" height="70" rx="12" fill="#EEF2FF" stroke="#4F46E5" stroke-width="2"/>
+  <text x="360" y="132" text-anchor="middle" font-size="18" font-weight="600" fill="#312E81">CLI 命令行</text>
+  <text x="360" y="154" text-anchor="middle" font-size="13" fill="#4F46E5">薄壳 · Thin Shell</text>
 
   <!-- App Server container -->
-  <rect x="190" y="220" width="420" height="210" rx="16" fill="#F9FAFB" stroke="#4F46E5" stroke-width="2"/>
-  <text x="400" y="245" text-anchor="middle" font-size="16" font-weight="600" fill="#312E81">App Server</text>
-  <text x="400" y="263" text-anchor="middle" font-size="12" fill="#4F46E5">常驻 · Always-on</text>
+  <rect x="150" y="220" width="420" height="210" rx="16" fill="#F9FAFB" stroke="#4F46E5" stroke-width="2"/>
+  <text x="360" y="245" text-anchor="middle" font-size="16" font-weight="600" fill="#312E81">App Server</text>
+  <text x="360" y="263" text-anchor="middle" font-size="12" fill="#4F46E5">常驻 · Always-on</text>
 
   <!-- Codex Core inside -->
-  <rect x="250" y="290" width="300" height="110" rx="12" fill="#EEF2FF" stroke="#6366F1" stroke-width="2"/>
-  <text x="400" y="335" text-anchor="middle" font-size="18" font-weight="600" fill="#312E81">Codex Core</text>
-  <text x="400" y="360" text-anchor="middle" font-size="13" fill="#4F46E5">大脑 · Brain</text>
+  <rect x="210" y="290" width="300" height="110" rx="12" fill="#EEF2FF" stroke="#6366F1" stroke-width="2"/>
+  <text x="360" y="335" text-anchor="middle" font-size="18" font-weight="600" fill="#312E81">Codex Core</text>
+  <text x="360" y="360" text-anchor="middle" font-size="13" fill="#4F46E5">大脑 · Brain</text>
 
   <!-- Trust boundary around exec -->
-  <rect x="640" y="220" width="160" height="210" rx="16" fill="#F9FAFB" stroke="#9CA3AF" stroke-width="2" stroke-dasharray="8 6"/>
-  <text x="720" y="246" text-anchor="middle" font-size="12" fill="#6B7280">信任边界</text>
+  <rect x="590" y="220" width="150" height="210" rx="16" fill="#F9FAFB" stroke="#9CA3AF" stroke-width="2" stroke-dasharray="8 6"/>
+  <text x="665" y="246" text-anchor="middle" font-size="12" fill="#6B7280">信任边界</text>
 
   <!-- Exec Server inside -->
-  <rect x="660" y="290" width="120" height="110" rx="12" fill="#EEF2FF" stroke="#4F46E5" stroke-width="2"/>
-  <text x="720" y="335" text-anchor="middle" font-size="16" font-weight="600" fill="#312E81">Exec Server</text>
-  <text x="720" y="358" text-anchor="middle" font-size="12" fill="#4F46E5">沙箱 · Sandbox</text>
+  <rect x="610" y="290" width="110" height="110" rx="12" fill="#EEF2FF" stroke="#4F46E5" stroke-width="2"/>
+  <text x="665" y="335" text-anchor="middle" font-size="16" font-weight="600" fill="#312E81">Exec Server</text>
+  <text x="665" y="358" text-anchor="middle" font-size="12" fill="#4F46E5">沙箱 · Sandbox</text>
 
   <!-- Arrows -->
-  <line x1="400" y1="170" x2="400" y2="218" stroke="#4F46E5" stroke-width="2.5" marker-end="url(#blk_a)"/>
-  <line x1="610" y1="345" x2="658" y2="345" stroke="#4F46E5" stroke-width="2.5" marker-end="url(#blk_a)"/>
-  <text x="624" y="335" text-anchor="middle" font-size="11" fill="#6B7280">RPC</text>
+  <line x1="360" y1="170" x2="360" y2="218" stroke="#4F46E5" stroke-width="2.5" marker-end="url(#blk_a)"/>
+  <line x1="510" y1="345" x2="608" y2="345" stroke="#4F46E5" stroke-width="2.5" marker-end="url(#blk_a)"/>
+  <text x="560" y="335" text-anchor="middle" font-size="11" fill="#6B7280">RPC</text>
 </svg>
 <p>CLI 薄壳之下，Core 常驻于 App-Server，Exec-Server 独立在信任边界内——后面每节工程机制都落在这几个进程之上。</p>
 <h2 id="13-engineering-13-1-登录与鉴权-API-key-从哪来-存在哪">13.1 登录与鉴权：API key 从哪来、存在哪</h2>

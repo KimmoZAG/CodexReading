@@ -74,21 +74,48 @@
   }
   .ae-svg-wrap svg { width: 100%; height: auto; display: block; }
 
-  /* 信息卡片：默认隐藏，滑入 */
+  /* 信息卡片：默认折叠，max-height 滑入 */
   .ae-info {
+    position: relative;
     flex: 1 1 280px;
     min-width: 240px;
-    border: 1px solid #E5E7EB;
-    border-left: 4px solid var(--brand);
-    border-radius: 12px;
-    padding: 16px 18px;
-    background: #fff;
+    max-height: 0;
     opacity: 0;
-    transform: translateY(12px);
-    transition: opacity .25s ease, transform .25s ease;
+    overflow: hidden;
+    border: 1px solid transparent;
+    border-left: 4px solid transparent;
+    border-radius: 12px;
+    padding: 0 18px;
+    background: #fff;
+    transition: max-height .35s ease, opacity .25s ease, padding .35s ease, border-color .35s ease;
     pointer-events: none;
   }
-  .ae-info.show { opacity: 1; transform: translateY(0); pointer-events: auto; }
+  .ae-info.show {
+    max-height: 600px;
+    opacity: 1;
+    padding: 16px 18px;
+    border-color: #E5E7EB;
+    border-left-color: var(--brand);
+    pointer-events: auto;
+  }
+  .ae-close {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 28px;
+    height: 28px;
+    display: none;
+    border: none;
+    background: transparent;
+    color: var(--muted);
+    font-size: 22px;
+    line-height: 1;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: background .15s, color .15s;
+  }
+  .ae-close:hover { background: var(--brand-soft); color: var(--brand); }
+  .ae-info.show .ae-close { display: block; }
   .ae-info h3 {
     margin: 0 0 6px;
     font-size: 20px;
@@ -128,31 +155,55 @@
   .arch-node:hover .node-box { fill: var(--brand-hover); stroke-width: 3.5; }
   .arch-node.selected .node-box { fill: var(--brand-hover); stroke-width: 4.5; }
 
-  /* Quiz 闪烁高亮 */
-  @keyframes ae-blink {
-    0%, 100% { fill: var(--brand-soft); stroke-width: 3; }
-    50%      { fill: #C7D2FE; stroke-width: 6; }
+  /* Quiz 高亮：脉冲发光 + 微放大（SVG 用 drop-shadow 实现边框发光） */
+  @keyframes quiz-pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(79,70,229,0); filter: drop-shadow(0 0 0 rgba(79,70,229,0)); transform: scale(1); }
+    50%      { box-shadow: 0 0 20px 5px rgba(79,70,229,0.4); filter: drop-shadow(0 0 10px rgba(79,70,229,0.65)); transform: scale(1.03); }
   }
-  .arch-node.target .node-box { animation: ae-blink 1s ease-in-out infinite; }
+  .quiz-target {
+    animation: quiz-pulse 1.2s ease-in-out infinite;
+    transform-box: fill-box;
+    transform-origin: center;
+  }
 
-  /* 点击反馈动画 */
-  @keyframes ae-pop {
+  /* 点击反馈动画：正确绿色闪烁 / 错误红色抖动 / 得分计数弹跳 */
+  @keyframes pulse-green {
+    0%   { transform: scale(.5); opacity: 0; }
+    45%  { transform: scale(1.2); opacity: 1; box-shadow: 0 0 18px 4px rgba(22,163,74,0.55); }
+    100% { transform: scale(1); opacity: 1; }
+  }
+  @keyframes shake-red {
+    0%, 100% { transform: translateX(0); }
+    15% { transform: translateX(-7px); }
+    30% { transform: translateX(7px); }
+    45% { transform: translateX(-5px); }
+    60% { transform: translateX(5px); }
+    75% { transform: translateX(-3px); }
+  }
+  @keyframes score-bump {
     0%   { transform: scale(1); }
-    40%  { transform: scale(1.18); }
+    50%  { transform: scale(1.25); color: #16A34A; }
     100% { transform: scale(1); }
   }
   .ae-feedback {
     font-size: 28px;
     font-weight: 800;
     display: inline-block;
+    border-radius: 10px;
+    padding: 2px 6px;
   }
-  .ae-feedback.pop { animation: ae-pop .45s ease; }
-  .ae-feedback.ok  { color: #16A34A; }
-  .ae-feedback.no  { color: #DC2626; }
+  .ae-feedback.ok { color: #16A34A; }
+  .ae-feedback.no { color: #DC2626; }
+  .ae-feedback.pulse-green { animation: pulse-green .55s ease; }
+  .ae-feedback.shake-red   { animation: shake-red .5s ease; }
+  .ae-score.bump { animation: score-bump .45s ease; }
 
-  @media (max-width: 560px) {
+  @media (max-width: 480px) {
     .ae-stage { flex-direction: column; }
     .ae-svg-wrap, .ae-info { flex: 1 1 auto; width: 100%; }
+    .ae-btn { min-height: 44px; padding: 10px 18px; }
+    .ae-toolbar { gap: 8px; }
+    .ae-score { min-width: 0; font-size: 13px; }
   }
 </style>
 
@@ -217,7 +268,8 @@
     </div>
 
     <div class="ae-info" id="arch-info" aria-live="polite">
-      <!-- 由 JS 填充 -->
+      <button class="ae-close" id="ae-close" type="button" aria-label="关闭信息卡片">×</button>
+      <div id="ae-info-body"></div>
     </div>
   </div>
 </div>
@@ -274,6 +326,8 @@
   var hint = document.getElementById("ae-hint");
   var scoreEl = document.getElementById("ae-score");
   var quizBtn = document.getElementById("ae-quiz-btn");
+  var infoBody = document.getElementById("ae-info-body");
+  var closeBtn = document.getElementById("ae-close");
 
   var mode = "explore"; // "explore" | "quiz"
   var selectedKey = null;
@@ -289,7 +343,7 @@
     var fileLinks = d.files.map(function (f) {
       return '<li><a href="#/read/' + d.chapter + '">' + f + '</a></li>';
     }).join("");
-    info.innerHTML =
+    infoBody.innerHTML =
       '<h3>' + d.name + '</h3>' +
       '<p class="ae-role">' + d.role + '</p>' +
       '<div class="ae-label">关键文件 / 目录</div>' +
@@ -334,7 +388,7 @@
     quiz.target = KEYS[Math.floor(Math.random() * KEYS.length)];
     nodes.forEach(function (n) {
       n.classList.remove("selected");
-      n.classList.toggle("target", n.getAttribute("data-key") === quiz.target);
+      n.classList.toggle("quiz-target", n.getAttribute("data-key") === quiz.target);
     });
     hint.innerHTML = '第 ' + (quiz.round + 1) + ' / ' + TOTAL_ROUNDS + ' 轮：闪烁的组件是？点击它！';
   }
@@ -343,12 +397,17 @@
     if (quiz.locked) return;
     quiz.locked = true;
     var correct = (key === quiz.target);
-    if (correct) quiz.score++;
-    scoreEl.textContent = "得分: " + quiz.score + "/" + TOTAL_ROUNDS;
+    if (correct) {
+      quiz.score++;
+      scoreEl.textContent = "得分: " + quiz.score + "/" + TOTAL_ROUNDS;
+      scoreEl.classList.remove("bump");
+      void scoreEl.offsetWidth; // 触发重排以重启动画
+      scoreEl.classList.add("bump");
+    }
 
-    // 反馈动画：在提示区显示 ✅ / ❌
+    // 反馈动画：✅ 绿色闪烁 / ❌ 红色抖动
     var mark = document.createElement("span");
-    mark.className = "ae-feedback pop " + (correct ? "ok" : "no");
+    mark.className = "ae-feedback " + (correct ? "pulse-green ok" : "shake-red no");
     mark.textContent = correct ? "✅" : "❌";
     hint.textContent = "";
     hint.appendChild(mark);
@@ -363,7 +422,7 @@
 
     // 高亮显示正确答案
     nodes.forEach(function (n) {
-      n.classList.remove("target");
+      n.classList.remove("quiz-target");
       if (n.getAttribute("data-key") === quiz.target) n.classList.add("selected");
     });
 
@@ -371,19 +430,23 @@
     setTimeout(nextRound, 1400);
   }
 
+  function ratingComment(score) {
+    if (score === 5) return "🏆 完美！你已经是 Codex 架构专家了";
+    if (score === 4) return "👍 很好！再接再厉";
+    if (score === 3) return "👍 及格！建议再看一遍架构图";
+    return "💪 继续加油！多读几章再来挑战";
+  }
+
   function endQuiz() {
     mode = "explore";
     quizBtn.textContent = "Quiz 模式";
     quizBtn.classList.remove("ghost");
     scoreEl.hidden = true;
-    nodes.forEach(function (n) { n.classList.remove("target", "selected"); });
+    nodes.forEach(function (n) { n.classList.remove("quiz-target", "selected"); });
 
-    var pct = quiz.score / TOTAL_ROUNDS;
-    var comment = pct === 1 ? "满分！架构大师 🏆"
-      : pct >= 0.6 ? "不错，核心组件都记住了 👍"
-      : "再读几章就熟了，回去翻翻架构全景 📖";
+    var comment = ratingComment(quiz.score);
     hint.textContent = "Quiz 结束 — 得分 " + quiz.score + "/" + TOTAL_ROUNDS + "：" + comment;
-    info.innerHTML =
+    infoBody.innerHTML =
       '<h3>本轮战绩</h3>' +
       '<p class="ae-role">得分 <b>' + quiz.score + '</b> / ' + TOTAL_ROUNDS + '<br>' + comment + '</p>' +
       '<div class="ae-label ae-chapter">温故知新</div>' +
@@ -396,7 +459,7 @@
     quizBtn.textContent = "Quiz 模式";
     quizBtn.classList.remove("ghost");
     scoreEl.hidden = true;
-    nodes.forEach(function (n) { n.classList.remove("target", "selected"); });
+    nodes.forEach(function (n) { n.classList.remove("quiz-target", "selected"); });
     hint.textContent = "点击架构图中的组件查看详情 →";
     info.classList.remove("show");
   }
@@ -420,6 +483,14 @@
   quizBtn.addEventListener("click", function () {
     if (mode === "quiz") exitQuiz();
     else startQuiz();
+  });
+
+  // 信息卡片关闭按钮：收起卡片并回到初始提示态
+  closeBtn.addEventListener("click", function () {
+    selectedKey = null;
+    clearSelection();
+    info.classList.remove("show");
+    hint.textContent = "点击架构图中的组件查看详情 →";
   });
 })();
 </script>

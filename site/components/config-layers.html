@@ -84,6 +84,8 @@
     border: 1.5px solid rgba(17,24,39,.06);
     transition: transform .3s ease, box-shadow .3s ease, opacity .3s ease, filter .3s ease;
     user-select: none;
+    /* 基础静态堆叠：底层 z-index=1，顶层 z-index=5，DOM 顺序不再决定默认层叠 */
+    z-index: calc(1 + var(--i));
   }
   .cl-card:hover { box-shadow: 0 8px 18px rgba(17,24,39,.18); }
   .cl-card .cl-name {
@@ -111,17 +113,18 @@
   .cl-card .cl-example .cl-kv { font-weight: 700; }
   .cl-card .cl-example .cl-note { opacity: .8; font-size: 11.5px; text-align: right; }
 
-  /* 弹出（最前）状态 */
+  /* 弹出（最前）状态 —— z-index 远高于任何静态值，确保置顶 */
   .cl-card.active {
+    z-index: 100;
     transform: translateX(-50%) translateY(-22px) scale(1.05);
     box-shadow: 0 18px 34px rgba(17,24,39,.28);
     filter: none;
     opacity: 1;
   }
-  /* 非激活卡片在非演示态被淡化 */
+  /* 非激活卡片在非演示态退后，但保持可见以呈现层次关系 */
   .cl-stage.has-active .cl-card:not(.active) {
-    opacity: .5;
-    filter: saturate(.7);
+    opacity: .85;
+    filter: brightness(.95);
   }
   /* 演示态高亮当前层 */
   .cl-card.flash {
@@ -284,7 +287,6 @@
     card.style.setProperty("--i", i);
     card.style.background = layer.color;
     card.style.color = layer.textColor;
-    card.style.zIndex = String(10 + i); // cli 在视觉最上层
     card.dataset.id = layer.id;
     card.innerHTML =
       '<p class="cl-name">' + layer.name + '</p>' +
@@ -306,7 +308,15 @@
     activeId = id;
     const layer = layers.find(function (l) { return l.id === id; });
     stage.classList.add("has-active");
-    cards.forEach(function (c) { c.classList.toggle("active", c.dataset.id === id); });
+    // 先统一清除所有卡片的内联 z-index 与 active，回退到 CSS 静态堆叠顺序
+    cards.forEach(function (c) {
+      c.classList.remove("active");
+      c.style.zIndex = "";
+    });
+    // 再单独把目标卡片置顶：内联 z-index:100 保证高于一切静态值
+    const target = cardById(id);
+    target.style.zIndex = "100";
+    target.classList.add("active");
 
     detail.innerHTML =
       '<div class="cl-d-row"><span class="cl-d-label">配置文件路径</span><span class="cl-d-val"><code>' + layer.path + '</code></span></div>' +
@@ -321,7 +331,7 @@
     if (demoTimer) { clearInterval(demoTimer); demoTimer = null; }
     activeId = null;
     stage.classList.remove("has-active", "demo");
-    cards.forEach(function (c) { c.classList.remove("active", "flash"); });
+    cards.forEach(function (c) { c.classList.remove("active", "flash"); c.style.zIndex = ""; });
     detail.innerHTML =
       '<div class="cl-d-row"><span class="cl-d-label">说明</span><span class="cl-d-val">点击上方任意一层卡片，查看其配置文件路径、优先级与代码引用。</span></div>';
     demo.classList.remove("show");
@@ -336,7 +346,7 @@
     demo.classList.add("show");
     stage.classList.add("demo");
     stage.classList.remove("has-active");
-    cards.forEach(function (c) { c.classList.remove("active"); });
+    cards.forEach(function (c) { c.classList.remove("active"); c.style.zIndex = ""; });
 
     let step = 0;
     resolved.textContent = "计算中…";

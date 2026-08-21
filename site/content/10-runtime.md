@@ -6,7 +6,9 @@
 
 ![](assets/diagrams/processes.svg)
 
-CLI、App-Server（内嵌 Core）、Exec-Server 是三个独立进程，命令的落地被收口在带信任边界的 Exec-Server 里。
+CLI、App-Server（内嵌 Core）、Exec-Server 是三个独立进程，命令的落地被收口在带信任边界的 Exec-Server 里。一个命令从发起、送检到执行的完整生命周期如下：
+
+![](assets/diagrams/runtime-lifecycle.svg)
 
 ## 10.1 exec-server：命令真正落地的那个进程
 
