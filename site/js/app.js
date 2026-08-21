@@ -485,19 +485,21 @@ function buildInpageToc(article) {
   const content = article.parentElement || document.getElementById("content");
   if (!content) return;
 
-  // 容器 div#inpage-toc：若不存在则创建并插入到 article 父容器最前面（article 之前）
+  // 容器 nav#inpage-toc：若不存在则创建并插入到 article 父容器最前面（article 之前）
   let box = document.getElementById("inpage-toc");
   if (!box) {
-    box = document.createElement("aside");
+    box = document.createElement("nav");           // 目录是导航区域，用 nav + aria-label
     box.id = "inpage-toc";
     box.className = "inpage-toc";
+    box.setAttribute("aria-label", "本页目录");
     box.hidden = true;
     const btn = document.createElement("button");
     btn.type = "button";
     btn.className = "inpage-toc-toggle";
     btn.id = "inpage-toc-toggle";
     btn.setAttribute("aria-expanded", "true");
-    btn.innerHTML = '目录 <span class="inpage-toc-chev">∨</span>';
+    btn.setAttribute("aria-controls", "inpage-toc-list");
+    btn.innerHTML = '目录 <span class="inpage-toc-chev" aria-hidden="true">∨</span>';
     const list = document.createElement("ul");
     list.className = "inpage-toc-list";
     list.id = "inpage-toc-list";
@@ -536,8 +538,10 @@ function buildInpageToc(article) {
     `<li class="inpage-toc-item ${it.level}"><a href="#${it.id}" data-target="${it.id}">${it.text}</a></li>`
   ).join("");
   box.hidden = false;
-  // 移动端默认收起
-  box.classList.toggle("collapsed", window.matchMedia("(max-width: 768px)").matches);
+  // 移动端默认收起；折叠态需同步折叠按钮的 aria-expanded
+  const collapsed = window.matchMedia("(max-width: 768px)").matches;
+  box.classList.toggle("collapsed", collapsed);
+  syncInpageTocExpanded(box);
 
   // 3) 点击平滑滚动（拦截默认跳转，避免污染 hash 触发 router）
   const links = Array.from(list.querySelectorAll("a"));
@@ -549,11 +553,13 @@ function buildInpageToc(article) {
       e.preventDefault();
       const target = document.getElementById(a.dataset.target);
       if (target) {
-        target.scrollIntoView({ behavior: "smooth", block: "start" });
+        target.scrollIntoView({ behavior: prefersReducedMotion() ? "auto" : "smooth", block: "start" });
         // 更新高亮，并收起移动端目录
-        lis.forEach((l) => l.classList.remove("active"));
-        liById[a.dataset.target].classList.add("active");
-        if (window.matchMedia("(max-width: 768px)").matches) box.classList.add("collapsed");
+        setInpageTocActive(lis, liById[a.dataset.target]);
+        if (window.matchMedia("(max-width: 768px)").matches) {
+          box.classList.add("collapsed");
+          syncInpageTocExpanded(box);
+        }
       }
     });
   });
@@ -563,14 +569,30 @@ function buildInpageToc(article) {
     entries.forEach((en) => {
       if (en.isIntersecting) {
         const li = liById[en.target.id];
-        if (li) {
-          lis.forEach((l) => l.classList.remove("active"));
-          li.classList.add("active");
-        }
+        if (li) setInpageTocActive(lis, li);
       }
     });
   }, { threshold: 0.5 });
   heads.forEach((h) => inpageTocObserver.observe(h));
+}
+
+// 当前所在小节：.active 视觉高亮 + aria-current="location"（屏幕阅读器可感知）
+function setInpageTocActive(lis, activeLi) {
+  lis.forEach((l) => {
+    l.classList.remove("active");
+    const a = l.querySelector("a");
+    if (a) a.removeAttribute("aria-current");
+  });
+  if (!activeLi) return;
+  activeLi.classList.add("active");
+  const a = activeLi.querySelector("a");
+  if (a) a.setAttribute("aria-current", "location");
+}
+
+// 折叠按钮的 aria-expanded 必须跟随 .collapsed 状态，否则屏幕阅读器读到的展开态是错的
+function syncInpageTocExpanded(box) {
+  const btn = box.querySelector(".inpage-toc-toggle");
+  if (btn) btn.setAttribute("aria-expanded", box.classList.contains("collapsed") ? "false" : "true");
 }
 
 // ---------- 侧边栏 ----------
@@ -669,16 +691,18 @@ function closeSidebar() { setSidebarOpen(false); }
 })();
 
 // ---------- 路由 ----------
-// aria-current="page" 让屏幕阅读器在当前章节链接上播报「当前页」，
-// 而不只依赖 .active 的视觉高亮。
-function setActive(id) {
+// 侧边栏当前项：除 .active 视觉高亮外，同步 aria-current="page"，
+// 让屏幕阅读器能播报「当前页」，不依赖颜色。
+function markNavActive(matcher) {
   document.querySelectorAll("#toc a").forEach((a) => {
-    const on = a.dataset.id === id;
+    const on = !!matcher(a);
     a.classList.toggle("active", on);
     if (on) a.setAttribute("aria-current", "page");
     else a.removeAttribute("aria-current");
   });
 }
+
+function setActive(id) { markNavActive((a) => a.dataset.id === id); }
 
 // 切章时用于取消「渲染后校准」的 setTimeout，避免泄漏 / 覆盖新章节
 let chapterRenderTimer = null;
@@ -704,7 +728,7 @@ async function showChapter(id) {
   const token = ++chapterLoadToken;     // 标记本次加载，后续 await 后据此判断是否已切章
 
   // 章节切换动画：先 fadeOut 旧内容（尊重 prefers-reduced-motion）
-  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const reduceMotion = prefersReducedMotion();
   if (article && !reduceMotion) {
     article.classList.add("fade-out");
     await new Promise((r) => setTimeout(r, 150));
@@ -739,6 +763,7 @@ async function showChapter(id) {
     });
     hideBackToTop();                          // 章节切换时隐藏「回到顶部」（恢复滚动后会被 updateBackToTop 重新评估）
     updateProgress();                         // 切换章节后重新计算进度
+    announce(`已打开章节：${chap.title}`);     // 动态换页对屏幕阅读器是无声的，显式播报
     // 淡入新内容
     if (article && !reduceMotion) {
       article.classList.remove("fade-out");
@@ -756,8 +781,9 @@ async function showChapter(id) {
     if (token !== chapterLoadToken) return;
     if (article) {
       article.classList.remove("fade-out", "fade-in");
-      article.innerHTML = `<p class="load-error">加载失败，请刷新重试。</p>`;
+      article.innerHTML = `<p class="load-error" role="alert">加载失败，请刷新重试。</p>`;
     }
+    announce("章节加载失败，请刷新重试");
     console.warn("章节加载失败：", e);
   }
 }
@@ -781,9 +807,7 @@ async function showRepo() {
   if (box) box.hidden = true;             // 仓库地图不显示「本页目录」
   if (inpageTocObserver) { inpageTocObserver.disconnect(); inpageTocObserver = null; }
 
-  document.querySelectorAll("#toc a").forEach((a) =>
-    a.classList.toggle("active", a.dataset.route === "repo")
-  );
+  markNavActive((a) => a.dataset.route === "repo");
   const article = document.getElementById("article");
   if (!state.crates) {
     try {
@@ -799,8 +823,11 @@ async function showRepo() {
       <h1>仓库地图</h1>
       <p>下面是对 <code>codex-rs</code> 下全部 crate 的扫描结果。点击名称跳到 GitHub 对应目录。用搜索框按名称或描述过滤。</p>
     </div>
-    <div class="repo-filter"><input id="repo-search" placeholder="过滤 crate（名称 / 描述）…" autocomplete="off" /></div>
-    <div class="repo-count" id="repo-count"></div>
+    <div class="repo-filter" role="search">
+      <label class="sr-only" for="repo-search">按名称或描述过滤 crate</label>
+      <input id="repo-search" placeholder="过滤 crate（名称 / 描述）…" autocomplete="off" />
+    </div>
+    <div class="repo-count" id="repo-count" role="status" aria-live="polite"></div>
     <div class="repo-grid" id="repo-grid"></div>
   `;
   const grid = document.getElementById("repo-grid");
@@ -828,6 +855,7 @@ async function showRepo() {
   };
   draw("");
   document.getElementById("repo-search").addEventListener("input", (e) => draw(e.target.value.trim().toLowerCase()));
+  announce("已打开仓库地图");
   window.scrollTo(0, 0);
   hideBackToTop();                          // 仓库地图切换时同样隐藏「回到顶部」
   updateProgress();
@@ -846,12 +874,14 @@ const INTERACTIVES = [
 function renderInteractiveGrid() {
   const grid = document.getElementById("interactive-grid");
   if (!grid) return;
+  // 卡片标题用 h2（面板标题是 h1），保持标题层级不跳级；
+  // 按钮补 aria-label，避免屏幕阅读器听到一串同名的「打开演示」。
   grid.innerHTML = INTERACTIVES.map((c) => `
     <div class="interactive-card">
       <div class="interactive-card-icon" aria-hidden="true">${c.icon}</div>
-      <h3 class="interactive-card-title">${c.title}</h3>
+      <h2 class="interactive-card-title">${c.title}</h2>
       <p class="interactive-card-desc">${c.desc}</p>
-      <button class="interactive-open-btn" type="button" data-id="${c.id}">打开演示</button>
+      <button class="interactive-open-btn" type="button" data-id="${c.id}" aria-label="打开演示：${c.title}">打开演示</button>
     </div>`).join("");
   grid.querySelectorAll(".interactive-open-btn").forEach((btn) => {
     btn.addEventListener("click", () => openInteractive(btn.dataset.id));
@@ -869,6 +899,7 @@ function openInteractive(id) {
   if (!frame) {
     frame = document.createElement("iframe");
     frame.className = "interactive-frame";
+    frame.title = "互动演示";           // iframe 必须有可访问名称
     frame.setAttribute("sandbox", "allow-scripts allow-same-origin allow-popups allow-forms");
     frame.src = "about:blank";          // 默认不加载任何组件
     panel.appendChild(frame);
@@ -879,7 +910,8 @@ function openInteractive(id) {
     frame.src = comp.file;
     frame.setAttribute("data-comp", comp.id);
   }
-  frame.scrollIntoView({ behavior: "smooth", block: "start" });
+  frame.scrollIntoView({ behavior: prefersReducedMotion() ? "auto" : "smooth", block: "start" });
+  announce(`已打开演示：${comp.title}`);
 }
 
 function showInteractive() {
@@ -899,9 +931,7 @@ function showInteractive() {
   if (box) box.hidden = true;
   if (inpageTocObserver) { inpageTocObserver.disconnect(); inpageTocObserver = null; }
   // 高亮侧边栏入口（其余 nav 取消高亮）
-  document.querySelectorAll("#toc a").forEach((a) =>
-    a.classList.toggle("active", a.id === "nav-interactive")
-  );
+  markNavActive((a) => a.id === "nav-interactive");
   // 卡片只渲染一次（iframe 切换时不应重建列表）
   if (!panel.dataset.rendered) {
     renderInteractiveGrid();
@@ -910,12 +940,14 @@ function showInteractive() {
     if (!frame) {
       frame = document.createElement("iframe");
       frame.className = "interactive-frame";
+      frame.title = "互动演示";           // iframe 必须有可访问名称
       frame.setAttribute("sandbox", "allow-scripts allow-same-origin allow-popups allow-forms");
       frame.src = "about:blank";
       panel.appendChild(frame);
     }
     panel.dataset.rendered = "1";
   }
+  announce("已打开互动演示");
   window.scrollTo(0, 0);
   hideBackToTop();
   updateProgress();                       // 算作额外内容，不影响章节进度
@@ -1391,7 +1423,10 @@ window.addEventListener("keydown", (e) => {
   const box = document.getElementById("inpage-toc");
   const btn = document.getElementById("inpage-toc-toggle");
   if (!box || !btn) return;
-  btn.addEventListener("click", () => box.classList.toggle("collapsed"));
+  btn.addEventListener("click", () => {
+    box.classList.toggle("collapsed");
+    syncInpageTocExpanded(box);
+  });
 })();
 
 // ---------- 启动 ----------
