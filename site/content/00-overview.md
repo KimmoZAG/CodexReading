@@ -60,3 +60,53 @@ https://github.com/openai/codex/blob/main/codex-rs/core/src/codex_thread.rs#L463
 （行号会随版本漂移，但函数和结构体名基本稳定，靠名字搜更靠谱。）
 
 下一章，我们先把这片 crate 的森林，变成一张你能记住的地图。
+
+## 章节速览
+
+按难度分四组，每组列出该组全部章节，点击可直达内页。
+
+### 入门
+
+- [引子：Codex 到底是什么](#/read/00-overview)
+- [第 1 章：仓库地形图](#/read/01-repo-map)
+
+### 进阶
+
+- [第 2 章：进程模型](#/read/02-process-model)
+- [第 3 章：codex-core 公共 API](#/read/03-core-api)
+- [第 4 章：主循环 run_turn](#/read/04-turn-loop)
+- [第 5 章：工具系统](#/read/05-tools)
+- [第 6 章：沙箱](#/read/06-sandbox)
+- [第 7 章：TUI](#/read/07-tui)
+- [第 8 章：协议与 app-server](#/read/08-protocol)
+- [第 9 章：配置系统](#/read/09-config)
+
+### 深入
+
+- [第 11 章：exec-server 执行链路](#/read/11-exec-server)
+- [第 12 章：模型客户端与流式响应](#/read/12-model-client)
+- [第 13 章：配置分层](#/read/13-config-layers)
+- [第 14 章：Hooks 系统](#/read/14-hooks)
+- [第 15 章：Skills 系统](#/read/15-skills)
+- [第 16 章：MCP 接入](#/read/16-mcp)
+- [第 17 章：上下文压缩](#/read/17-compact)
+- [第 18 章：Rollout 与回放](#/read/18-rollout)
+- [第 19 章：登录与鉴权](#/read/19-auth)
+- [第 20 章：插件系统](#/read/20-plugins)
+- [第 21 章：审批策略](#/read/21-approval)
+- [第 22 章：TUI 内部](#/read/22-tui-internals)
+- [第 23 章：协议与类型生成](#/read/23-protocol-ts)
+- [第 24 章：多环境](#/read/24-environments)
+- [第 25 章：Realtime](#/read/25-realtime)
+- [第 26 章：测试策略](#/read/26-testing)
+- [第 27 章：错误处理](#/read/27-error-handling)
+- [第 28 章：异步运行时](#/read/28-async)
+- [第 29 章：构建系统](#/read/29-build)
+- [第 30 章：安装与分发](#/read/30-installer)
+
+### 参考
+
+- [术语表](#/read/glossary)
+- [架构全景](#/read/architecture)
+- [关于本指南](#/read/about)
+- [收尾：阅读路线](#/read/10-roadmap)
