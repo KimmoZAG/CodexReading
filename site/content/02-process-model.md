@@ -45,6 +45,23 @@ codex (cli) ──启动──► app-server ──内部持有──► codex-c
 
 为什么要这么绕？一句话：**模型产出的指令不可信**。让"执行危险操作"的代码跑在一个和"持有你登录令牌、持有会话上下文"的代码不同的进程、甚至不同的沙箱里，能把一次 prompt injection 的爆炸半径压到最小。第 6 章会展开。
 
+```mermaid
+graph TD
+    subgraph cli_proc["cli 进程"]
+        cli["cli<br/>登录态 / 参数 / 界面层"]
+    end
+    subgraph app_proc["app-server 进程（常驻）"]
+        app["app-server<br/>codex-core 宿主"]
+        core["codex-core<br/>会话 + 采样循环"]
+    end
+    subgraph exec_proc["exec-server 进程（沙箱内）"]
+        exec["exec-server<br/>执行 shell 命令"]
+    end
+    cli --> app
+    app --> core
+    app --> exec
+```
+
 ## 2.3 两条典型链路
 
 **交互式（`codex` 进 TUI）**

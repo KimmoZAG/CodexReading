@@ -8,10 +8,76 @@
   <link rel="stylesheet" href="css/styles.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" id="hljs-light" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css" id="hljs-dark" disabled />
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "TechArticle",
+    "name": "Codex 阅读指南",
+    "headline": "Codex 阅读指南 · codex-rs 源码导读",
+    "description": "OpenAI Codex（codex-rs）仓库的由浅入深阅读指南：三进程模型、codex-core 主循环、工具系统、沙箱、协议与配置。",
+    "inLanguage": "zh-CN",
+    "author": {
+      "@type": "Person",
+      "name": "Codex 阅读指南维护者",
+      "url": "https://github.com/openai/codex"
+    },
+    "maintainer": {
+      "@type": "Person",
+      "name": "Codex 阅读指南维护者",
+      "url": "https://github.com/openai/codex"
+    },
+    "about": {
+      "@type": "SoftwareSourceCode",
+      "name": "codex-rs",
+      "codeRepository": "https://github.com/openai/codex"
+    },
+    "hasPart": [
+      { "@type": "Chapter", "name": "引子：Codex 到底是什么", "url": "#/read/00-overview", "identifier": "00-overview" },
+      { "@type": "Chapter", "name": "第 1 章：仓库地形图", "url": "#/read/01-repo-map", "identifier": "01-repo-map" },
+      { "@type": "Chapter", "name": "第 2 章：进程模型", "url": "#/read/02-process-model", "identifier": "02-process-model" },
+      { "@type": "Chapter", "name": "第 3 章：codex-core 公共 API", "url": "#/read/03-core-api", "identifier": "03-core-api" },
+      { "@type": "Chapter", "name": "第 4 章：主循环 run_turn", "url": "#/read/04-turn-loop", "identifier": "04-turn-loop" },
+      { "@type": "Chapter", "name": "第 5 章：工具系统", "url": "#/read/05-tools", "identifier": "05-tools" },
+      { "@type": "Chapter", "name": "第 6 章：沙箱", "url": "#/read/06-sandbox", "identifier": "06-sandbox" },
+      { "@type": "Chapter", "name": "第 7 章：TUI", "url": "#/read/07-tui", "identifier": "07-tui" },
+      { "@type": "Chapter", "name": "第 8 章：协议与 app-server", "url": "#/read/08-protocol", "identifier": "08-protocol" },
+      { "@type": "Chapter", "name": "第 9 章：配置系统", "url": "#/read/09-config", "identifier": "09-config" },
+      { "@type": "Chapter", "name": "第 11 章：exec-server 执行链路", "url": "#/read/11-exec-server", "identifier": "11-exec-server" },
+      { "@type": "Chapter", "name": "第 12 章：模型客户端与流式响应", "url": "#/read/12-model-client", "identifier": "12-model-client" },
+      { "@type": "Chapter", "name": "第 13 章：配置分层", "url": "#/read/13-config-layers", "identifier": "13-config-layers" },
+      { "@type": "Chapter", "name": "第 14 章：Hooks 系统", "url": "#/read/14-hooks", "identifier": "14-hooks" },
+      { "@type": "Chapter", "name": "第 15 章：Skills 系统", "url": "#/read/15-skills", "identifier": "15-skills" },
+      { "@type": "Chapter", "name": "第 16 章：MCP 接入", "url": "#/read/16-mcp", "identifier": "16-mcp" },
+      { "@type": "Chapter", "name": "第 17 章：上下文压缩", "url": "#/read/17-compact", "identifier": "17-compact" },
+      { "@type": "Chapter", "name": "第 18 章：Rollout 与回放", "url": "#/read/18-rollout", "identifier": "18-rollout" },
+      { "@type": "Chapter", "name": "第 19 章：登录与鉴权", "url": "#/read/19-auth", "identifier": "19-auth" },
+      { "@type": "Chapter", "name": "第 20 章：插件系统", "url": "#/read/20-plugins", "identifier": "20-plugins" },
+      { "@type": "Chapter", "name": "第 21 章：审批策略", "url": "#/read/21-approval", "identifier": "21-approval" },
+      { "@type": "Chapter", "name": "第 22 章：TUI 内部", "url": "#/read/22-tui-internals", "identifier": "22-tui-internals" },
+      { "@type": "Chapter", "name": "第 23 章：协议与类型生成", "url": "#/read/23-protocol-ts", "identifier": "23-protocol-ts" },
+      { "@type": "Chapter", "name": "第 24 章：多环境", "url": "#/read/24-environments", "identifier": "24-environments" },
+      { "@type": "Chapter", "name": "第 25 章：Realtime", "url": "#/read/25-realtime", "identifier": "25-realtime" },
+      { "@type": "Chapter", "name": "第 26 章：测试策略", "url": "#/read/26-testing", "identifier": "26-testing" },
+      { "@type": "Chapter", "name": "第 27 章：错误处理", "url": "#/read/27-error-handling", "identifier": "27-error-handling" },
+      { "@type": "Chapter", "name": "第 28 章：异步运行时", "url": "#/read/28-async", "identifier": "28-async" },
+      { "@type": "Chapter", "name": "第 29 章：构建系统", "url": "#/read/29-build", "identifier": "29-build" },
+      { "@type": "Chapter", "name": "第 30 章：安装与分发", "url": "#/read/30-installer", "identifier": "30-installer" },
+      { "@type": "Chapter", "name": "术语表", "url": "#/read/glossary", "identifier": "glossary" },
+      { "@type": "Chapter", "name": "架构全景", "url": "#/read/architecture", "identifier": "architecture" },
+      { "@type": "Chapter", "name": "收尾：阅读路线", "url": "#/read/10-roadmap", "identifier": "10-roadmap" }
+    ]
+  }
+  </script>
 </head>
 <body>
+  <!-- 窄屏抽屉：汉堡按钮 + 半透明遮罩（桌面端由 CSS 隐藏） -->
+  <button id="menu-toggle" class="menu-toggle" type="button"
+          aria-label="打开章节菜单" aria-controls="sidebar" aria-expanded="false">☰</button>
+  <div id="sidebar-overlay" class="sidebar-overlay" aria-hidden="true"></div>
+
   <div class="layout">
-    <aside class="sidebar">
+    <aside class="sidebar" id="sidebar">
       <div class="brand">
         <div class="brand-mark">Cx</div>
         <div class="brand-text">
@@ -33,13 +99,26 @@
     </aside>
 
     <main class="content" id="content">
+      <div id="progress-bar"></div>
+      <aside class="page-toc" id="page-toc" hidden>
+        <button class="page-toc-toggle" id="page-toc-toggle" type="button" aria-expanded="true">
+          本页目录 <span class="page-toc-chev">▾</span>
+        </button>
+        <nav class="page-toc-list" id="page-toc-list"></nav>
+      </aside>
       <article class="markdown" id="article">
         <p class="loading">正在加载…</p>
       </article>
+
+      <footer id="site-footer">
+        <p class="footer-note">本指南为 codex-rs 仓库的源码导读，引用位置随上游版本可能漂移，以函数/结构体名为准。</p>
+        <p class="footer-meta">最后更新：2026-08-21 · <a href="https://github.com/openai/codex" target="_blank" rel="noopener">openai/codex ↗</a></p>
+      </footer>
     </main>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
   <script src="js/app.js"></script>
 </body>

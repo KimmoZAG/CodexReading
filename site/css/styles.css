@@ -32,6 +32,8 @@ html[data-theme="dark"] {
 * { box-sizing: border-box; }
 
 html, body { margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }   /* 锚点跳转平滑滚动 */
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
 
 body {
   font-family: var(--sans);
@@ -83,10 +85,12 @@ body {
 
 .toc { display: flex; flex-direction: column; gap: 2px; flex: 1; }
 .toc a {
-  display: block; text-decoration: none; color: var(--text-soft);
+  display: flex; align-items: center; gap: 8px;
+  text-decoration: none; color: var(--text-soft);
   font-size: 13.5px; padding: 8px 10px; border-radius: 9px;
   border-left: 2px solid transparent; transition: .15s;
 }
+.toc-title { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .toc a:hover { background: var(--bg-soft); color: var(--text); }
 .toc a.active {
   background: var(--accent-soft); color: var(--accent);
@@ -103,15 +107,93 @@ body {
 .ext-link { font-size: 12.5px; color: var(--text-faint); text-decoration: none; padding-left: 4px; }
 .ext-link:hover { color: var(--accent); }
 
+/* ---------- 窄屏抽屉：汉堡按钮 + 遮罩 ----------
+   桌面端两者都 display:none，完全不参与布局；
+   窄屏（<=860px）下才显示，见文件末尾 Responsive 段。 */
+.menu-toggle {
+  display: none;
+  position: fixed;
+  top: 10px;
+  left: 12px;
+  z-index: 80;
+  width: 40px;
+  height: 36px;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  line-height: 1;
+  color: var(--text-soft);
+  background: color-mix(in srgb, var(--panel) 88%, transparent);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: var(--shadow);
+  cursor: pointer;
+}
+.menu-toggle:hover { color: var(--text); }
+
+.sidebar-overlay { display: none; }
+
 /* ---------- Content ---------- */
+/* 顶部阅读进度条：固定贴在内容区顶部（避开左侧栏），细条 + accent 色 + 平滑过渡 */
+#progress-bar {
+  position: fixed;
+  top: 0;
+  left: 312px;            /* 与侧边栏宽度一致，避免压在侧边栏上 */
+  right: 0;
+  height: 3px;
+  width: 0%;
+  background: var(--accent);
+  z-index: 50;
+  transition: width .15s ease-out;
+  pointer-events: none;
+}
 .content { padding: 56px 40px 120px; }
 .markdown {
   max-width: 760px; margin: 0 auto;
   font-size: 16px;
 }
+
+/* 正文外的站点页脚：与正文同宽居中、顶部细分割线、灰字小号 */
+#site-footer {
+  max-width: 760px;
+  margin: 48px auto 0;
+  padding-top: 18px;
+  border-top: 1px solid var(--border);
+  text-align: center;
+}
+#site-footer p { margin: 4px 0; }
+#site-footer .footer-note {
+  font-size: 13px;
+  color: var(--text-faint);
+  line-height: 1.6;
+}
+#site-footer .footer-meta {
+  font-size: 12.5px;
+  color: var(--text-faint);
+}
+#site-footer .footer-meta a {
+  color: var(--text-soft);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+}
+#site-footer .footer-meta a:hover {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
 .markdown h1 { font-size: 30px; line-height: 1.3; margin: 0 0 8px; letter-spacing: -.4px; }
+/* 阅读时长标签：标题下、正文前的小灰字 */
+.reading-time {
+  margin: 0 0 18px;
+  color: var(--text-faint);
+  font-size: 12.5px;
+  line-height: 1.4;
+}
 .markdown h2 { font-size: 22px; margin: 44px 0 14px; padding-top: 10px; letter-spacing: -.2px; }
 .markdown h3 { font-size: 17.5px; margin: 30px 0 10px; }
+/* 锚点跳转时不被顶部进度条遮挡 */
+.markdown h1, .markdown h2, .markdown h3 { scroll-margin-top: 24px; }
 .markdown p { margin: 14px 0; color: var(--text); }
 .markdown ul, .markdown ol { padding-left: 22px; margin: 14px 0; }
 .markdown li { margin: 6px 0; }
@@ -126,11 +208,39 @@ body {
   background: var(--code-bg); padding: 2px 6px; border-radius: 6px;
 }
 .markdown pre {
+  position: relative;                       /* 作为复制按钮的绝对定位参照 */
   background: var(--code-bg); border: 1px solid var(--border);
   border-radius: 12px; padding: 16px 18px; overflow-x: auto; margin: 18px 0;
   box-shadow: var(--shadow);
 }
 .markdown pre code { background: none; padding: 0; font-size: 13px; line-height: 1.6; }
+/* 代码块右上角的「复制」按钮：半透明、hover 明显；不影响高亮与 mermaid */
+.copy-btn {
+  position: absolute; top: 8px; right: 8px; z-index: 2;
+  font-family: var(--sans); font-size: 12px; line-height: 1;
+  padding: 5px 9px; color: var(--text-soft);
+  background: color-mix(in srgb, var(--panel) 80%, transparent);
+  border: 1px solid var(--border); border-radius: 8px; cursor: pointer;
+  opacity: .6;
+  transition: opacity .15s, color .15s, background .15s, border-color .15s;
+  backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+}
+.copy-btn:hover {
+  opacity: 1; color: var(--text);
+  border-color: var(--accent); background: var(--accent-soft);
+}
+.copy-btn.copied {
+  opacity: 1; color: var(--accent);
+  border-color: var(--accent); background: var(--accent-soft);
+}
+/* mermaid 架构图容器：居中、允许横向滚动，避免大图溢出 */
+.markdown .mermaid {
+  display: flex; justify-content: center;
+  background: var(--panel); border: 1px solid var(--border);
+  border-radius: 12px; padding: 18px; margin: 18px 0;
+  overflow-x: auto; box-shadow: var(--shadow);
+}
+.markdown .mermaid svg { max-width: 100%; height: auto; }
 .markdown table {
   width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 14px;
 }
@@ -141,6 +251,22 @@ body {
 .markdown .src-cite {
   display: inline-block; font-family: var(--mono); font-size: 12px;
   color: var(--text-faint); margin-left: 6px;
+}
+
+/* 源码引用：正文里 path/file.rs:153 自动变成可点击的 GitHub 链接。
+   accent 色 + 细下划线，hover 时高亮。在行内 code 内也适用（已是 mono 字体）。 */
+.markdown a.cite {
+  color: var(--accent);
+  font-family: var(--mono);
+  font-size: .9em;
+  text-decoration: none;
+  border-bottom: 1px solid color-mix(in srgb, var(--accent) 40%, transparent);
+  border-radius: 3px;
+  transition: color .15s, border-color .15s, background .15s;
+}
+.markdown a.cite:hover {
+  border-bottom-color: var(--accent);
+  background: var(--accent-soft);
 }
 
 /* ---------- Repo map ---------- */
@@ -170,9 +296,254 @@ body {
 
 .loading { color: var(--text-faint); }
 
+/* ---------- Chapter nav ---------- */
+.chap-nav {
+  display: flex; justify-content: space-between; gap: 16px;
+  margin-top: 56px; padding-top: 24px; border-top: 1px solid var(--border);
+}
+.chap-nav-link {
+  flex: 1; text-decoration: none; color: var(--text-soft);
+  border: 1px solid var(--border); border-radius: 12px;
+  padding: 14px 18px; font-size: 14px; background: var(--panel); transition: .15s;
+}
+.chap-nav-link:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
+.chap-nav-link.prev { text-align: left; }
+.chap-nav-link.next { text-align: right; }
+
+/* ---------- 本页目录（页内锚点浮层） ----------
+   桌面：固定在内容区右侧留白处，半透明小卡片；
+   移动端：可收起，默认折叠为悬浮按钮。 */
+.page-toc {
+  position: fixed;
+  top: 88px;
+  right: 24px;
+  width: 224px;
+  max-height: calc(100vh - 120px);
+  overflow-y: auto;
+  z-index: 40;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--panel) 82%, transparent);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: var(--shadow);
+  font-size: 13px;
+}
+.page-toc[hidden] { display: none; }
+.page-toc-toggle {
+  display: none;            /* 桌面端标题栏隐藏，目录常开 */
+  width: 100%; align-items: center; justify-content: space-between;
+  background: transparent; border: none; color: var(--text);
+  font-size: 13px; font-weight: 600; cursor: pointer; padding: 2px 2px 8px;
+}
+.page-toc-chev { transition: transform .2s; }
+.page-toc.collapsed .page-toc-chev { transform: rotate(-90deg); }
+.page-toc-list { display: flex; flex-direction: column; gap: 1px; }
+.page-toc-link {
+  display: block; text-decoration: none; color: var(--text-soft);
+  padding: 5px 8px; border-radius: 8px; border-left: 2px solid transparent;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; transition: .15s;
+}
+.page-toc-link:hover { background: var(--bg-soft); color: var(--text); }
+.page-toc-link.active {
+  background: var(--accent-soft); color: var(--accent);
+  border-left-color: var(--accent); font-weight: 600;
+}
+.page-toc-link.h3 { padding-left: 20px; font-size: 12.5px; color: var(--text-faint); }
+
 /* ---------- Responsive ---------- */
+/* 屏幕不够宽（无右侧留白）时，本页目录改为右下角可收起的悬浮卡片，
+   避免遮挡正文；仅在宽度 >= 1152px 时才有右侧留白容纳固定目录。 */
+@media (max-width: 1151px) {
+  .page-toc {
+    top: auto; bottom: 16px; right: 16px; left: auto;
+    width: auto; max-width: 72vw; max-height: 60vh;
+    padding: 8px 12px;
+  }
+  .page-toc-toggle { display: flex; }
+  .page-toc.collapsed { max-height: none; }
+  .page-toc.collapsed .page-toc-list { display: none; }
+}
+
+/* 窄屏：侧边栏变成从左滑出的抽屉。默认整体移出视口（translateX(-100%)），
+   加 .open 类滑入；遮罩层点击可关闭。侧边栏 position:fixed 后脱离网格流，
+   正文独占单列，顶部留出汉堡按钮的位置。 */
 @media (max-width: 860px) {
   .layout { grid-template-columns: 1fr; }
-  .sidebar { position: relative; height: auto; border-right: none; border-bottom: 1px solid var(--border); }
-  .content { padding: 32px 20px 80px; }
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 70;
+    width: min(86vw, 320px);
+    height: 100vh;
+    height: 100dvh;
+    overflow-y: auto;
+    border-right: 1px solid var(--border);
+    transform: translateX(-100%);
+    transition: transform .26s ease;
+  }
+  .sidebar.open { transform: translateX(0); box-shadow: var(--shadow); }
+
+  .menu-toggle { display: flex; }
+  .sidebar-overlay {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 60;
+    background: rgba(15, 17, 21, .45);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .25s ease;
+  }
+  .sidebar-overlay.show { opacity: 1; pointer-events: auto; }
+
+  .content { padding: 60px 20px 80px; }
+  #progress-bar { left: 0; }
+}
+
+@media (max-width: 860px) and (prefers-reduced-motion: reduce) {
+  .sidebar, .sidebar-overlay { transition: none; }
+}
+
+/* ---------- 快捷键帮助浮层 ---------- */
+/* 半透明遮罩 + 居中卡片；点击遮罩或按 Esc 关闭 */
+.help-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(15, 17, 21, .5);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+}
+.help-overlay[hidden] { display: none; }
+.help-card {
+  width: min(360px, 92vw);
+  max-height: 86vh;
+  overflow-y: auto;
+  padding: 22px 24px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+.help-title { margin: 0 0 14px; font-size: 17px; }
+.help-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.help-list li { display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--text-soft); }
+.help-list span { margin-left: auto; }
+kbd {
+  font-family: var(--mono);
+  font-size: 12.5px;
+  min-width: 22px;
+  text-align: center;
+  padding: 3px 8px;
+  border: 1px solid var(--border);
+  border-bottom-width: 2px;
+  border-radius: 7px;
+  background: var(--bg-soft);
+  color: var(--text);
+}
+
+/* ---------- 章节难度徽标 ----------
+   小巧圆角、浅底深字；颜色按 level 区分（入门绿 / 进阶蓝 / 深入橙 / 参考灰）。 */
+.level-badge {
+  display: inline-flex; align-items: center; justify-content: center;
+  flex: none;
+  font-family: var(--sans);
+  font-size: 11px; line-height: 1; font-weight: 600;
+  padding: 3px 7px; border-radius: 999px;
+  white-space: nowrap;
+  border: 1px solid transparent;
+}
+.level-badge.beginner     { color: #1a7f4b; background: #e7f6ee; border-color: #c7ebd6; }
+.level-badge.intermediate { color: #3b4fc4; background: #e9ecfb; border-color: #cdd3f3; }
+.level-badge.advanced     { color: #b4690e; background: #fdf0e1; border-color: #f6dcc0; }
+.level-badge.reference    { color: #5b6470; background: #eef0f2; border-color: #dfe2e6; }
+
+html[data-theme="dark"] .level-badge.beginner     { color: #6ee7a8; background: #16301f; border-color: #234a34; }
+html[data-theme="dark"] .level-badge.intermediate { color: #a9adf7; background: #1d2040; border-color: #2c2f55; }
+html[data-theme="dark"] .level-badge.advanced     { color: #f3b673; background: #33240f; border-color: #4d3717; }
+html[data-theme="dark"] .level-badge.reference    { color: #aab2c0; background: #1c2029; border-color: #2c323c; }
+
+/* 章节标题下方的难度徽标（showChapter 时插入） */
+.chapter-level { margin: 0 0 16px; }
+
+/* ---------- 打印 / 导出 PDF ----------
+   目标：去掉一切界面装饰，只留正文阅读稿。 */
+@page { margin: 16mm 14mm; }
+
+@media print {
+  /* 隐藏交互 / 界面元素：侧边栏、进度条、本页目录浮层、
+     复制按钮、帮助浮层、移动端汉堡、抽屉遮罩 */
+  .sidebar,
+  #progress-bar,
+  .page-toc,
+  .copy-btn,
+  .help-overlay,
+  .menu-toggle,
+  .sidebar-overlay,
+  .reading-time {
+    display: none !important;
+  }
+
+  /* 放弃左右两栏网格，正文独占整页 */
+  .layout { display: block; }
+  .content {
+    padding: 0;
+    max-width: none;
+  }
+
+  /* 正文占满整页，去掉卡片阴影与圆角 */
+  .markdown {
+    max-width: none;
+    margin: 0;
+    box-shadow: none;
+    border-radius: 0;
+  }
+
+  /* 保留代码块 / mermaid 边框，去掉阴影与圆角；
+     长代码可换行，整块尽量不断页 */
+  .markdown pre,
+  .markdown .mermaid {
+    box-shadow: none;
+    border-radius: 0;
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+  .markdown pre {
+    white-space: pre-wrap;
+    word-break: break-word;
+    overflow-wrap: break-word;
+  }
+
+  /* 内容卡片（章节导航 / crate 卡片）同样去阴影圆角 */
+  .crate-card,
+  .chap-nav-link {
+    box-shadow: none;
+    border-radius: 0;
+  }
+
+  /* 链接：去掉下划线 / 边框干扰 */
+  .markdown a {
+    color: var(--text);
+    text-decoration: none;
+    border-bottom: none;
+  }
+
+  /* 标题避免孤行在页尾 */
+  .markdown h1,
+  .markdown h2,
+  .markdown h3 {
+    page-break-after: avoid;
+    break-after: avoid;
+    break-inside: avoid;
+  }
+
+  /* 确保代码高亮 / 配色在打印时保留 */
+  body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 }
